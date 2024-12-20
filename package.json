@@ -1,0 +1,15 @@
+{
+  "name": "vestaboard-apps",
+  "version": "1.0.0",
+  "main": "apps/clock/index.js",
+  "scripts": {
+    "start": "node apps/clock/index.js",
+    "dev": "nodemon apps/clock/index.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.3"
+  }
+}
