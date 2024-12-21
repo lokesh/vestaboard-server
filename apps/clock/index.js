@@ -1,31 +1,31 @@
-require('dotenv').config();
+import 'dotenv/config';
+import { writeText } from '../../utils/index.js';
 
-// READ FROM BOARD
-// await fetch("https://rw.vestaboard.com/", {
-//   headers: {
-//     "Content-Type": "application/json",
-//     "X-Vestaboard-Read-Write-Key": process.env.VESTABOARD_READ_WRITE_API_KEY,
-//   },
-//   method: "GET",
-// }).then(async (res) => {
-//   let data = await res.json();
-//   console.log(data);
-// });
+function getCurrentTime() {
+    const options = {
+        timeZone: 'America/Los_Angeles',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+    };
+    
+    const timeString = new Date().toLocaleTimeString('en-US', options);
+    
+    // Split time into hours and minutes/period
+    const [time, period] = timeString.split(' ');
+    const [hours] = time.split(':');
+    
+    // Add space before single-digit hours
+    const formattedHours = parseInt(hours) < 10 ? ` ${hours}` : hours;
+    
+    // Reconstruct the time string
+    return `${formattedHours}:${time.split(':')[1]} ${period}`;
+}
+
+const currentTime = getCurrentTime();
+console.log(currentTime);
 
 // WRITE TO BOARD
-// await fetch("https://rw.vestaboard.com/", {
-//   body: JSON.stringify([
-//     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-//     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-//     [0, 0, 0, 0, 0, 8, 5, 12, 12, 15, 0, 23, 15, 18, 12, 4, 0, 0, 0, 0, 0, 0],
-//     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-//     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-//     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-//   ]),
-//   headers: {
-//     "Content-Type": "application/json",
-//     "X-Vestaboard-Read-Write-Key": process.env.VESTABOARD_READ_WRITE_API_KEY,
-//   },
-//   method: "POST",
-// }).then((res) => res.json());
+const response = await writeText(currentTime);
 
+console.log(response);

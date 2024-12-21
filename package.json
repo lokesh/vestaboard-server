@@ -2,6 +2,7 @@
   "name": "vestaboard-apps",
   "version": "1.0.0",
   "main": "apps/clock/index.js",
+  "type": "module",
   "scripts": {
     "start": "node apps/clock/index.js",
     "dev": "nodemon apps/clock/index.js"
