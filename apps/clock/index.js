@@ -22,10 +22,18 @@ function getCurrentTime() {
     return `${formattedHours}:${time.split(':')[1]} ${period}`;
 }
 
-const currentTime = getCurrentTime();
-console.log(currentTime);
+// Update board immediately on start
+updateBoard();
 
-// WRITE TO BOARD
-const response = await writeText(currentTime);
+// Then update every minute
+setInterval(updateBoard, 60000);
 
-console.log(response);
+// Separate function to handle the update
+async function updateBoard() {
+    const currentTime = getCurrentTime();
+    console.log(currentTime);
+    
+    // WRITE TO BOARD
+    const response = await writeText(currentTime);
+    console.log(response);
+}

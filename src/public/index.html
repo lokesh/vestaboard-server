@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vestaboard Control Panel</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .status-panel {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+        .control-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        .button.active {
+            background-color: #28a745;
+        }
+        .debug-toggle {
+            margin-top: 20px;
+        }
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .status-label {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Vestaboard Control Panel</h1>
+        
+        <div class="status-panel">
+            <h2>Current Status</h2>
+            <div class="status-item">
+                <span class="status-label">Current Mode:</span>
+                <span id="current-mode">Loading...</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Debug Mode:</span>
+                <span id="debug-status">Loading...</span>
+            </div>
+        </div>
+
+        <div class="control-panel">
+            <button class="button" onclick="setMode('MANUAL')">Manual Mode</button>
+            <button class="button" onclick="setMode('CLOCK')">Clock Mode</button>
+            <button class="button" onclick="setMode('WEATHER')">Weather Mode</button>
+            <button class="button" onclick="setMode('CALENDAR')">Calendar Mode</button>
+        </div>
+
+        <div class="debug-toggle">
+            <button class="button" id="debug-toggle" onclick="toggleDebug()">
+                Toggle Debug Mode
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Function to update the UI with current status
+        async function updateStatus() {
+            try {
+                const response = await fetch('/api/status');
+                const data = await response.json();
+                
+                document.getElementById('current-mode').textContent = data.currentMode;
+                document.getElementById('debug-status').textContent = data.debugMode ? 'Enabled' : 'Disabled';
+                
+                // Update button states
+                document.querySelectorAll('.control-panel .button').forEach(button => {
+                    const mode = button.textContent.replace(' Mode', '').toUpperCase();
+                    button.classList.toggle('active', mode === data.currentMode);
+                });
+            } catch (error) {
+                console.error('Error fetching status:', error);
+            }
+        }
+
+        // Function to set mode
+        async function setMode(mode) {
+            try {
+                await fetch('/api/mode', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ mode })
+                });
+                updateStatus();
+            } catch (error) {
+                console.error('Error setting mode:', error);
+            }
+        }
+
+        // Function to toggle debug mode
+        async function toggleDebug() {
+            try {
+                await fetch('/api/debug/toggle', {
+                    method: 'POST'
+                });
+                updateStatus();
+            } catch (error) {
+                console.error('Error toggling debug mode:', error);
+            }
+        }
+
+        // Update status every 5 seconds
+        updateStatus();
+        setInterval(updateStatus, 5000);
+    </script>
+</body>
+</html> 

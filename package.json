@@ -1,16 +1,22 @@
 {
   "name": "vestaboard-apps",
   "version": "1.0.0",
-  "main": "apps/clock/index.js",
-  "type": "module",
+  "description": "Display board server with multiple modes",
+  "main": "src/app.js",
   "scripts": {
-    "start": "node apps/clock/index.js",
-    "dev": "nodemon apps/clock/index.js"
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js",
+    "lint": "eslint .",
+    "test": "jest"
   },
   "dependencies": {
-    "dotenv": "^16.4.7"
+    "express": "^4.18.2",
+    "node-cron": "^3.0.3",
+    "node-fetch": "^3.3.2"
   },
   "devDependencies": {
-    "nodemon": "^3.0.3"
-  }
+    "eslint": "^8.56.0",
+    "nodemon": "^3.0.2"
+  },
+  "type": "module"
 }
