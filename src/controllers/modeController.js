@@ -14,7 +14,7 @@ class ModeController {
     return this.currentMode;
   }
 
-  setMode(mode) {
+  async setMode(mode) {
     if (!Object.values(Mode).includes(mode)) {
       throw new Error('Invalid mode');
     }
@@ -27,12 +27,15 @@ class ModeController {
     // Set up new scheduling based on mode
     switch (mode) {
       case Mode.CLOCK:
+        await this.updateClock(); // Immediate update
         this.setupClockMode();
         break;
       case Mode.WEATHER:
+        await this.updateWeather(); // Immediate update
         this.setupWeatherMode();
         break;
       case Mode.CALENDAR:
+        await this.updateCalendar(); // Immediate update
         this.setupCalendarMode();
         break;
       case Mode.MANUAL:
@@ -41,30 +44,40 @@ class ModeController {
     }
   }
 
+  async updateClock() {
+    const time = new Date().toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    }).replace(/\s/, ' ');
+    await boardService.updateBoard(time);
+  }
+
+  async updateWeather() {
+    const weather = await getWeatherData();
+    await boardService.updateBoard(weather);
+  }
+
+  async updateCalendar() {
+    const events = await getCalendarEvents(3);
+    await boardService.updateBoard(events);
+  }
+
   setupClockMode() {
     // Update every minute
-    const job = cron.schedule('* * * * *', async () => {
-      const time = new Date().toLocaleTimeString();
-      await boardService.updateBoard(time);
-    });
+    const job = cron.schedule('* * * * *', () => this.updateClock());
     this.cronJobs.set('clock', job);
   }
 
   setupWeatherMode() {
     // Update at midnight every day
-    const job = cron.schedule('0 0 * * *', async () => {
-      const weather = await getWeatherData();
-      await boardService.updateBoard(weather);
-    });
+    const job = cron.schedule('0 0 * * *', () => this.updateWeather());
     this.cronJobs.set('weather', job);
   }
 
   setupCalendarMode() {
     // Update every hour
-    const job = cron.schedule('0 * * * *', async () => {
-      const events = await getCalendarEvents(3);
-      await boardService.updateBoard(events);
-    });
+    const job = cron.schedule('0 * * * *', () => this.updateCalendar());
     this.cronJobs.set('calendar', job);
   }
 
