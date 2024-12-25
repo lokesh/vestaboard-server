@@ -3,6 +3,7 @@ import boardService from '../services/boardService.js';
 import { getWeatherData } from '../services/weatherService.js';
 import { getCalendarEvents } from '../services/calendarService.js';
 import cron from 'node-cron';
+import { formatWeatherDescription } from '../utils/weatherFormatter.js';
 
 class ModeController {
   constructor() {
@@ -54,8 +55,55 @@ class ModeController {
   }
 
   async updateWeather() {
-    const weather = await getWeatherData();
-    await boardService.updateBoard(weather);
+    const weatherData = await getWeatherData();
+    
+    // Format the weather data into lines
+    const formattedWeather = weatherData.slice(0, 6).map(row => {
+      const date = new Date(row.date);
+      // Ensure day abbreviation is exactly 3 characters
+      const dayAbbrev = date.toLocaleDateString('en-US', { weekday: 'short' })
+        .toUpperCase()
+        .slice(0, 3);
+      
+      // Format temperature to ensure consistent width
+      // Convert temperature to integer and pad with space to ensure 2 characters
+      // e.g. "75" -> "75", "8" -> " 8"
+      const tempStr = `${Math.round(row.temperature)}`.padStart(2, ' ');
+      
+      // Determine emoji based on temperature and conditions
+      let emoji = '🟪';
+      if (row.temperature >= 40) emoji = '🟩';
+      if (row.temperature >= 55) emoji = '🟨';
+      if (row.temperature >= 70) emoji = '🟧';
+      if (row.temperature >= 80) emoji = '🟥';
+
+      // Check for special conditions
+      const isTonight = new Date().toDateString() === date.toDateString() && 
+                       date.getHours() === 23;
+      
+      // Determine final emoji based on conditions
+      const conditionTable = [
+        ['🟥', ['Hot']],
+        [isTonight ? '⬛' : '🟧', ['Dust', 'Sand']],
+        [isTonight ? '⬛' : emoji, ['Sunny', 'Clear', 'Fair', 'Haze']],
+        [isTonight ? '⬛' : '🟩', ['Windy', 'Breezy', 'Blustery']],
+        ['🟪', ['Frost', 'Cold']],
+        ['⬛', ['Cloud', 'Overcast', 'Fog', 'Smoke', 'Ash', 'Storm']],
+        ['🟦', ['Sleet', 'Spray', 'Rain', 'Shower', 'Spouts', 'Drizzle']],
+        ['⬜', ['Snow', 'Ice', 'Blizzard']]
+      ];
+
+      const finalEmoji = conditionTable.find(([_, conditions]) => 
+        conditions.some(condition => row.shortForecast.includes(condition)))?.[0] || emoji;
+
+      // Format the description
+      const formattedDescription = formatWeatherDescription(row.shortForecast);
+
+      // Format: |XXX 00° [emoji] description| (all on one line)
+      return `${dayAbbrev} ${tempStr} ${finalEmoji}${formattedDescription}`;
+    }).join('\n');
+
+    await boardService.updateBoard(formattedWeather);
   }
 
   async updateCalendar() {

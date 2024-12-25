@@ -128,11 +128,12 @@ class BoardService {
     '.': 56, '/': 59, '?': 60, '°': 62,
     // Special color characters
     'RED': 63, 'ORANGE': 64, 'YELLOW': 65, 'GREEN': 66, 'BLUE': 67,
-    'VIOLET': 68, 'WHITE': 69, 'BLACK': 70, 'FILLED': 71
+    'VIOLET': 68, 'WHITE': 69, 'BLACK': 70, 'FILLED': 71,
+    '🟥': 63, '🟧': 64, '🟨': 65, '🟩': 66, '🟦': 67, '🟪': 68, '⬜': 69, '⬛️': 70
   };
 
   _convertToVestaboardCharacters(message) {
-    console.log('Converting msg: ', characters);
+    console.log('Converting msg: ', message);
     // Split message into lines
     const lines = message.split('\n');
     
@@ -141,8 +142,13 @@ class BoardService {
     
     // Fill in the matrix with the message content, up to 6 lines
     for (let i = 0; i < Math.min(lines.length, 6); i++) {
-      const line = lines[i].padEnd(22, ' ').slice(0, 22);
-      matrix[i] = Array.from(line.toUpperCase()).map(char => this.charMap[char] || 0);
+      const line = lines[i].padEnd(22, ' ');  // Pad the line to 22 characters
+      const chars = Array.from(line.toUpperCase()).slice(0, 22);  // Ensure exactly 22 characters
+      
+      // Convert each character to its Vestaboard code
+      for (let j = 0; j < 22; j++) {
+        matrix[i][j] = this.charMap[chars[j]] || 0;
+      }
     }
     
     return matrix;

@@ -3,10 +3,10 @@ export const getWeatherData = async () => {
     const response = await fetch('https://api.weather.gov/gridpoints/MTR/84,105/forecast');
     const data = await response.json();
 
-    // Filter only daytime periods and get first 5 days
+    // Filter only daytime periods and get first 6 days
     const weatherData = data.properties.periods
       .filter(period => period.isDaytime)
-      .slice(0, 5)
+      .slice(0, 6)
       .map(period => ({
         date: new Date(period.startTime).toLocaleDateString(),
         temperature: period.temperature,
@@ -23,7 +23,7 @@ export const getWeatherData = async () => {
           windSpeed: "3 to 8 mph",
           shortForecast: "Mostly Cloudy then Slight Chance Light Rain"
         },
-        // ... 4 more days
+        // ... 5 more days
       ]
       */
     return weatherData;
