@@ -29,33 +29,6 @@ class BoardService {
     }
   }
 
-  async displayWeather() {
-    try {
-      const weather = await getWeatherData();
-      
-      // Format weather info for display
-      const temperature = Math.round(weather.current.temp);
-      const condition = weather.current.weather[0].main;
-      const humidity = weather.current.humidity;
-      const windSpeed = Math.round(weather.current.wind_speed);
-      
-      // Create board layout
-      const layout = [
-        'Current Weather'.padEnd(22),
-        '-'.repeat(22),
-        `Temp: ${temperature}°F`.padEnd(22),
-        `Condition: ${condition}`.padEnd(22),
-        `Humidity: ${humidity}%`.padEnd(22),
-        `Wind: ${windSpeed} MPH`.padEnd(22)
-      ];
-
-      await this.updateBoard(layout.join('\n'));
-    } catch (error) {
-      console.error('Error displaying weather:', error);
-      throw error;
-    }
-  }
-
   async _postToVestaboard(characters) {
     if (this.debugMode) {
       this._debugPrintBoard(characters);

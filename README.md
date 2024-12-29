@@ -1,3 +1,8 @@
+API: https://docs.vestaboard.com/docs/read-write-api/endpoints/
+Inspo: https://github.com/pathikrit/my-vestaboard/tree/master
+
+
+
 # Project Architecture
 
 This project follows a modular architecture with clear separation of concerns. Here's an overview of how the components are organized:

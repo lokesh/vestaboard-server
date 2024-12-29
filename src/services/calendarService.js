@@ -31,7 +31,11 @@ Object.entries(GOOGLE_OAUTH_CONFIG).forEach(([key, value]) => {
 });
 
 // Scopes required for Google Calendar access
-const SCOPES = ['https://www.googleapis.com/auth/calendar.readonly'];
+const SCOPES = [
+  'https://www.googleapis.com/auth/calendar.readonly',
+  'https://www.googleapis.com/auth/calendar.events.readonly',
+  'https://www.googleapis.com/auth/calendar.calendarlist.readonly'
+];
 
 // Create OAuth2 client
 const createOAuth2Client = () => {
@@ -86,7 +90,6 @@ export const getCalendarEvents = async () => {
     // Set up token refresh callback
     oauth2Client.on('tokens', async (tokens) => {
       if (tokens.refresh_token) {
-        // Store the new tokens
         await tokenService.updateTokens(tokens);
       }
     });
@@ -94,21 +97,73 @@ export const getCalendarEvents = async () => {
     // Create Calendar API client
     const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
 
-    // Calculate start and end of current day in ISO format
+    // First, get list of all calendars
+    const calendarList = await calendar.calendarList.list();
+    
+    // Calculate start of current day and end of 7 days from now in ISO format
     const now = new Date();
     const startOfDay = new Date(now.setHours(0, 0, 0, 0)).toISOString();
-    const endOfDay = new Date(now.setHours(23, 59, 59, 999)).toISOString();
+    const endOfWeek = new Date(now.setDate(now.getDate() + 7)).toISOString();
 
-    // Fetch events
-    const response = await calendar.events.list({
-      calendarId: 'primary',
-      timeMin: startOfDay,
-      timeMax: endOfDay,
-      singleEvents: true,
-      orderBy: 'startTime',
-    });
+    // Fetch events from all calendars
+    const allEvents = await Promise.all(
+      calendarList.data.items.map(async (cal) => {
+        try {
+          const response = await calendar.events.list({
+            calendarId: cal.id,
+            timeMin: startOfDay,
+            timeMax: endOfWeek,
+            singleEvents: true,
+            orderBy: 'startTime',
+          });
+          
+          // Add calendar info to each event and filter out all-day and declined events
+          return response.data.items
+            .filter(event => {
+              // Filter out all-day events (events that only have 'date' and not 'dateTime')
+              const isAllDay = !event.start.dateTime || !event.end.dateTime;
+              if (isAllDay) return false;
 
-    return response.data.items;
+              // Filter out events that span multiple days
+              const startTime = new Date(event.start.dateTime);
+              const endTime = new Date(event.end.dateTime);
+              const isMultiDay = startTime.getDate() !== endTime.getDate();
+              if (isMultiDay) return false;
+
+              // Filter out declined events
+              const attendees = event.attendees || [];
+              const selfAttendee = attendees.find(
+                attendee => attendee.self === true
+              );
+              if (selfAttendee && selfAttendee.responseStatus === 'declined') {
+                return false;
+              }
+
+              return true;
+            })
+            .map(event => ({
+              ...event,
+              calendarId: cal.id,
+              calendarName: cal.summary,
+              backgroundColor: cal.backgroundColor,
+            }));
+        } catch (error) {
+          console.warn(`Failed to fetch events for calendar ${cal.summary}:`, error);
+          return [];
+        }
+      })
+    );
+
+    // Flatten the array of arrays and sort by start time
+    return allEvents
+      .flat()
+      .filter(event => event)
+      .sort((a, b) => {
+        const timeA = new Date(a.start.dateTime);
+        const timeB = new Date(b.start.dateTime);
+        return timeA - timeB;
+      });
+
   } catch (error) {
     console.error('Error fetching calendar events:', error);
     if (error.message === 'No tokens found. Please authenticate first.') {

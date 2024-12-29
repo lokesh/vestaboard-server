@@ -4,6 +4,7 @@ import { getWeatherData } from '../services/weatherService.js';
 import { getCalendarEvents } from '../services/calendarService.js';
 import cron from 'node-cron';
 import { formatWeatherDescription } from '../utils/weatherFormatter.js';
+import { formatCalendarEvents } from '../utils/calendarFormatter.js';
 
 class ModeController {
   constructor() {
@@ -107,8 +108,9 @@ class ModeController {
   }
 
   async updateCalendar() {
-    const events = await getCalendarEvents(3);
-    await boardService.updateBoard(events);
+    const events = await getCalendarEvents(5);
+    const formattedEvents = formatCalendarEvents(events);
+    await boardService.updateBoard(formattedEvents);
   }
 
   setupClockMode() {
