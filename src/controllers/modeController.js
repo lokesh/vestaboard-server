@@ -50,7 +50,8 @@ class ModeController {
     const time = new Date().toLocaleTimeString('en-US', {
       hour: 'numeric',
       minute: '2-digit',
-      hour12: true
+      hour12: true,
+      timeZone: 'America/Los_Angeles'
     }).replace(/\s/, ' ');
     await boardService.updateBoard(time);
   }
@@ -60,9 +61,12 @@ class ModeController {
     
     // Format the weather data into lines
     const formattedWeather = weatherData.slice(0, 6).map(row => {
+      // Convert date to PST
       const date = new Date(row.date);
-      // Ensure day abbreviation is exactly 3 characters
-      const dayAbbrev = date.toLocaleDateString('en-US', { weekday: 'short' })
+      const pstDate = new Date(date.toLocaleString('en-US', {timeZone: 'America/Los_Angeles'}));
+      
+      // Use PST date for day abbreviation
+      const dayAbbrev = pstDate.toLocaleDateString('en-US', { weekday: 'short' })
         .toUpperCase()
         .slice(0, 3);
       
@@ -78,9 +82,11 @@ class ModeController {
       if (row.temperature >= 70) emoji = '🟧';
       if (row.temperature >= 80) emoji = '🟥';
 
-      // Check for special conditions
-      const isTonight = new Date().toDateString() === date.toDateString() && 
-                       date.getHours() === 23;
+      // Check for special conditions using PST time
+      const now = new Date();
+      const pstNow = new Date(now.toLocaleString('en-US', {timeZone: 'America/Los_Angeles'}));
+      const isTonight = pstNow.toDateString() === pstDate.toDateString() && 
+                       pstDate.getHours() === 23;
       
       // Determine final emoji based on conditions
       const conditionTable = [
@@ -114,20 +120,26 @@ class ModeController {
   }
 
   setupClockMode() {
-    // Update every minute
-    const job = cron.schedule('* * * * *', () => this.updateClock());
+    // Update every minute, using PST timezone
+    const job = cron.schedule('* * * * *', () => this.updateClock(), {
+      timezone: 'America/Los_Angeles'
+    });
     this.cronJobs.set('clock', job);
   }
 
   setupWeatherMode() {
-    // Update at 6am, noon, and 6pm every day
-    const job = cron.schedule('0 6,12,18 * * *', () => this.updateWeather());
+    // Update at 6am, noon, and 6pm PST every day
+    const job = cron.schedule('0 6,12,18 * * *', () => this.updateWeather(), {
+      timezone: 'America/Los_Angeles'
+    });
     this.cronJobs.set('weather', job);
   }
 
   setupCalendarMode() {
-    // Update every hour
-    const job = cron.schedule('0 * * * *', () => this.updateCalendar());
+    // Update every hour PST
+    const job = cron.schedule('0 * * * *', () => this.updateCalendar(), {
+      timezone: 'America/Los_Angeles'
+    });
     this.cronJobs.set('calendar', job);
   }
 
