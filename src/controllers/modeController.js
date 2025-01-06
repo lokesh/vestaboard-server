@@ -120,8 +120,8 @@ class ModeController {
   }
 
   setupWeatherMode() {
-    // Update at midnight every day
-    const job = cron.schedule('0 0 * * *', () => this.updateWeather());
+    // Update at 6am, noon, and 6pm every day
+    const job = cron.schedule('0 6,12,18 * * *', () => this.updateWeather());
     this.cronJobs.set('weather', job);
   }
 
