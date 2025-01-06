@@ -8,6 +8,7 @@
     <style>
         body {
             font-family: 'Menlo', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 14px;
             /* background: #ccc; */
         }
         .status-panel {
@@ -44,9 +45,7 @@
         }
         .status-item {
             display: flex;
-            justify-content: space-between;
             margin-bottom: 8px;
-            font-size: 14px;
         }
         .status-label {
             font-weight: 500;
@@ -57,39 +56,40 @@
             padding: 8px;
             margin-bottom: 8px;
             overflow-x: auto;
+            letter-spacing: 0.5em;
+            line-height: 1.4;
+            max-width: 26em;
+            border-radius: 4px;
         }
         #board-content {
             margin: 0;
-            line-height: 1.2;
-            font-size: 14px;
         }
         .calendar-debug {
             margin-top: 8px;
-            font-size: 14px;
         }
         h2 {
             font-size: 16px;
             font-weight: 800;
             text-transform: uppercase;
-            margin: 16px 0 8px 0;
+            margin: 16px 0 0 0 ;
+            padding: 8px 0;
+            border-top: 1px solid #ccc;
         }
         #calendar-events {
+            white-space: pre-wrap;
             font-size: 12px;
-            margin: 8px 0;
-            padding: 8px;
-            background: #f8f9fa;
+            margin: 10px 0;
         }
         #calendar-events-timestamp {
             font-size: 12px;
             color: #666;
-            margin-top: 4px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="board-preview" style="font-family: monospace; background: #2c3e50; color: white; padding: 8px; margin-bottom: 8px; overflow-x: auto;">
-            <pre id="board-content" style="margin: 0; line-height: 1.2;">Loading board content...</pre>
+        <div class="board-preview">
+            <pre id="board-content">Loading board content...</pre>
         </div>
         <script>
             // Define the reverse character map
@@ -175,11 +175,11 @@
                 <button class="button" onclick="fetchCalendarEvents()">Fetch Calendar Events</button>
                 <button class="button" onclick="clearCalendarAuth()">Clear Calendar Auth</button>
             </div>
-            <div class="status-item">
-                <span class="status-label">Latest Events:</span>
+            <div>
+                Latest Events:<br />
                 <div id="calendar-events-container">
-                    <pre id="calendar-events" style="white-space: pre-wrap; font-size: 12px; margin: 10px 0;">No events found</pre>
-                    <div id="calendar-events-timestamp" style="font-size: 12px; color: #666;"></div>
+                    <pre id="calendar-events">No events found</pre>
+                    <div id="calendar-events-timestamp"></div>
                 </div>
             </div>
         </div>
