@@ -3,41 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vestaboard Control Panel</title>
+    <title>Vestaboard</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
     <style>
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .container {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            font-family: 'Menlo', -apple-system, BlinkMacSystemFont, sans-serif;
+            /* background: #ccc; */
         }
         .status-panel {
-            margin-bottom: 20px;
-            padding: 15px;
+            margin-bottom: 8px;
+            padding: 8px;
             background: #f8f9fa;
-            border-radius: 4px;
         }
         .control-panel {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 8px;
+            margin-bottom: 8px;
         }
         .button {
-            padding: 10px 20px;
+            padding: 8px 8px;
+            font-family: 'Menlo', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 12px;
+            text-transform: uppercase;
             border: none;
-            border-radius: 4px;
-            background-color: #007bff;
+            background-color: #000;
             color: white;
             cursor: pointer;
             transition: background-color 0.2s;
+            border-radius: 4px;
         }
         .button:hover {
             background-color: #0056b3;
@@ -46,24 +40,107 @@
             background-color: #28a745;
         }
         .debug-toggle {
-            margin-top: 20px;
+            margin-top: 8px;
         }
         .status-item {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
+            font-size: 14px;
         }
         .status-label {
-            font-weight: bold;
+            font-weight: 500;
+        }
+        .board-preview {
+            background: #2c3e50;
+            color: white;
+            padding: 8px;
+            margin-bottom: 8px;
+            overflow-x: auto;
+        }
+        #board-content {
+            margin: 0;
+            line-height: 1.2;
+            font-size: 14px;
+        }
+        .calendar-debug {
+            margin-top: 8px;
+            font-size: 14px;
+        }
+        h2 {
+            font-size: 16px;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin: 16px 0 8px 0;
+        }
+        #calendar-events {
+            font-size: 12px;
+            margin: 8px 0;
+            padding: 8px;
+            background: #f8f9fa;
+        }
+        #calendar-events-timestamp {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Vestaboard Control Panel</h1>
-        
+        <div class="board-preview" style="font-family: monospace; background: #2c3e50; color: white; padding: 8px; margin-bottom: 8px; overflow-x: auto;">
+            <pre id="board-content" style="margin: 0; line-height: 1.2;">Loading board content...</pre>
+        </div>
+        <script>
+            // Define the reverse character map
+            const charMap = {
+                0: ' ',
+                1: 'A', 2: 'B', 3: 'C', 4: 'D', 5: 'E', 6: 'F', 7: 'G', 8: 'H', 9: 'I',
+                10: 'J', 11: 'K', 12: 'L', 13: 'M', 14: 'N', 15: 'O', 16: 'P', 17: 'Q',
+                18: 'R', 19: 'S', 20: 'T', 21: 'U', 22: 'V', 23: 'W', 24: 'X', 25: 'Y',
+                26: 'Z',
+                27: '1', 28: '2', 29: '3', 30: '4', 31: '5', 32: '6', 33: '7', 34: '8',
+                35: '9', 36: '0',
+                37: '!', 38: '@', 39: '#', 40: '$', 41: '(', 42: ')', 44: '-', 46: '+',
+                47: '&', 48: '=', 49: ';', 50: ':', 52: "'", 53: '"', 54: '%', 55: ',',
+                56: '.', 59: '/', 60: '?', 62: '°',
+                63: '🟥', 64: '🟧', 65: '🟨', 66: '🟩', 67: '🟦', 68: '🟪', 69: '⬜', 70: '⬛️', 71: '■'
+            };
+
+            async function fetchBoardContent() {
+                try {
+                    const response = await fetch('/api/board/content');
+                    const data = await response.json();
+                    
+                    console.log('Board content response:', data);
+                    
+                    // Check if data is an array of arrays
+                    if (!Array.isArray(data) || !data.every(row => Array.isArray(row))) {
+                        console.error('Unexpected data format:', data);
+                        document.getElementById('board-content').textContent = 'Invalid board data format';
+                        return;
+                    }
+                    
+                    // Convert the 6x22 character array to a string representation
+                    const boardText = data.map(row => 
+                        row.map(char => charMap[char] || '#').join('')
+                    ).join('\n');
+                    
+                    document.getElementById('board-content').textContent = boardText;
+                } catch (error) {
+                    console.error('Error fetching board content:', error);
+                    document.getElementById('board-content').textContent = 
+                        `Error loading board content: ${error.message}`;
+                }
+            }
+
+            // Initial fetch
+            fetchBoardContent();
+
+            // Refresh every 10 seconds
+            setInterval(fetchBoardContent, 10000);
+        </script>
         <div class="status-panel">
-            <h2>Current Status</h2>
             <div class="status-item">
                 <span class="status-label">Current Mode:</span>
                 <span id="current-mode">Loading...</span>
@@ -88,7 +165,7 @@
         </div>
 
         <div class="calendar-debug">
-            <h2>Calendar Debug Panel</h2>
+            <h2>Calendar</h2>
             <div class="status-item">
                 <span class="status-label">Calendar Auth Status:</span>
                 <span id="calendar-auth-status">Checking...</span>
@@ -214,7 +291,7 @@
 
         // Update status every 5 seconds
         updateStatus();
-        setInterval(updateStatus, 5000);
+        setInterval(updateStatus, 10000);
 
         // Update calendar status on page load
         fetchCalendarEvents();

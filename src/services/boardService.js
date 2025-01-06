@@ -126,6 +126,43 @@ class BoardService {
     
     return matrix;
   }
+
+  async getCurrentBoardContent() {
+    try {
+      const response = await fetch('https://rw.vestaboard.com', {
+        headers: {
+          'X-Vestaboard-Read-Write-Key': this.apiKey
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch board content: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log('Raw Vestaboard response:', data);
+      
+      // Extract and parse the layout string
+      if (!data.currentMessage?.layout) {
+        throw new Error('Invalid response format from Vestaboard');
+      }
+      
+      try {
+        // Parse the layout string into a matrix
+        const matrix = JSON.parse(data.currentMessage.layout);
+        if (!Array.isArray(matrix) || !matrix.every(row => Array.isArray(row))) {
+          throw new Error('Invalid matrix format');
+        }
+        return matrix;
+      } catch (parseError) {
+        console.error('Error parsing layout:', parseError);
+        throw new Error('Failed to parse board layout');
+      }
+    } catch (error) {
+      console.error('Error fetching board content:', error);
+      throw error;
+    }
+  }
 }
 
 export default new BoardService(); 

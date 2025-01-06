@@ -116,6 +116,17 @@ app.post('/auth/google/clear', async (req, res) => {
   }
 });
 
+// Add this new route with your other routes
+app.get('/api/board/content', async (req, res) => {
+    try {
+        const boardContent = await boardService.getCurrentBoardContent();
+        res.json(boardContent);
+    } catch (error) {
+        console.error('Error getting board content:', error);
+        res.status(500).json({ error: 'Failed to fetch board content' });
+    }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
