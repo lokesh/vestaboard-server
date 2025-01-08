@@ -9,21 +9,22 @@ export const getWeatherData = async () => {
     const pstNow = new Date(now.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
     const isPastSixPM = pstNow.getHours() >= 18;
 
-    // Create tomorrow at midnight PST, properly accounting for UTC offset
+    // Create tomorrow at midnight PST
     const pstTomorrow = new Date(pstNow);
     pstTomorrow.setDate(pstTomorrow.getDate() + 1);
     pstTomorrow.setHours(0, 0, 0, 0);
     
-    // Convert PST midnight to UTC for comparison (add 8 hours)
-    const tomorrowUTC = new Date(pstTomorrow);
-    tomorrowUTC.setHours(tomorrowUTC.getHours() + 8);
+    // Get the UTC timestamp for comparison (no need to add hours, it's already in UTC)
+    const tomorrowUTC = pstTomorrow;
 
     // Filter daytime periods and adjust based on time
     const weatherData = data.properties.periods
       .filter(period => {
         // The API provides dates with timezone info (-08:00), so we can use them directly
         const periodDate = new Date(period.startTime);
-        return period.isDaytime && (!isPastSixPM || periodDate >= tomorrowUTC);
+        const shouldInclude = period.isDaytime && (!isPastSixPM || periodDate >= tomorrowUTC);
+        console.log('Period:', period.startTime, 'Include?:', shouldInclude, 'isDaytime:', period.isDaytime, 'isPastSixPM:', isPastSixPM, 'periodDate >= tomorrowUTC:', periodDate >= tomorrowUTC);
+        return shouldInclude;
       })
       .slice(0, 6)
       .map(period => ({
