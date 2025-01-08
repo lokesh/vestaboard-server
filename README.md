@@ -1,6 +1,8 @@
 API: https://docs.vestaboard.com/docs/read-write-api/endpoints/
 Inspo: https://github.com/pathikrit/my-vestaboard/tree/master
 
+test
+
 # Project Architecture
 
 This is a Node.js application that controls a Vestaboard display with various modes and integrations. The application serves as a bridge between different data sources (weather, calendar, etc.) and your Vestaboard display.
