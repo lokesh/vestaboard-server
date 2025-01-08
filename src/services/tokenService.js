@@ -5,9 +5,19 @@ class TokenService {
   constructor() {
     this.encryptionKey = process.env.TOKEN_ENCRYPTION_KEY;
     this.tokenPath = './data/encrypted_tokens';
+    this.ensureDataDirectory();
+  }
+
+  async ensureDataDirectory() {
+    try {
+      await fs.access('./data');
+    } catch {
+      await fs.mkdir('./data', { recursive: true });
+    }
   }
 
   async saveTokens(tokens) {
+    await this.ensureDataDirectory();
     const encrypted = encrypt(JSON.stringify(tokens), this.encryptionKey);
     await fs.writeFile(this.tokenPath, encrypted);
   }
