@@ -8,7 +8,8 @@ export function formatCalendarEvents(events) {
   
   const maxDisplayEvents = 5;
   const maxTitleLength = 14; // Leaving room for time and emoji
-  const today = new Date();
+  const now = new Date();
+  const today = new Date(now.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
   today.setHours(0, 0, 0, 0);
 
   let currentDate = null;
@@ -17,7 +18,8 @@ export function formatCalendarEvents(events) {
     .slice(0, maxDisplayEvents)
     .map(event => {
       const eventDate = new Date(event.start.dateTime);
-      const eventDay = new Date(eventDate);
+      const pstEventDate = new Date(eventDate.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
+      const eventDay = new Date(pstEventDate);
       eventDay.setHours(0, 0, 0, 0);
       
       // Determine if we need to show a date header
@@ -31,18 +33,20 @@ export function formatCalendarEvents(events) {
         } else if (eventDay.getTime() === today.getTime() + 86400000) {
           dateHeader = 'Tomorrow\n';
         } else {
-          dateHeader = `${eventDate.toLocaleDateString('en-US', { 
+          dateHeader = `${pstEventDate.toLocaleDateString('en-US', { 
             month: 'short', 
-            day: 'numeric' 
+            day: 'numeric',
+            timeZone: 'America/Los_Angeles'
           })}\n`;
         }
       }
 
       // Format the time
-      const timeStr = eventDate.toLocaleTimeString('en-US', {
+      const timeStr = pstEventDate.toLocaleTimeString('en-US', {
         hour: 'numeric',
         minute: '2-digit',
-        hour12: true
+        hour12: true,
+        timeZone: 'America/Los_Angeles'
       }).toLowerCase().replace(/\s/g, '');
 
       // Determine emoji color based on date

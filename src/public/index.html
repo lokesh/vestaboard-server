@@ -11,16 +11,17 @@
             font-size: 14px;
             /* background: #ccc; */
         }
+        body.debug-mode {
+            background: #bbb;
+        }
         .status-panel {
             margin-bottom: 8px;
-            padding: 8px;
-            background: #f8f9fa;
         }
         .control-panel {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 8px;
             margin-bottom: 8px;
+            max-width: 16em;
         }
         .button {
             padding: 8px 8px;
@@ -71,7 +72,7 @@
             font-size: 16px;
             font-weight: 800;
             text-transform: uppercase;
-            margin: 16px 0 0 0 ;
+            margin: 8px 0 0 0 ;
             padding: 8px 0;
             border-top: 1px solid #ccc;
         }
@@ -111,6 +112,14 @@
         .message-input-container .button {
             align-self: flex-start;
             min-width: 120px;
+        }
+        .debug-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .debug-status-label {
+            margin-left: 8px;
         }
     </style>
 </head>
@@ -168,19 +177,17 @@
             // Refresh every 10 seconds
             setInterval(fetchBoardContent, 10000);
         </script>
-        <div class="status-panel">
-            <div class="status-item">
-                <span class="status-label">Current Mode:</span>
-                <span id="current-mode">Loading...</span>
-            </div>
-            <div class="status-item">
-                <span class="status-label">Debug Mode:</span>
-                <span id="debug-status">Loading...</span><br />
-            </div>
-            <button class="button" id="debug-toggle" onclick="toggleDebug()">
-                Toggle Debug Mode
-            </button>
 
+<div id="debug-status" style="margin-bottom: 8px;">Loading...</div>
+
+<div class="status-panel">
+            <div class="debug-container">
+                <button class="button" id="debug-toggle" onclick="toggleDebug()">
+                    Toggle Debug
+                </button>
+
+
+            </div>
         </div>
 
         <div class="control-panel">
@@ -189,6 +196,14 @@
             <button class="button" onclick="setMode('WEATHER')">Weather Mode</button>
             <button class="button" onclick="setMode('CALENDAR')">Calendar Mode</button>
         </div>
+
+        <div>Mode: <span id="current-mode">Loading...</span></div>
+
+        <div class="status-item">
+            <span class="status-label">Cron:&nbsp;</span>
+            <span id="cron-schedule">Loading...</span>
+        </div>
+
 
         <div class="message-panel">
             <h2>Send Message</h2>
@@ -232,7 +247,9 @@
                 const data = await response.json();
                 
                 document.getElementById('current-mode').textContent = data.currentMode;
-                document.getElementById('debug-status').textContent = data.debugMode ? 'Enabled' : 'Disabled';
+                document.getElementById('debug-status').textContent = data.debugMode ? '🟡 DEBUG MODE' : '🟢 LIVE';
+                document.body.classList.toggle('debug-mode', data.debugMode);
+                document.getElementById('cron-schedule').textContent = data.cronSchedule;
                 
                 // Update button states
                 document.querySelectorAll('.control-panel .button').forEach(button => {
@@ -296,11 +313,10 @@
                 } else {
                     throw new Error(data.error || 'Failed to fetch events');
                 }
-                document.getElementById('calendar-events-timestamp').textContent = `Last updated: ${new Date().toLocaleString()}`;
+                document.getElementById('calendar-events-timestamp').textContent = `Last updated: ${new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' })}`;
             } catch (error) {
                 console.error('Error fetching calendar events:', error);
-                document.getElementById('calendar-events').textContent = `Error: ${error.message}`;
-                document.getElementById('calendar-events-timestamp').textContent = `Error occurred: ${new Date().toLocaleString()}`;
+                document.getElementById('calendar-events-timestamp').textContent = `Error occurred: ${new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' })}`;
             }
         }
 

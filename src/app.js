@@ -26,9 +26,13 @@ app.get('/', (req, res) => {
 
 // API Endpoints
 app.get('/api/status', (req, res) => {
+  const mode = modeController.getCurrentMode();
+  const scheduleInfo = modeController.getScheduleInfo(mode);
+
   res.json({
-    currentMode: modeController.getCurrentMode(),
-    debugMode: boardService.debugMode
+    currentMode: mode,
+    debugMode: boardService.debugMode,
+    cronSchedule: scheduleInfo.description
   });
 });
 

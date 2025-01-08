@@ -74,8 +74,8 @@ class ModeController {
   async updateWeather(initialUpdate = false) {
     const weatherData = await getWeatherData();
     
-      // Format the weather data into lines
-      const formattedWeather = weatherData.slice(0, 6).map(row => {
+    // Format the weather data into lines
+    const formattedWeather = weatherData.slice(0, 6).map(row => {
       // Convert date to PST
       const date = new Date(row.date);
       const pstDate = new Date(date.toLocaleString('en-US', {timeZone: 'America/Los_Angeles'}));
@@ -182,6 +182,31 @@ class ModeController {
       timezone: 'America/Los_Angeles'
     });
     this.cronJobs.set('calendar', job);
+  }
+
+  getScheduleInfo(mode) {
+    switch (mode) {
+      case Mode.CLOCK:
+        return {
+          schedule: '* * * * *',
+          description: 'Updates every minute'
+        };
+      case Mode.WEATHER:
+        return {
+          schedule: '0 6,12,18 * * *',
+          description: 'Updates at 6am, noon, and 6pm PST every day'
+        };
+      case Mode.CALENDAR:
+        return {
+          schedule: '0 * * * *',
+          description: 'Updates every hour'
+        };
+      default:
+        return {
+          schedule: '',
+          description: 'No automatic updates (Manual mode)'
+        };
+    }
   }
 
   stopAllCronJobs() {

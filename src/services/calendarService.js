@@ -102,8 +102,9 @@ export const getCalendarEvents = async () => {
     
     // Calculate start of current day and end of 7 days from now in ISO format
     const now = new Date();
-    const startOfDay = new Date(now.setHours(0, 0, 0, 0)).toISOString();
-    const endOfWeek = new Date(now.setDate(now.getDate() + 7)).toISOString();
+    const pstNow = new Date(now.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
+    const startOfDay = new Date(pstNow.setHours(0, 0, 0, 0)).toISOString();
+    const endOfWeek = new Date(pstNow.setDate(pstNow.getDate() + 7)).toISOString();
 
     // Fetch events from all calendars
     const allEvents = await Promise.all(

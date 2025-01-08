@@ -8,7 +8,7 @@ export const getWeatherData = async () => {
       .filter(period => period.isDaytime)
       .slice(0, 6)
       .map(period => ({
-        date: new Date(period.startTime).toLocaleDateString(),
+        date: new Date(period.startTime).toLocaleDateString('en-US', { timeZone: 'America/Los_Angeles' }),
         temperature: period.temperature,
         probabilityOfPrecipitation: period.probabilityOfPrecipitation.value || 0,
         windSpeed: period.windSpeed,
@@ -26,6 +26,7 @@ export const getWeatherData = async () => {
         // ... 5 more days
       ]
       */
+     console.log(weatherData);
     return weatherData;
   } catch (error) {
     throw new Error(`Failed to fetch weather data: ${error.message}`);
