@@ -29,15 +29,15 @@ class ModeController {
     // Set up new scheduling based on mode
     switch (mode) {
       case Mode.CLOCK:
-        await this.updateClock(); // Immediate update
+        await this.updateClock(true); // Immediate update
         this.setupClockMode();
         break;
       case Mode.WEATHER:
-        await this.updateWeather(); // Immediate update
+        await this.updateWeather(true); // Immediate update
         this.setupWeatherMode();
         break;
       case Mode.CALENDAR:
-        await this.updateCalendar(); // Immediate update
+        await this.updateCalendar(true); // Immediate update
         this.setupCalendarMode();
         break;
       case Mode.MANUAL:
@@ -46,21 +46,36 @@ class ModeController {
     }
   }
 
-  async updateClock() {
+  async updateClock(initialUpdate = false) {
     const time = new Date().toLocaleTimeString('en-US', {
       hour: 'numeric',
       minute: '2-digit',
       hour12: true,
       timeZone: 'America/Los_Angeles'
     }).replace(/\s/, ' ');
+
+    // Fetch current board content
+    const currentContent = await boardService.getCurrentBoardContent();
+
+    // Define a regex pattern for the expected clock format
+    const clockFormatPattern = /^\d{1,2}:\d{2} [AP]M$/;
+
+    // If not initial update and the current content does not match the expected clock format,
+    // don't update it. Stop all cron jobs and set mode to manual.
+    if (!initialUpdate && !clockFormatPattern.test(currentContent)) {
+      this.stopAllCronJobs();
+      this.currentMode = Mode.MANUAL;
+      return;
+    }
+
     await boardService.updateBoard(time);
   }
 
-  async updateWeather() {
+  async updateWeather(initialUpdate = false) {
     const weatherData = await getWeatherData();
     
-    // Format the weather data into lines
-    const formattedWeather = weatherData.slice(0, 6).map(row => {
+      // Format the weather data into lines
+      const formattedWeather = weatherData.slice(0, 6).map(row => {
       // Convert date to PST
       const date = new Date(row.date);
       const pstDate = new Date(date.toLocaleString('en-US', {timeZone: 'America/Los_Angeles'}));
@@ -109,13 +124,39 @@ class ModeController {
       // Format: |XXX 00° [emoji] description| (all on one line)
       return `${dayAbbrev} ${tempStr} ${finalEmoji}${formattedDescription}`;
     }).join('\n');
+    // Fetch current board content
+    const currentContent = await boardService.getCurrentBoardContent();
+
+    // Define a regex pattern for a small portion of the expected weather format
+    const weatherFormatPattern = /^[A-Z]{3} \d{1,2}/m;
+
+    // Check if the current content matches the expected weather format
+    if (!initialUpdate && !weatherFormatPattern.test(currentContent)) {
+      this.stopAllCronJobs();
+      this.currentMode = Mode.MANUAL;
+      return;
+    }
 
     await boardService.updateBoard(formattedWeather);
   }
 
-  async updateCalendar() {
+  async updateCalendar(initialUpdate = false) {
     const events = await getCalendarEvents(5);
     const formattedEvents = formatCalendarEvents(events);
+
+    // Fetch current board content
+    const currentContent = await boardService.getCurrentBoardContent();
+
+    // Define a regex pattern for a small portion of the expected calendar format
+    const calendarFormatPattern = /\d{1,2}\/\d{1,2}\/\d{4} \d{1,2}:\d{2}/;
+
+    // Check if the current content matches the expected calendar format
+    if (!initialUpdate && !calendarFormatPattern.test(currentContent)) {
+      this.stopAllCronJobs();
+      this.currentMode = Mode.MANUAL;
+      return;
+    }
+
     await boardService.updateBoard(formattedEvents);
   }
 

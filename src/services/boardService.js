@@ -163,6 +163,34 @@ class BoardService {
       throw error;
     }
   }
+
+  async sendMessage(text) {
+    try {
+        if (!text) {
+            throw new Error('Message text is required');
+        }
+
+        const response = await fetch(this.baseUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Vestaboard-Read-Write-Key': this.apiKey
+            },
+            body: JSON.stringify({ text })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || 'Failed to send message to Vestaboard');
+        }
+
+        return data;
+    } catch (error) {
+        console.error('Error sending message to Vestaboard:', error);
+        throw error;
+    }
+  }
 }
 
 export default new BoardService(); 

@@ -84,6 +84,34 @@
             font-size: 12px;
             color: #666;
         }
+        .message-panel {
+            margin: 16px 0;
+        }
+        
+        .message-input-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        #message-input {
+            font-family: 'Menlo', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 14px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            resize: vertical;
+        }
+        
+        #message-status {
+            font-size: 12px;
+            min-height: 20px;
+        }
+        
+        .message-input-container .button {
+            align-self: flex-start;
+            min-width: 120px;
+        }
     </style>
 </head>
 <body>
@@ -147,8 +175,12 @@
             </div>
             <div class="status-item">
                 <span class="status-label">Debug Mode:</span>
-                <span id="debug-status">Loading...</span>
+                <span id="debug-status">Loading...</span><br />
             </div>
+            <button class="button" id="debug-toggle" onclick="toggleDebug()">
+                Toggle Debug Mode
+            </button>
+
         </div>
 
         <div class="control-panel">
@@ -158,10 +190,17 @@
             <button class="button" onclick="setMode('CALENDAR')">Calendar Mode</button>
         </div>
 
-        <div class="debug-toggle">
-            <button class="button" id="debug-toggle" onclick="toggleDebug()">
-                Toggle Debug Mode
-            </button>
+        <div class="message-panel">
+            <h2>Send Message</h2>
+            <div class="message-input-container">
+                <textarea 
+                    id="message-input" 
+                    placeholder="Enter your message here..."
+                    rows="3"
+                    maxlength="132"></textarea>
+                <button class="button" onclick="sendMessage()">Send Message</button>
+                <div id="message-status"></div>
+            </div>
         </div>
 
         <div class="calendar-debug">
@@ -295,6 +334,47 @@
 
         // Update calendar status on page load
         fetchCalendarEvents();
+
+        async function sendMessage() {
+            const messageInput = document.getElementById('message-input');
+            const statusElement = document.getElementById('message-status');
+            const message = messageInput.value.trim();
+            
+            if (!message) {
+                statusElement.textContent = 'Please enter a message';
+                statusElement.style.color = '#dc3545';
+                return;
+            }
+
+            statusElement.textContent = 'Sending message...';
+            statusElement.style.color = '#666';
+
+            try {
+                const response = await fetch('/api/board/message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ text: message })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    statusElement.textContent = 'Message sent successfully!';
+                    statusElement.style.color = '#28a745';
+                    messageInput.value = ''; // Clear the input
+                    // Refresh the board preview
+                    fetchBoardContent();
+                } else {
+                    throw new Error(data.error || 'Failed to send message');
+                }
+            } catch (error) {
+                console.error('Error sending message:', error);
+                statusElement.textContent = `Error: ${error.message}`;
+                statusElement.style.color = '#dc3545';
+            }
+        }
     </script>
 </body>
 </html> 

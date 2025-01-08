@@ -127,6 +127,18 @@ app.get('/api/board/content', async (req, res) => {
     }
 });
 
+// Add this route with your other routes
+app.post('/api/board/message', async (req, res) => {
+    try {
+        const { text } = req.body;
+        const result = await boardService.sendMessage(text);
+        res.json(result);
+    } catch (error) {
+        console.error('Error sending message:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
