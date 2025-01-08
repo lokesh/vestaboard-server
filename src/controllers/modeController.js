@@ -5,8 +5,8 @@ import { getCalendarEvents } from '../services/calendarService.js';
 import cron from 'node-cron';
 import { formatWeatherDescription } from '../utils/weatherFormatter.js';
 import { formatCalendarEvents } from '../utils/calendarFormatter.js';
-import { checkBoardPattern, charMap } from '../utils/boardCharacters.js';
 import { CronSchedules } from '../utils/cronSchedules.js';
+import { PatternMatcherFactory } from '../patterns/PatternMatcherFactory.js';
 
 class ModeController {
   constructor() {
@@ -61,16 +61,9 @@ class ModeController {
     // Fetch current board content
     const currentContent = await boardService.getCurrentBoardContent();
     
-    const pattern = [
-      ['','0-9',':','0-9','0-9','','','','','','','','','','','','','','','','',''],
-      ['','','','','','','','','','','','','','','','','','','','','',''],
-      ['','','','','','','','','','','','','','','','','','','','','',''],
-      ['','','','','','','','','','','','','','','','','','','','','',''],
-      ['','','','','','','','','','','','','','','','','','','','','',''],
-      ['','','','','','','','','','','','','','','','','','','','','','']
-    ];
-
-    const isMatch = checkBoardPattern(currentContent, pattern);
+    // Get the appropriate pattern matcher
+    const matcher = PatternMatcherFactory.createMatcher(Mode.CLOCK);
+    const isMatch = matcher ? matcher.matches(currentContent) : false;
     
     // If not initial update and the current content does not match the expected clock format,
     // don't update it. Stop all cron jobs and set mode to manual.
@@ -98,8 +91,6 @@ class ModeController {
         .slice(0, 3);
       
       // Format temperature to ensure consistent width
-      // Convert temperature to integer and pad with space to ensure 2 characters
-      // e.g. "75" -> "75", "8" -> " 8"
       const tempStr = `${Math.round(row.temperature)}`.padStart(2, ' ');
       
       // Determine emoji based on temperature and conditions
@@ -133,30 +124,18 @@ class ModeController {
       // Format the description
       const formattedDescription = formatWeatherDescription(row.shortForecast);
 
-      // Format: |XXX 00° [emoji] description| (all on one line)
       return `${dayAbbrev} ${tempStr} ${finalEmoji}${formattedDescription}`;
     }).join('\n');
+
     // Fetch current board content
     const currentContent = await boardService.getCurrentBoardContent();
     
-    const pattern = [
-      ['a-z','a-z','a-z','','0-9','0-9','','','','','','','','','','','','','','','',''],
-      ['a-z','a-z','a-z','','0-9','0-9','','','','','','','','','','','','','','','',''],
-      ['','','','','','','','','','','','','','','','','','','','','',''],
-      ['','','','','','','','','','','','','','','','','','','','','',''],
-      ['','','','','','','','','','','','','','','','','','','','','',''],
-      ['','','','','','','','','','','','','','','','','','','','','','']
-    ];
-
-    const isMatch = checkBoardPattern(currentContent, pattern);
-    // Define a regex pattern for a small portion of the expected weather format
-    const weatherFormatPattern = /^[A-Z]{3} \d{1,2}/m;
+    // Get the appropriate pattern matcher
+    const matcher = PatternMatcherFactory.createMatcher(Mode.WEATHER);
+    const isMatch = matcher ? matcher.matches(currentContent) : false;
 
     // If not initial update and the current content does not match the expected weather format,
     // don't update it. Stop all cron jobs and set mode to manual.
-    //
-    // This happens when a user has manually updated the board. We don't want a cron job
-    // to overwrite their message
     if (initialUpdate || isMatch) {
       await boardService.updateBoard(formattedWeather);
     } else {
@@ -172,45 +151,14 @@ class ModeController {
 
     // Fetch current board content
     const currentContent = await boardService.getCurrentBoardContent();
-
-    // Create reverse charMap for number to char conversion
-    const reverseCharMap = Object.fromEntries(
-      Object.entries(charMap).map(([char, num]) => [num, char])
-    );
-
-    // Convert board content to strings for easier regex matching
-    const boardRows = currentContent.map(row => 
-      row.map(val => reverseCharMap[val] || '').join('')
-    );
-
-    // Define regex patterns for different row types
-    const patterns = {
-      // Matches "Tomorrow" or month abbreviation with date (e.g., "Jan 15")
-      dateHeader: /^(TOMORROW|[A-Z][A-Z][A-Z]\s*\d{1,2})\s*$/,
-      // Matches emoji + time (e.g., "🟩 9:30AM MEETING")
-      eventRow: /^[\u{1F7E5}\u{1F7E7}\u{1F7E8}\u{1F7E9}\u{1F7E6}\u{1F7EA}\u{2B1C}\u{2B1B}]\s*\d{1,2}:\d{2}[AP]M.+$/u,
-      // Matches empty rows
-      emptyRow: /^\s*$/
-    };
-
-    // Check if the content matches calendar patterns
-    let isValidCalendar = false;
-    for (const row of boardRows) {
-      // Skip empty rows
-      if (patterns.emptyRow.test(row)) continue;
-
-      // Check if the row matches either a date header or event row
-      if (patterns.dateHeader.test(row.trim()) || patterns.eventRow.test(row.trim())) {
-        isValidCalendar = true;
-      } else {
-        isValidCalendar = false;
-        break;
-      }
-    }
+    
+    // Get the appropriate pattern matcher
+    const matcher = PatternMatcherFactory.createMatcher(Mode.CALENDAR);
+    const isMatch = matcher ? matcher.matches(currentContent) : false;
 
     // If not initial update and the current content doesn't match calendar patterns,
     // don't update it. Stop all cron jobs and set mode to manual.
-    if (initialUpdate || isValidCalendar) {
+    if (initialUpdate || isMatch) {
       await boardService.updateBoard(formattedEvents);
     } else {
       this.stopAllCronJobs();

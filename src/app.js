@@ -85,7 +85,7 @@ app.get('/calendar/events', async (req, res) => {
   try {
     console.log('Attempting to fetch calendar events...');
     const events = await getCalendarEvents();
-    console.log('Successfully fetched events:', JSON.stringify(events, null, 2));
+    // console.log('Successfully fetched events:', JSON.stringify(events, null, 2));
     res.json(events);
   } catch (error) {
     console.error('❌ Calendar API error:', {

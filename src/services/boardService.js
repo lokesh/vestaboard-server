@@ -1,8 +1,6 @@
 import fetch from 'node-fetch';
-import { getWeatherData } from './weatherService.js';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
-import path from 'path';
 import dotenv from 'dotenv/config';
 import { charMap } from '../utils/boardCharacters.js';
 
@@ -124,7 +122,7 @@ class BoardService {
       }
       
       const data = await response.json();
-      console.log('Raw Vestaboard response:', data);
+      // console.log('Raw Vestaboard response:', data);
       
       // Extract and parse the layout string
       if (!data.currentMessage?.layout) {
