@@ -9,25 +9,21 @@ export const getWeatherData = async () => {
     const pstNow = new Date(now.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
     const isPastSixPM = pstNow.getHours() >= 18;
 
-    // Create tomorrow at midnight PST
-    const tomorrow = new Date(pstNow);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    tomorrow.setHours(0, 0, 0, 0);
+    // Create tomorrow at midnight PST, properly accounting for UTC offset
+    const pstTomorrow = new Date(pstNow);
+    pstTomorrow.setDate(pstTomorrow.getDate() + 1);
+    pstTomorrow.setHours(0, 0, 0, 0);
     
-    // Convert tomorrow to UTC timestamp for comparison
-    const tomorrowUTC = Date.UTC(
-      tomorrow.getFullYear(),
-      tomorrow.getMonth(),
-      tomorrow.getDate(),
-      0, 0, 0
-    );
+    // Convert PST midnight to UTC for comparison (add 8 hours)
+    const tomorrowUTC = new Date(pstTomorrow);
+    tomorrowUTC.setHours(tomorrowUTC.getHours() + 8);
 
     // Filter daytime periods and adjust based on time
     const weatherData = data.properties.periods
       .filter(period => {
-        // Get UTC timestamp from the API's period time
-        const periodUTC = new Date(period.startTime).getTime();
-        return period.isDaytime && (!isPastSixPM || periodUTC >= tomorrowUTC);
+        // The API provides dates with timezone info (-08:00), so we can use them directly
+        const periodDate = new Date(period.startTime);
+        return period.isDaytime && (!isPastSixPM || periodDate >= tomorrowUTC);
       })
       .slice(0, 6)
       .map(period => ({
@@ -42,7 +38,8 @@ export const getWeatherData = async () => {
       serverTime: now.toISOString(),
       pstTime: pstNow.toISOString(),
       isPastSixPM,
-      tomorrowUTC: new Date(tomorrowUTC).toISOString(),
+      pstTomorrow: pstTomorrow.toISOString(),
+      tomorrowUTC: tomorrowUTC.toISOString(),
       firstPeriodTime: data.properties.periods[0].startTime,
       firstPeriodUTC: new Date(data.properties.periods[0].startTime).toISOString(),
       includedDates: weatherData.map(d => d.date)
