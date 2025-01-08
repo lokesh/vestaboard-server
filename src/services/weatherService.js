@@ -3,38 +3,51 @@ export const getWeatherData = async () => {
     const response = await fetch('https://api.weather.gov/gridpoints/MTR/84,105/forecast');
     const data = await response.json();
 
-    // Get current time in PST using explicit timezone conversion
+    // Create a formatter that will help us work with PST dates
+    const pstFormatter = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/Los_Angeles',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    });
+
+    // Get current time in PST
     const now = new Date();
-    console.log('Server time:', now.toString());
+    const pstDateParts = pstFormatter.formatToParts(now);
+    const pstDate = new Date(pstDateParts.find(p => p.type === 'year').value,
+                            parseInt(pstDateParts.find(p => p.type === 'month').value) - 1,
+                            parseInt(pstDateParts.find(p => p.type === 'day').value),
+                            parseInt(pstDateParts.find(p => p.type === 'hour').value),
+                            parseInt(pstDateParts.find(p => p.type === 'minute').value));
     
-    // Convert to PST using explicit offset for Pacific Time (-8 or -7 depending on DST)
-    const pstDate = new Date(now.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
-    console.log('PST time after conversion:', pstDate.toString());
-    
-    const isPastSixPM = pstDate.getHours() >= 18;
-    console.log('Is past 6 PM PST:', isPastSixPM, 'Current PST hour:', pstDate.getHours());
+    const isPastSixPM = parseInt(pstDateParts.find(p => p.type === 'hour').value) >= 18;
     
     // Create tomorrow's date in PST
     const tomorrow = new Date(pstDate);
     tomorrow.setDate(tomorrow.getDate() + 1);
     tomorrow.setHours(0, 0, 0, 0);
-    console.log('Tomorrow at midnight PST:', tomorrow.toString());
 
     // Filter daytime periods and adjust based on time
     const weatherData = data.properties.periods
       .filter(period => {
+        // The API provides dates with timezone info (-08:00), so we can use them directly
         const periodDate = new Date(period.startTime);
-        console.log('Original period date from API:', period.startTime);
-        console.log('Parsed period date:', periodDate.toString());
         
-        // Convert period date to PST
-        const periodPST = new Date(periodDate.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
-        console.log('Period date in PST:', periodPST.toString());
+        // Format the period date in PST to compare
+        const periodParts = pstFormatter.formatToParts(periodDate);
+        const periodYear = periodParts.find(p => p.type === 'year').value;
+        const periodMonth = parseInt(periodParts.find(p => p.type === 'month').value) - 1;
+        const periodDay = parseInt(periodParts.find(p => p.type === 'day').value);
+        const periodHour = parseInt(periodParts.find(p => p.type === 'hour').value);
         
-        const shouldInclude = period.isDaytime && (!isPastSixPM || periodPST >= tomorrow);
-        console.log('Including period?', shouldInclude, 'isDaytime:', period.isDaytime);
+        // Create comparison date in PST
+        const periodPST = new Date(periodYear, periodMonth, periodDay, periodHour);
         
-        return shouldInclude;
+        return period.isDaytime && (!isPastSixPM || periodPST >= tomorrow);
       })
       .slice(0, 6)
       .map(period => ({
@@ -45,7 +58,6 @@ export const getWeatherData = async () => {
         shortForecast: period.shortForecast
       }));
 
-    console.log('Final weather data:', JSON.stringify(weatherData, null, 2));
     return weatherData;
   } catch (error) {
     console.error('Weather service error:', error);
