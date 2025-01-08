@@ -1,5 +1,5 @@
 {
-  "name": "vestaboard-apps",
+  "name": "vestaboard-server",
   "version": "1.0.0",
   "description": "Display board server with multiple modes",
   "main": "src/app.js",
