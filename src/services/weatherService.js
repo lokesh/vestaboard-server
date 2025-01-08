@@ -3,10 +3,13 @@ export const getWeatherData = async () => {
     const response = await fetch('https://api.weather.gov/gridpoints/MTR/84,105/forecast');
     const data = await response.json();
 
-    // Get current time in PST
+    // Get current time in PST using explicit timezone conversion
     const now = new Date();
-    const pstTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
+    const pstOptions = { timeZone: 'America/Los_Angeles' };
+    const pstTime = new Date(now.toLocaleString('en-US', pstOptions));
     const isPastSixPM = pstTime.getHours() >= 18;
+    
+    // Create tomorrow's date in PST
     const tomorrow = new Date(pstTime);
     tomorrow.setDate(tomorrow.getDate() + 1);
     tomorrow.setHours(0, 0, 0, 0);
@@ -15,7 +18,9 @@ export const getWeatherData = async () => {
     const weatherData = data.properties.periods
       .filter(period => {
         const periodDate = new Date(period.startTime);
-        return period.isDaytime && (!isPastSixPM || periodDate >= tomorrow);
+        // Convert period date to PST for comparison
+        const periodDatePST = new Date(periodDate.toLocaleString('en-US', pstOptions));
+        return period.isDaytime && (!isPastSixPM || periodDatePST >= tomorrow);
       })
       .slice(0, 6)
       .map(period => ({
