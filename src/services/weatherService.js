@@ -5,22 +5,36 @@ export const getWeatherData = async () => {
 
     // Get current time in PST using explicit timezone conversion
     const now = new Date();
-    const pstOptions = { timeZone: 'America/Los_Angeles' };
-    const pstTime = new Date(now.toLocaleString('en-US', pstOptions));
-    const isPastSixPM = pstTime.getHours() >= 18;
+    console.log('Server time:', now.toString());
+    
+    // Convert to PST using explicit offset for Pacific Time (-8 or -7 depending on DST)
+    const pstDate = new Date(now.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
+    console.log('PST time after conversion:', pstDate.toString());
+    
+    const isPastSixPM = pstDate.getHours() >= 18;
+    console.log('Is past 6 PM PST:', isPastSixPM, 'Current PST hour:', pstDate.getHours());
     
     // Create tomorrow's date in PST
-    const tomorrow = new Date(pstTime);
+    const tomorrow = new Date(pstDate);
     tomorrow.setDate(tomorrow.getDate() + 1);
     tomorrow.setHours(0, 0, 0, 0);
+    console.log('Tomorrow at midnight PST:', tomorrow.toString());
 
     // Filter daytime periods and adjust based on time
     const weatherData = data.properties.periods
       .filter(period => {
         const periodDate = new Date(period.startTime);
-        // Convert period date to PST for comparison
-        const periodDatePST = new Date(periodDate.toLocaleString('en-US', pstOptions));
-        return period.isDaytime && (!isPastSixPM || periodDatePST >= tomorrow);
+        console.log('Original period date from API:', period.startTime);
+        console.log('Parsed period date:', periodDate.toString());
+        
+        // Convert period date to PST
+        const periodPST = new Date(periodDate.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
+        console.log('Period date in PST:', periodPST.toString());
+        
+        const shouldInclude = period.isDaytime && (!isPastSixPM || periodPST >= tomorrow);
+        console.log('Including period?', shouldInclude, 'isDaytime:', period.isDaytime);
+        
+        return shouldInclude;
       })
       .slice(0, 6)
       .map(period => ({
@@ -30,21 +44,11 @@ export const getWeatherData = async () => {
         windSpeed: period.windSpeed,
         shortForecast: period.shortForecast
       }));
-      /* Example output:
-      [
-        {
-          date: "12/23/2024",
-          temperature: 64,
-          probabilityOfPrecipitation: 20,
-          windSpeed: "3 to 8 mph",
-          shortForecast: "Mostly Cloudy then Slight Chance Light Rain"
-        },
-        // ... 5 more days
-      ]
-      */
-     console.log(weatherData);
+
+    console.log('Final weather data:', JSON.stringify(weatherData, null, 2));
     return weatherData;
   } catch (error) {
+    console.error('Weather service error:', error);
     throw new Error(`Failed to fetch weather data: ${error.message}`);
   }
 }; 
