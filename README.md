@@ -1,8 +1,3 @@
-API: https://docs.vestaboard.com/docs/read-write-api/endpoints/
-Inspo: https://github.com/pathikrit/my-vestaboard/tree/master
-
-test
-
 # Project Architecture
 
 This is a Node.js application that controls a Vestaboard display with various modes and integrations. The application serves as a bridge between different data sources (weather, calendar, etc.) and your Vestaboard display.
@@ -28,57 +23,63 @@ graph TD
 ### 1. Express Server (`src/app.js`)
 The application's entry point that handles:
 - Static file serving for the web interface
-- API endpoints for mode control and status
-- OAuth flow for Google Calendar integration
-- Debug mode toggling
-- Calendar event fetching
+- RESTful API endpoints for board control
+- OAuth2 flow for Google Calendar integration
+- Environment validation and configuration
+- Error handling and logging
 
-### 2. Mode System
-The application supports multiple display modes (`src/types/Mode.js`):
-- **MANUAL**: Direct control of the display
-- **CLOCK**: Shows current time
-- **WEATHER**: Displays weather information
-- **CALENDAR**: Shows upcoming calendar events
+### 2. Mode System (`src/types/Mode.js`)
+The application supports multiple display modes:
+- **MANUAL**: Direct control of the display through text input
+- **CLOCK**: Shows current time in PST/PDT
+- **WEATHER**: Displays 6-day weather forecast with temperature and conditions
+- **CALENDAR**: Shows upcoming calendar events within a 7-day window
 
 ### 3. Services
 
 #### Board Service (`src/services/boardService.js`)
-- Handles direct communication with the Vestaboard API
-- Manages message formatting and display
-- Includes debug mode for testing
+- Manages communication with the Vestaboard API
+- Handles character mapping and board formatting
+- Supports debug mode with console visualization
+- Provides real-time board content retrieval
+- Implements message validation and error handling
 
 #### Weather Service (`src/services/weatherService.js`)
-- Fetches weather data from weather API
-- Formats weather information for display
+- Integrates with National Weather Service API
+- Provides detailed weather forecasts for specific coordinates
+- Handles daytime/nighttime period filtering
+- Includes precipitation probability and wind speed data
+- Implements error handling and data validation
 
 #### Calendar Service (`src/services/calendarService.js`)
-- Manages Google Calendar integration
-- Handles OAuth2 authentication
-- Retrieves and formats calendar events
+- Full Google Calendar API integration
+- Supports multiple calendar synchronization
+- Filters all-day and declined events
+- Handles timezone conversion (PST/PDT)
+- Implements OAuth2 authentication flow
+- Includes automatic token refresh mechanism
 
 #### Token Service (`src/services/tokenService.js`)
-- Manages authentication tokens
-- Handles token storage and retrieval
-- Provides token clearing functionality
+- Secure token storage with encryption
+- Handles token persistence and retrieval
+- Implements automatic data directory management
+- Uses environment-based encryption key
+- Provides token refresh functionality
 
-### 4. Controllers
-
-#### Mode Controller (`src/controllers/modeController.js`)
-- Manages switching between different display modes
-- Coordinates updates between services
-- Ensures proper mode transitions
-
-### 5. Utilities
+### 4. Utilities
 Located in `src/utils/`:
+- **encryption.js**: Handles secure token encryption/decryption
+- **boardCharacters.js**: Manages Vestaboard character mapping
 - **weatherFormatter.js**: Formats weather data for display
 - **calendarFormatter.js**: Formats calendar events for display
 
 ## Web Interface
-The application includes a web interface (`src/public/`) that allows users to:
-- Switch between different display modes
-- View current status
-- Toggle debug mode
-- Manage Google Calendar authentication
+The application includes a web interface (`src/public/`) that provides:
+- Real-time mode switching
+- Current board status display
+- OAuth2 authentication management
+- Debug mode configuration
+- Direct message input for manual mode
 
 ## Authentication
 - Google Calendar integration uses OAuth2
@@ -98,6 +99,46 @@ The application includes a web interface (`src/public/`) that allows users to:
 4. Start the server: `npm start`
 5. Access the web interface at `http://localhost:3000`
 
+## Environment Variables Setup
+
+To run this application, you need to set up several environment variables. Create a `.env` file in the root directory using `.env.example` as a template.
+
+### Required Environment Variables:
+
+1. **Vestaboard API Configuration**
+   - `VESTABOARD_READ_WRITE_API_KEY`: Your Vestaboard read/write API key from [Vestaboard Developer Portal](https://www.vestaboard.com/developer)
+   - `VESTABOARD_KEY`: Your Vestaboard application key
+   - `VESTABOARD_SECRET`: Your Vestaboard application secret
+   - `VESTABOARD_DEBUG`: Set to `true` for debug mode (optional)
+
+2. **Google Calendar Integration**
+   - `GOOGLE_CLIENT_ID`: OAuth 2.0 client ID from Google Cloud Console
+   - `GOOGLE_CLIENT_SECRET`: OAuth 2.0 client secret from Google Cloud Console
+   - `GOOGLE_REDIRECT_URI`: OAuth redirect URI (typically `http://localhost:3000/auth/google/callback` for local development)
+
+3. **Security**
+   - `TOKEN_ENCRYPTION_KEY`: A secure random string used for encrypting tokens (generate a strong random string)
+   - `NODE_DEBUG`: Set to `true` for additional debugging information (optional)
+
+### How to Obtain the Credentials
+
+1. **Vestaboard Credentials**:
+   - Visit the [Vestaboard Developer Portal](https://www.vestaboard.com/developer)
+   - Create a new application
+   - Copy the provided API key, application key, and secret
+
+2. **Google Calendar Credentials**:
+   - Go to [Google Cloud Console](https://console.cloud.google.com)
+   - Create a new project
+   - Enable the Google Calendar API
+   - Configure the OAuth consent screen
+   - Create OAuth 2.0 credentials
+   - Add authorized redirect URIs
+
+3. **Token Encryption Key**:
+   - Generate a secure random string (recommended length: 32+ characters)
+   - You can use a command like `openssl rand -hex 32` to generate this
+
 ## API Endpoints
 
 - `GET /api/status`: Get current mode and debug status
@@ -107,11 +148,4 @@ The application includes a web interface (`src/public/`) that allows users to:
 - `GET /auth/google/callback`: OAuth callback handler
 - `GET /calendar/events`: Fetch calendar events
 - `POST /auth/google/clear`: Clear calendar authentication
-
-## Security Considerations
-
-- OAuth tokens are securely stored
-- Environment variables used for sensitive data
-- No sensitive data exposed in client-side code
-
 
