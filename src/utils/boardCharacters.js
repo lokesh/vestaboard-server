@@ -35,27 +35,95 @@ export function checkBoardPattern(message, pattern) {
         Object.entries(charMap).map(([char, num]) => [num, char])
     );
 
-    // Check each position in the board
+    // Create a set of color values for efficient lookup
+    const colorValues = new Set(['RED', 'ORANGE', 'YELLOW', 'GREEN', 'BLUE', 'VIOLET', 'WHITE', 'BLACK', 'FILLED',
+        '🟥', '🟧', '🟨', '🟩', '🟦', '🟪', '⬜', '⬛️']);
+
+    // Check each row in the board
     for (let row = 0; row < 6; row++) {
+        const boardRow = message[row];
+        const patternRow = pattern[row];
+        
+        // Convert board row to characters for easier pattern matching
+        const boardChars = boardRow.map(val => reverseCharMap[val] || '');
+        
+        // Skip empty pattern rows (all empty strings)
+        if (patternRow.every(val => val === '')) continue;
+
+        // Check if this row matches any of our known patterns
+        let rowMatches = false;
+
+        // Check each position in the row
+        let positionMatches = true;
         for (let col = 0; col < 22; col++) {
-            const boardValue = message[row][col];
-            const patternValue = pattern[row][col];
+            const boardChar = boardChars[col];
+            const patternValue = patternRow[col];
             
             // If pattern value is empty, any character is valid
             if (patternValue === '') continue;
 
-            // Get the actual character from the board value
-            const boardChar = reverseCharMap[boardValue];
-            if (!boardChar) return false;
-
             // Check different pattern types
-            if (patternValue === ':' && boardChar !== ':') return false;
-            else if (patternValue === 'a-z' && !/^[A-Z]$/.test(boardChar)) return false;
-            else if (patternValue === '0-9' && !/^[0-9]$/.test(boardChar)) return false;
-            else if (patternValue.length === 1 && boardChar !== patternValue.toUpperCase()) return false;
+            if (patternValue === ':' && boardChar !== ':') {
+                positionMatches = false;
+                break;
+            }
+            else if (patternValue === 'COLOR' && !colorValues.has(boardChar)) {
+                positionMatches = false;
+                break;
+            }
+            else if (patternValue === 'a-z' && !/^[A-Z]$/.test(boardChar)) {
+                positionMatches = false;
+                break;
+            }
+            else if (patternValue === '0-9' && !/^[0-9]$/.test(boardChar)) {
+                positionMatches = false;
+                break;
+            }
+            else if (patternValue === 'emoji' && !colorValues.has(boardChar)) {
+                positionMatches = false;
+                break;
+            }
+            else if (patternValue === 'time' && !/^[0-9:]$/.test(boardChar)) {
+                positionMatches = false;
+                break;
+            }
+            else if (patternValue.length === 1 && boardChar !== patternValue.toUpperCase()) {
+                positionMatches = false;
+                break;
+            }
         }
+
+        rowMatches = positionMatches;
+
+        // If this row doesn't match any pattern, return false
+        if (!rowMatches) return false;
     }
 
     return true;
+}
+
+/**
+ * Checks if a single row matches a specific pattern type
+ * @param {string[]} boardChars - Array of characters in the board row
+ * @param {string} patternType - Type of pattern to check ('date-header', 'event-row', etc.)
+ * @returns {boolean} - True if the row matches the pattern type
+ */
+export function checkRowPattern(boardChars, patternType) {
+    switch (patternType) {
+        case 'date-header':
+            // Check for "Tomorrow" or "Jan 15" style headers
+            return /^[A-Z][a-z]{2,7}$/.test(boardChars.join('').trim()) ||
+                   /^[A-Z][a-z]{2}\s\d{1,2}$/.test(boardChars.join('').trim());
+        
+        case 'event-row':
+            // Check for emoji + time + title pattern
+            const colorChar = boardChars[0];
+            const timeStart = boardChars.slice(1, 7).join('').trim();
+            return colorValues.has(colorChar) && 
+                   /^\d{1,2}:\d{2}[ap]m$/.test(timeStart);
+        
+        default:
+            return false;
+    }
 } 
 

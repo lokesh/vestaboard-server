@@ -260,7 +260,9 @@
                 document.getElementById('current-mode').textContent = data.currentMode;
                 document.getElementById('debug-status').textContent = data.debugMode ? '🟡 DEBUG MODE' : '🟢 LIVE';
                 document.body.classList.toggle('debug-mode', data.debugMode);
-                document.getElementById('cron-schedule').textContent = data.cronSchedule;
+                
+                // Update cron schedule from API response
+                document.getElementById('cron-schedule').textContent = data.cronSchedule?.description || 'No automatic updates';
                 
                 // Update button states
                 document.querySelectorAll('.control-panel .button').forEach(button => {

@@ -32,7 +32,7 @@ app.get('/api/status', (req, res) => {
   res.json({
     currentMode: mode,
     debugMode: boardService.debugMode,
-    cronSchedule: scheduleInfo.description
+    cronSchedule: scheduleInfo
   });
 });
 
@@ -40,7 +40,12 @@ app.post('/api/mode', (req, res) => {
   const { mode } = req.body;
   try {
     modeController.setMode(mode);
-    res.json({ success: true, currentMode: mode });
+    const scheduleInfo = modeController.getScheduleInfo(mode);
+    res.json({ 
+      success: true, 
+      currentMode: mode,
+      cronSchedule: scheduleInfo
+    });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }

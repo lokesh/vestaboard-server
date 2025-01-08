@@ -5,7 +5,8 @@ import { getCalendarEvents } from '../services/calendarService.js';
 import cron from 'node-cron';
 import { formatWeatherDescription } from '../utils/weatherFormatter.js';
 import { formatCalendarEvents } from '../utils/calendarFormatter.js';
-import { checkBoardPattern } from '../utils/boardCharacters.js';
+import { checkBoardPattern, charMap } from '../utils/boardCharacters.js';
+import { CronSchedules } from '../utils/cronSchedules.js';
 
 class ModeController {
   constructor() {
@@ -148,8 +149,6 @@ class ModeController {
     ];
 
     const isMatch = checkBoardPattern(currentContent, pattern);
-    console.log('IS MATCH?');
-    console.log(isMatch);
     // Define a regex pattern for a small portion of the expected weather format
     const weatherFormatPattern = /^[A-Z]{3} \d{1,2}/m;
 
@@ -174,22 +173,55 @@ class ModeController {
     // Fetch current board content
     const currentContent = await boardService.getCurrentBoardContent();
 
-    // Define a regex pattern for a small portion of the expected calendar format
-    const calendarFormatPattern = /\d{1,2}\/\d{1,2}\/\d{4} \d{1,2}:\d{2}/;
+    // Create reverse charMap for number to char conversion
+    const reverseCharMap = Object.fromEntries(
+      Object.entries(charMap).map(([char, num]) => [num, char])
+    );
 
-    // Check if the current content matches the expected calendar format
-    if (!initialUpdate && !calendarFormatPattern.test(currentContent)) {
+    // Convert board content to strings for easier regex matching
+    const boardRows = currentContent.map(row => 
+      row.map(val => reverseCharMap[val] || '').join('')
+    );
+
+    // Define regex patterns for different row types
+    const patterns = {
+      // Matches "Tomorrow" or month abbreviation with date (e.g., "Jan 15")
+      dateHeader: /^(TOMORROW|[A-Z][A-Z][A-Z]\s*\d{1,2})\s*$/,
+      // Matches emoji + time (e.g., "🟩 9:30AM MEETING")
+      eventRow: /^[\u{1F7E5}\u{1F7E7}\u{1F7E8}\u{1F7E9}\u{1F7E6}\u{1F7EA}\u{2B1C}\u{2B1B}]\s*\d{1,2}:\d{2}[AP]M.+$/u,
+      // Matches empty rows
+      emptyRow: /^\s*$/
+    };
+
+    // Check if the content matches calendar patterns
+    let isValidCalendar = false;
+    for (const row of boardRows) {
+      // Skip empty rows
+      if (patterns.emptyRow.test(row)) continue;
+
+      // Check if the row matches either a date header or event row
+      if (patterns.dateHeader.test(row.trim()) || patterns.eventRow.test(row.trim())) {
+        isValidCalendar = true;
+      } else {
+        isValidCalendar = false;
+        break;
+      }
+    }
+
+    // If not initial update and the current content doesn't match calendar patterns,
+    // don't update it. Stop all cron jobs and set mode to manual.
+    if (initialUpdate || isValidCalendar) {
+      await boardService.updateBoard(formattedEvents);
+    } else {
       this.stopAllCronJobs();
       this.currentMode = Mode.MANUAL;
       return;
     }
-
-    await boardService.updateBoard(formattedEvents);
   }
 
   setupClockMode() {
     // Update every minute, using PST timezone
-    const job = cron.schedule('* * * * *', () => this.updateClock(), {
+    const job = cron.schedule(CronSchedules.CLOCK.schedule, () => this.updateClock(), {
       timezone: 'America/Los_Angeles'
     });
     this.cronJobs.set('clock', job);
@@ -197,7 +229,7 @@ class ModeController {
 
   setupWeatherMode() {
     // Update at 6am, noon, and 6pm PST every day
-    const job = cron.schedule('0 6,12,18 * * *', () => this.updateWeather(), {
+    const job = cron.schedule(CronSchedules.WEATHER.schedule, () => this.updateWeather(), {
       timezone: 'America/Los_Angeles'
     });
     this.cronJobs.set('weather', job);
@@ -205,35 +237,14 @@ class ModeController {
 
   setupCalendarMode() {
     // Update every hour PST
-    const job = cron.schedule('0 * * * *', () => this.updateCalendar(), {
+    const job = cron.schedule(CronSchedules.CALENDAR.schedule, () => this.updateCalendar(), {
       timezone: 'America/Los_Angeles'
     });
     this.cronJobs.set('calendar', job);
   }
 
   getScheduleInfo(mode) {
-    switch (mode) {
-      case Mode.CLOCK:
-        return {
-          schedule: '* * * * *',
-          description: 'Updates every minute'
-        };
-      case Mode.WEATHER:
-        return {
-          schedule: '0 6,12,18 * * *',
-          description: 'Updates at 6am, noon, and 6pm PST every day'
-        };
-      case Mode.CALENDAR:
-        return {
-          schedule: '0 * * * *',
-          description: 'Updates every hour'
-        };
-      default:
-        return {
-          schedule: '',
-          description: 'No automatic updates (Manual mode)'
-        };
-    }
+    return CronSchedules[mode] || CronSchedules.MANUAL;
   }
 
   stopAllCronJobs() {

@@ -9,12 +9,22 @@ export function formatCalendarEvents(events) {
   const maxDisplayEvents = 5;
   const maxTitleLength = 14; // Leaving room for time and emoji
   const now = new Date();
-  const today = new Date(now.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
+  const pstNow = new Date(now.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
+  const today = new Date(pstNow);
   today.setHours(0, 0, 0, 0);
+
+  // Filter out completed events
+  const activeEvents = events.filter(event => {
+    const eventEndTime = new Date(event.end.dateTime);
+    const pstEventEndTime = new Date(eventEndTime.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
+    return pstEventEndTime > pstNow;
+  });
+
+  if (!activeEvents.length) return '';
 
   let currentDate = null;
   
-  return events
+  return activeEvents
     .slice(0, maxDisplayEvents)
     .map(event => {
       const eventDate = new Date(event.start.dateTime);
