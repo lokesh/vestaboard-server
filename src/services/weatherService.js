@@ -1,5 +1,3 @@
-import { DateTime } from 'luxon';
-
 export const getWeatherData = async () => {
   try {
     const response = await fetch('https://api.weather.gov/gridpoints/MTR/84,105/forecast');
