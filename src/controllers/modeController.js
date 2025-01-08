@@ -5,6 +5,7 @@ import { getCalendarEvents } from '../services/calendarService.js';
 import cron from 'node-cron';
 import { formatWeatherDescription } from '../utils/weatherFormatter.js';
 import { formatCalendarEvents } from '../utils/calendarFormatter.js';
+import { checkBoardPattern } from '../utils/boardCharacters.js';
 
 class ModeController {
   constructor() {
@@ -52,23 +53,33 @@ class ModeController {
       minute: '2-digit',
       hour12: true,
       timeZone: 'America/Los_Angeles'
-    }).replace(/\s/, ' ');
-
+    }).replace(/(\d+):/, (match, hour) => {
+      return hour.padStart(2, ' ') + ':';
+    });
+    
     // Fetch current board content
     const currentContent = await boardService.getCurrentBoardContent();
+    
+    const pattern = [
+      ['','0-9',':','0-9','0-9','','','','','','','','','','','','','','','','',''],
+      ['','','','','','','','','','','','','','','','','','','','','',''],
+      ['','','','','','','','','','','','','','','','','','','','','',''],
+      ['','','','','','','','','','','','','','','','','','','','','',''],
+      ['','','','','','','','','','','','','','','','','','','','','',''],
+      ['','','','','','','','','','','','','','','','','','','','','','']
+    ];
 
-    // Define a regex pattern for the expected clock format
-    const clockFormatPattern = /^\d{1,2}:\d{2} [AP]M$/;
-
+    const isMatch = checkBoardPattern(currentContent, pattern);
+    
     // If not initial update and the current content does not match the expected clock format,
     // don't update it. Stop all cron jobs and set mode to manual.
-    if (!initialUpdate && !clockFormatPattern.test(currentContent)) {
+    if (initialUpdate || isMatch) {
+      await boardService.updateBoard(time);
+    } else {
       this.stopAllCronJobs();
       this.currentMode = Mode.MANUAL;
       return;
     }
-
-    await boardService.updateBoard(time);
   }
 
   async updateWeather(initialUpdate = false) {
@@ -126,18 +137,34 @@ class ModeController {
     }).join('\n');
     // Fetch current board content
     const currentContent = await boardService.getCurrentBoardContent();
+    
+    const pattern = [
+      ['a-z','a-z','a-z','','0-9','0-9','','','','','','','','','','','','','','','',''],
+      ['a-z','a-z','a-z','','0-9','0-9','','','','','','','','','','','','','','','',''],
+      ['','','','','','','','','','','','','','','','','','','','','',''],
+      ['','','','','','','','','','','','','','','','','','','','','',''],
+      ['','','','','','','','','','','','','','','','','','','','','',''],
+      ['','','','','','','','','','','','','','','','','','','','','','']
+    ];
 
+    const isMatch = checkBoardPattern(currentContent, pattern);
+    console.log('IS MATCH?');
+    console.log(isMatch);
     // Define a regex pattern for a small portion of the expected weather format
     const weatherFormatPattern = /^[A-Z]{3} \d{1,2}/m;
 
-    // Check if the current content matches the expected weather format
-    if (!initialUpdate && !weatherFormatPattern.test(currentContent)) {
+    // If not initial update and the current content does not match the expected weather format,
+    // don't update it. Stop all cron jobs and set mode to manual.
+    //
+    // This happens when a user has manually updated the board. We don't want a cron job
+    // to overwrite their message
+    if (initialUpdate || isMatch) {
+      await boardService.updateBoard(formattedWeather);
+    } else {
       this.stopAllCronJobs();
       this.currentMode = Mode.MANUAL;
       return;
     }
-
-    await boardService.updateBoard(formattedWeather);
   }
 
   async updateCalendar(initialUpdate = false) {

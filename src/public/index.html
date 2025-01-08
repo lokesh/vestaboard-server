@@ -6,6 +6,13 @@
     <title>Vestaboard</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
     <style>
+        :root {
+            --board-width: 360px;
+        }
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Menlo', -apple-system, BlinkMacSystemFont, sans-serif;
             font-size: 14px;
@@ -14,14 +21,20 @@
         body.debug-mode {
             background: #bbb;
         }
+
         .status-panel {
             margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: var(--board-width);
         }
         .control-panel {
             display: grid;
+            grid-template-columns: repeat(2, calc(50% - 4px));
             gap: 8px;
             margin-bottom: 8px;
-            max-width: 16em;
+            max-width: var(--board-width);
         }
         .button {
             padding: 8px 8px;
@@ -59,7 +72,7 @@
             overflow-x: auto;
             letter-spacing: 0.5em;
             line-height: 1.4;
-            max-width: 26em;
+            max-width: 360px;
             border-radius: 4px;
         }
         #board-content {
@@ -87,6 +100,7 @@
         }
         .message-panel {
             margin: 16px 0;
+            max-width: var(--board-width);
         }
         
         .message-input-container {
@@ -178,23 +192,20 @@
             setInterval(fetchBoardContent, 10000);
         </script>
 
-<div id="debug-status" style="margin-bottom: 8px;">Loading...</div>
-
-<div class="status-panel">
-            <div class="debug-container">
-                <button class="button" id="debug-toggle" onclick="toggleDebug()">
-                    Toggle Debug
-                </button>
 
 
-            </div>
-        </div>
+    <div class="status-panel">
+        <div id="debug-status" style="margin-bottom: 8px;">Loading...</div>
+        <button class="button" id="debug-toggle" onclick="toggleDebug()">
+            Toggle Debug
+        </button>
+    </div>
 
         <div class="control-panel">
-            <button class="button" onclick="setMode('MANUAL')">Manual Mode</button>
-            <button class="button" onclick="setMode('CLOCK')">Clock Mode</button>
-            <button class="button" onclick="setMode('WEATHER')">Weather Mode</button>
-            <button class="button" onclick="setMode('CALENDAR')">Calendar Mode</button>
+            <button class="button" onclick="setMode('MANUAL')">Manual</button>
+            <button class="button" onclick="setMode('CLOCK')">Clock</button>
+            <button class="button" onclick="setMode('WEATHER')">Weather</button>
+            <button class="button" onclick="setMode('CALENDAR')">Calendar</button>
         </div>
 
         <div>Mode: <span id="current-mode">Loading...</span></div>
