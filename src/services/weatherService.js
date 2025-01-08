@@ -12,22 +12,47 @@ export const getWeatherData = async () => {
     // Create tomorrow at midnight PST
     const pstTomorrow = pstNow.plus({ days: 1 }).startOf('day');
     
+    console.log('Initial time check:', {
+      currentTime: pstNow.toISO(),
+      currentHour: pstNow.hour,
+      isPastSixPM,
+      currentStartOfDay: pstNow.startOf('day').toISO(),
+      tomorrowStartOfDay: pstTomorrow.toISO()
+    });
+
     // Filter daytime periods and adjust based on time
     const weatherData = data.properties.periods
       .filter(period => {
-        // Convert period time to PST and get start of that day
+        // Convert period time to PST
         const periodDate = DateTime.fromISO(period.startTime)
                                  .setZone('America/Los_Angeles');
-        const periodDayStart = periodDate.startOf('day');
-        const shouldInclude = period.isDaytime && (!isPastSixPM || periodDayStart >= pstTomorrow);
         
-        console.log('Period:', period.startTime, 
-                   'Include?:', shouldInclude, 
-                   'isDaytime:', period.isDaytime, 
-                   'isPastSixPM:', isPastSixPM, 
-                   'periodDayStart >= pstTomorrow:', periodDayStart >= pstTomorrow,
-                   'periodDayStart:', periodDayStart.toISO(),
-                   'pstTomorrow:', pstTomorrow.toISO());
+        // If it's past 6 PM, we want to exclude any periods from today
+        const periodStartOfDay = periodDate.startOf('day');
+        const currentStartOfDay = pstNow.startOf('day');
+        const isLaterDay = periodStartOfDay > currentStartOfDay;
+        
+        const shouldInclude = period.isDaytime && (!isPastSixPM || isLaterDay);
+        
+        console.log('Period analysis:', {
+          periodOriginal: period.startTime,
+          periodInPST: periodDate.toISO(),
+          periodStartOfDay: periodStartOfDay.toISO(),
+          currentStartOfDay: currentStartOfDay.toISO(),
+          isDaytime: period.isDaytime,
+          isPastSixPM,
+          isLaterDay,
+          shouldInclude,
+          comparison: {
+            periodYear: periodStartOfDay.year,
+            periodMonth: periodStartOfDay.month,
+            periodDay: periodStartOfDay.day,
+            currentYear: currentStartOfDay.year,
+            currentMonth: currentStartOfDay.month,
+            currentDay: currentStartOfDay.day
+          }
+        });
+        
         return shouldInclude;
       })
       .slice(0, 6)
@@ -41,7 +66,7 @@ export const getWeatherData = async () => {
         shortForecast: period.shortForecast
       }));
 
-    console.log({
+    console.log('Final result:', {
       serverTime: DateTime.now().toISO(),
       pstTime: pstNow.toISO(),
       isPastSixPM,
@@ -50,7 +75,9 @@ export const getWeatherData = async () => {
       firstPeriodInPST: DateTime.fromISO(data.properties.periods[0].startTime)
                                .setZone('America/Los_Angeles')
                                .toISO(),
-      includedDates: weatherData.map(d => d.date)
+      includedDates: weatherData.map(d => d.date),
+      totalPeriodsBeforeFilter: data.properties.periods.length,
+      totalPeriodsAfterFilter: weatherData.length
     });
 
     return weatherData;
