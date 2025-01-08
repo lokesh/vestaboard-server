@@ -27,29 +27,26 @@ export const getWeatherData = async () => {
         const periodDate = DateTime.fromISO(period.startTime)
                                  .setZone('America/Los_Angeles');
         
-        // If it's past 6 PM, we want to exclude any periods from today
-        const periodStartOfDay = periodDate.startOf('day');
-        const currentStartOfDay = pstNow.startOf('day');
-        const isLaterDay = periodStartOfDay > currentStartOfDay;
-        
-        const shouldInclude = period.isDaytime && (!isPastSixPM || isLaterDay);
+        // If it's past 6 PM, we want to exclude any periods before tomorrow
+        const shouldInclude = period.isDaytime && 
+                            (!isPastSixPM || periodDate >= pstTomorrow);
         
         console.log('Period analysis:', {
           periodOriginal: period.startTime,
           periodInPST: periodDate.toISO(),
-          periodStartOfDay: periodStartOfDay.toISO(),
-          currentStartOfDay: currentStartOfDay.toISO(),
+          periodDateTime: periodDate.toFormat('yyyy-MM-dd HH:mm'),
+          tomorrowDateTime: pstTomorrow.toFormat('yyyy-MM-dd HH:mm'),
           isDaytime: period.isDaytime,
           isPastSixPM,
-          isLaterDay,
+          isAfterTomorrow: periodDate >= pstTomorrow,
           shouldInclude,
           comparison: {
-            periodYear: periodStartOfDay.year,
-            periodMonth: periodStartOfDay.month,
-            periodDay: periodStartOfDay.day,
-            currentYear: currentStartOfDay.year,
-            currentMonth: currentStartOfDay.month,
-            currentDay: currentStartOfDay.day
+            periodYear: periodDate.year,
+            periodMonth: periodDate.month,
+            periodDay: periodDate.day,
+            tomorrowYear: pstTomorrow.year,
+            tomorrowMonth: pstTomorrow.month,
+            tomorrowDay: pstTomorrow.day
           }
         });
         
