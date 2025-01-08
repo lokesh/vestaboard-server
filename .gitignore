@@ -128,3 +128,6 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# encrypted tokens for storing google auth tokens
+data/encrypted_tokens

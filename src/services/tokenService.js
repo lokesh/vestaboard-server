@@ -1,35 +1,24 @@
 import fs from 'fs/promises';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import { encrypt, decrypt } from '../utils/encryption.js';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const TOKEN_FILE = path.join(__dirname, '../../data/google_tokens.json');
+class TokenService {
+  constructor() {
+    this.encryptionKey = process.env.TOKEN_ENCRYPTION_KEY;
+    this.tokenPath = './data/encrypted_tokens';
+  }
 
-// Ensure data directory exists
-await fs.mkdir(path.dirname(TOKEN_FILE), { recursive: true }).catch(() => {});
-
-export class TokenService {
   async saveTokens(tokens) {
-    await fs.writeFile(TOKEN_FILE, JSON.stringify(tokens, null, 2));
+    const encrypted = encrypt(JSON.stringify(tokens), this.encryptionKey);
+    await fs.writeFile(this.tokenPath, encrypted);
   }
 
   async getTokens() {
     try {
-      const data = await fs.readFile(TOKEN_FILE, 'utf8');
-      return JSON.parse(data);
+      const encrypted = await fs.readFile(this.tokenPath, 'utf8');
+      return JSON.parse(decrypt(encrypted, this.encryptionKey));
     } catch (error) {
-      if (error.code === 'ENOENT') {
-        return null;
-      }
-      throw error;
+      return null;
     }
-  }
-
-  async updateTokens(newTokens) {
-    const existingTokens = await this.getTokens();
-    const updatedTokens = { ...existingTokens, ...newTokens };
-    await this.saveTokens(updatedTokens);
-    return updatedTokens;
   }
 }
 
