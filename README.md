@@ -60,15 +60,13 @@ The application supports multiple display modes:
 - Includes automatic token refresh mechanism
 
 #### Token Service (`src/services/tokenService.js`)
-- Secure token storage with encryption
-- Handles token persistence and retrieval
-- Implements automatic data directory management
-- Uses environment-based encryption key
-- Provides token refresh functionality
+- Manages Google OAuth tokens through environment variables
+- Handles token validation and verification
+- Supports automatic token refresh mechanism
+- Provides token management functionality
 
 ### 4. Utilities
 Located in `src/utils/`:
-- **encryption.js**: Handles secure token encryption/decryption
 - **boardCharacters.js**: Manages Vestaboard character mapping
 - **weatherFormatter.js**: Formats weather data for display
 - **calendarFormatter.js**: Formats calendar events for display
@@ -115,9 +113,11 @@ To run this application, you need to set up several environment variables. Creat
    - `GOOGLE_CLIENT_ID`: OAuth 2.0 client ID from Google Cloud Console
    - `GOOGLE_CLIENT_SECRET`: OAuth 2.0 client secret from Google Cloud Console
    - `GOOGLE_REDIRECT_URI`: OAuth redirect URI (typically `http://localhost:3000/auth/google/callback` for local development)
+   - `GOOGLE_ACCESS_TOKEN`: Current access token for Google Calendar API
+   - `GOOGLE_REFRESH_TOKEN`: Refresh token for Google Calendar API
+   - `GOOGLE_TOKEN_EXPIRY`: Expiry timestamp for the access token
 
-3. **Security**
-   - `TOKEN_ENCRYPTION_KEY`: A secure random string used for encrypting tokens (generate a strong random string)
+3. **Debug Mode**
    - `NODE_DEBUG`: Set to `true` for additional debugging information (optional)
 
 ### How to Obtain the Credentials
@@ -134,10 +134,8 @@ To run this application, you need to set up several environment variables. Creat
    - Configure the OAuth consent screen
    - Create OAuth 2.0 credentials
    - Add authorized redirect URIs
-
-3. **Token Encryption Key**:
-   - Generate a secure random string (recommended length: 32+ characters)
-   - You can use a command like `openssl rand -hex 32` to generate this
+   - Complete the OAuth flow to obtain access and refresh tokens
+   - Add the tokens to your `.env` file
 
 ## API Endpoints
 

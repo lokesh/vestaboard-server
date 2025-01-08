@@ -67,8 +67,9 @@ app.get('/auth/google', (req, res) => {
 app.get('/auth/google/callback', async (req, res) => {
   const { code } = req.query;
   try {
-    await getTokens(code);
-    res.redirect('/?auth=success');
+    const tokens = await getTokens(code);
+    // Tokens will be logged to console for manual update of .env
+    res.redirect('/?auth=success&message=Please check server console for tokens to add to .env');
   } catch (error) {
     console.error('OAuth error:', error.message);
     res.redirect('/?auth=error');
@@ -110,19 +111,6 @@ app.get('/calendar/events', async (req, res) => {
     }
   }
   console.log('📅 Calendar Events Request - Completed');
-});
-
-// Add endpoint to clear calendar auth
-app.post('/auth/google/clear', async (req, res) => {
-  try {
-    // Import the clearTokens function from tokenService
-    const { clearTokens } = await import('./services/tokenService.js');
-    await clearTokens();
-    res.json({ success: true, message: 'Calendar authentication cleared' });
-  } catch (error) {
-    console.error('Failed to clear calendar auth:', error);
-    res.status(500).json({ error: 'Failed to clear calendar authentication' });
-  }
 });
 
 // Add this new route with your other routes

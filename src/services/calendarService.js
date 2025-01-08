@@ -1,6 +1,5 @@
 import { google } from 'googleapis';
 import dotenv from 'dotenv';
-import tokenService from './tokenService.js';
 
 dotenv.config();
 
@@ -8,12 +7,16 @@ dotenv.config();
 const requiredEnvVars = [
   'GOOGLE_CLIENT_ID',
   'GOOGLE_CLIENT_SECRET',
-  'GOOGLE_REDIRECT_URI'
+  'GOOGLE_REDIRECT_URI',
+  'GOOGLE_ACCESS_TOKEN',
+  'GOOGLE_REFRESH_TOKEN',
+  'GOOGLE_TOKEN_EXPIRY'
 ];
 
 const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName]);
 if (missingEnvVars.length > 0) {
-  throw new Error(`Missing required environment variables: ${missingEnvVars.join(', ')}`);
+  console.warn('Missing required environment variables:', missingEnvVars);
+  // Continue execution despite missing variables
 }
 
 // Configuration object for Google OAuth2
@@ -37,13 +40,22 @@ const SCOPES = [
   'https://www.googleapis.com/auth/calendar.calendarlist.readonly'
 ];
 
-// Create OAuth2 client
+// Create OAuth2 client with credentials
 const createOAuth2Client = () => {
-  return new google.auth.OAuth2(
+  const client = new google.auth.OAuth2(
     GOOGLE_OAUTH_CONFIG.clientId,
     GOOGLE_OAUTH_CONFIG.clientSecret,
     GOOGLE_OAUTH_CONFIG.redirectUri
   );
+
+  // Set credentials from environment variables
+  client.setCredentials({
+    access_token: process.env.GOOGLE_ACCESS_TOKEN,
+    refresh_token: process.env.GOOGLE_REFRESH_TOKEN,
+    expiry_date: parseInt(process.env.GOOGLE_TOKEN_EXPIRY)
+  });
+
+  return client;
 };
 
 /**
@@ -51,12 +63,19 @@ const createOAuth2Client = () => {
  * @returns {string} The authorization URL
  */
 export const getAuthUrl = () => {
-  const oauth2Client = createOAuth2Client();
-  return oauth2Client.generateAuthUrl({
-    access_type: 'offline',
-    scope: SCOPES,
-    prompt: 'consent'  // Force prompt to ensure we get a refresh token
-  });
+  try {
+    const oauth2Client = createOAuth2Client();
+    const authUrl = oauth2Client.generateAuthUrl({
+      access_type: 'offline',
+      scope: SCOPES,
+      prompt: 'consent'
+    });
+    console.log('Generated auth URL:', authUrl);
+    return authUrl;
+  } catch (error) {
+    console.error('Error generating auth URL:', error);
+    throw new Error(`Failed to generate auth URL: ${error.message}`);
+  }
 };
 
 /**
@@ -65,10 +84,23 @@ export const getAuthUrl = () => {
  * @returns {Promise<Object>} The tokens object
  */
 export const getTokens = async (code) => {
-  const oauth2Client = createOAuth2Client();
-  const { tokens } = await oauth2Client.getToken(code);
-  await tokenService.saveTokens(tokens);
-  return tokens;
+  try {
+    const oauth2Client = createOAuth2Client();
+    console.log('Attempting to exchange code for tokens...');
+    const { tokens } = await oauth2Client.getToken(code);
+    
+    // Log the tokens we need to save to .env
+    console.log('\n=== TOKENS TO SAVE TO .ENV ===');
+    console.log('GOOGLE_ACCESS_TOKEN=' + tokens.access_token);
+    console.log('GOOGLE_REFRESH_TOKEN=' + tokens.refresh_token);
+    console.log('GOOGLE_TOKEN_EXPIRY=' + tokens.expiry_date);
+    console.log('===============================\n');
+    
+    return tokens;
+  } catch (error) {
+    console.error('Error getting tokens:', error.response?.data || error);
+    throw new Error(`Failed to get tokens: ${error.message}`);
+  }
 };
 
 /**
@@ -77,20 +109,19 @@ export const getTokens = async (code) => {
  */
 export const getCalendarEvents = async () => {
   try {
-    // Get stored tokens
-    const tokens = await tokenService.getTokens();
-    if (!tokens) {
-      throw new Error('No tokens found. Please authenticate first.');
-    }
-
     // Create and authorize OAuth2 client
     const oauth2Client = createOAuth2Client();
-    oauth2Client.setCredentials(tokens);
 
-    // Set up token refresh callback
-    oauth2Client.on('tokens', async (tokens) => {
-      if (tokens.refresh_token) {
-        await tokenService.updateTokens(tokens);
+    // Set up token refresh callback to log new tokens when they're refreshed
+    oauth2Client.on('tokens', (tokens) => {
+      if (tokens.access_token) {
+        console.log('\n=== NEW TOKENS TO UPDATE IN .ENV ===');
+        console.log('GOOGLE_ACCESS_TOKEN=' + tokens.access_token);
+        if (tokens.refresh_token) {
+          console.log('GOOGLE_REFRESH_TOKEN=' + tokens.refresh_token);
+        }
+        console.log('GOOGLE_TOKEN_EXPIRY=' + tokens.expiry_date);
+        console.log('===================================\n');
       }
     });
 
@@ -167,9 +198,6 @@ export const getCalendarEvents = async () => {
 
   } catch (error) {
     console.error('Error fetching calendar events:', error);
-    if (error.message === 'No tokens found. Please authenticate first.') {
-      throw error;
-    }
     throw new Error('Failed to fetch calendar events');
   }
 }; 

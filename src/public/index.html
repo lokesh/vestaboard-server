@@ -238,7 +238,6 @@
             <div class="control-panel">
                 <button class="button" onclick="initiateCalendarAuth()">Start Calendar Auth</button>
                 <button class="button" onclick="fetchCalendarEvents()">Fetch Calendar Events</button>
-                <button class="button" onclick="clearCalendarAuth()">Clear Calendar Auth</button>
             </div>
             <div>
                 Latest Events:<br />
@@ -330,21 +329,6 @@
             } catch (error) {
                 console.error('Error fetching calendar events:', error);
                 document.getElementById('calendar-events-timestamp').textContent = `Error occurred: ${new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' })}`;
-            }
-        }
-
-        async function clearCalendarAuth() {
-            try {
-                const response = await fetch('/auth/google/clear', {
-                    method: 'POST'
-                });
-                const data = await response.json();
-                document.getElementById('calendar-auth-status').textContent = 'Auth Cleared';
-                document.getElementById('calendar-events').textContent = 'Authentication required';
-                document.getElementById('calendar-events-timestamp').textContent = new Date().toLocaleString();
-            } catch (error) {
-                console.error('Error clearing auth:', error);
-                document.getElementById('calendar-auth-status').textContent = `Error: ${error.message}`;
             }
         }
 
