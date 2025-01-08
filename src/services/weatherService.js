@@ -3,9 +3,20 @@ export const getWeatherData = async () => {
     const response = await fetch('https://api.weather.gov/gridpoints/MTR/84,105/forecast');
     const data = await response.json();
 
-    // Filter only daytime periods and get first 6 days
+    // Get current time in PST
+    const now = new Date();
+    const pstTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
+    const isPastSixPM = pstTime.getHours() >= 18;
+    const tomorrow = new Date(pstTime);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
+
+    // Filter daytime periods and adjust based on time
     const weatherData = data.properties.periods
-      .filter(period => period.isDaytime)
+      .filter(period => {
+        const periodDate = new Date(period.startTime);
+        return period.isDaytime && (!isPastSixPM || periodDate >= tomorrow);
+      })
       .slice(0, 6)
       .map(period => ({
         date: new Date(period.startTime).toLocaleDateString('en-US', { timeZone: 'America/Los_Angeles' }),
