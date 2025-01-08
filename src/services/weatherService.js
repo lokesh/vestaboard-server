@@ -15,14 +15,18 @@ export const getWeatherData = async () => {
     // Filter daytime periods and adjust based on time
     const weatherData = data.properties.periods
       .filter(period => {
-        const periodDate = DateTime.fromISO(period.startTime);
-        const shouldInclude = period.isDaytime && (!isPastSixPM || periodDate >= pstTomorrow);
+        // Convert period time to PST and get start of that day
+        const periodDate = DateTime.fromISO(period.startTime)
+                                 .setZone('America/Los_Angeles');
+        const periodDayStart = periodDate.startOf('day');
+        const shouldInclude = period.isDaytime && (!isPastSixPM || periodDayStart >= pstTomorrow);
+        
         console.log('Period:', period.startTime, 
                    'Include?:', shouldInclude, 
                    'isDaytime:', period.isDaytime, 
                    'isPastSixPM:', isPastSixPM, 
-                   'periodDate >= pstTomorrow:', periodDate >= pstTomorrow,
-                   'periodDate:', periodDate.toISO(),
+                   'periodDayStart >= pstTomorrow:', periodDayStart >= pstTomorrow,
+                   'periodDayStart:', periodDayStart.toISO(),
                    'pstTomorrow:', pstTomorrow.toISO());
         return shouldInclude;
       })
@@ -43,7 +47,9 @@ export const getWeatherData = async () => {
       isPastSixPM,
       pstTomorrow: pstTomorrow.toISO(),
       firstPeriodTime: data.properties.periods[0].startTime,
-      firstPeriodDateTime: DateTime.fromISO(data.properties.periods[0].startTime).toISO(),
+      firstPeriodInPST: DateTime.fromISO(data.properties.periods[0].startTime)
+                               .setZone('America/Los_Angeles')
+                               .toISO(),
       includedDates: weatherData.map(d => d.date)
     });
 
