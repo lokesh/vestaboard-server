@@ -1,34 +1,36 @@
+import { DateTime } from 'luxon';
+
 export const getWeatherData = async () => {
   try {
     const response = await fetch('https://api.weather.gov/gridpoints/MTR/84,105/forecast');
     const data = await response.json();
 
     // Get current time in PST
-    const now = new Date();
-    // Force the date to be interpreted in America/Los_Angeles timezone
-    const pstNow = new Date(now.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
-    const isPastSixPM = pstNow.getHours() >= 18;
+    const pstNow = DateTime.now().setZone('America/Los_Angeles');
+    const isPastSixPM = pstNow.hour >= 18;
 
     // Create tomorrow at midnight PST
-    const pstTomorrow = new Date(pstNow);
-    pstTomorrow.setDate(pstTomorrow.getDate() + 1);
-    pstTomorrow.setHours(0, 0, 0, 0);
+    const pstTomorrow = pstNow.plus({ days: 1 }).startOf('day');
     
-    // Get the UTC timestamp for comparison (no need to add hours, it's already in UTC)
-    const tomorrowUTC = pstTomorrow;
-
     // Filter daytime periods and adjust based on time
     const weatherData = data.properties.periods
       .filter(period => {
-        // The API provides dates with timezone info (-08:00), so we can use them directly
-        const periodDate = new Date(period.startTime);
-        const shouldInclude = period.isDaytime && (!isPastSixPM || periodDate >= tomorrowUTC);
-        console.log('Period:', period.startTime, 'Include?:', shouldInclude, 'isDaytime:', period.isDaytime, 'isPastSixPM:', isPastSixPM, 'periodDate >= tomorrowUTC:', periodDate >= tomorrowUTC);
+        const periodDate = DateTime.fromISO(period.startTime);
+        const shouldInclude = period.isDaytime && (!isPastSixPM || periodDate >= pstTomorrow);
+        console.log('Period:', period.startTime, 
+                   'Include?:', shouldInclude, 
+                   'isDaytime:', period.isDaytime, 
+                   'isPastSixPM:', isPastSixPM, 
+                   'periodDate >= pstTomorrow:', periodDate >= pstTomorrow,
+                   'periodDate:', periodDate.toISO(),
+                   'pstTomorrow:', pstTomorrow.toISO());
         return shouldInclude;
       })
       .slice(0, 6)
       .map(period => ({
-        date: new Date(period.startTime).toLocaleDateString('en-US', { timeZone: 'America/Los_Angeles' }),
+        date: DateTime.fromISO(period.startTime)
+                     .setZone('America/Los_Angeles')
+                     .toLocaleString(DateTime.DATE_SHORT),
         temperature: period.temperature,
         probabilityOfPrecipitation: period.probabilityOfPrecipitation.value || 0,
         windSpeed: period.windSpeed,
@@ -36,13 +38,12 @@ export const getWeatherData = async () => {
       }));
 
     console.log({
-      serverTime: now.toISOString(),
-      pstTime: pstNow.toISOString(),
+      serverTime: DateTime.now().toISO(),
+      pstTime: pstNow.toISO(),
       isPastSixPM,
-      pstTomorrow: pstTomorrow.toISOString(),
-      tomorrowUTC: tomorrowUTC.toISOString(),
+      pstTomorrow: pstTomorrow.toISO(),
       firstPeriodTime: data.properties.periods[0].startTime,
-      firstPeriodUTC: new Date(data.properties.periods[0].startTime).toISOString(),
+      firstPeriodDateTime: DateTime.fromISO(data.properties.periods[0].startTime).toISO(),
       includedDates: weatherData.map(d => d.date)
     });
 
