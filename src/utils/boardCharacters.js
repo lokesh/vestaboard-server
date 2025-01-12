@@ -15,6 +15,27 @@ export const charMap = {
   '🟥': 63, '🟧': 64, '🟨': 65, '🟩': 66, '🟦': 67, '🟪': 68, '⬜': 69, '⬛️': 70
 };
 
+// Move colorValues to module scope for shared access
+export const colorValues = new Set(['RED', 'ORANGE', 'YELLOW', 'GREEN', 'BLUE', 'VIOLET', 'WHITE', 'BLACK', 'FILLED',
+    '🟥', '🟧', '🟨', '🟩', '🟦', '🟪', '⬜', '⬛️']);
+
+export const emojiValues = new Set(['🟥', '🟧', '🟨', '🟩', '🟦', '🟪', '⬜', '⬛️']);
+
+/**
+ * Validates if a time string is in correct format and range
+ * @param {string} time - Time string in format "HH:MMam" or "HH:MMpm"
+ * @returns {boolean} - True if time is valid
+ */
+function isValidTime(time) {
+    const match = time.match(/^(\d{1,2}):(\d{2})([ap]m)$/);
+    if (!match) return false;
+    
+    const hours = parseInt(match[1]);
+    const minutes = parseInt(match[2]);
+    
+    return hours >= 1 && hours <= 12 && minutes >= 0 && minutes <= 59;
+}
+
 /**
  * Checks if a board message matches a given pattern
  * @param {number[][]} message - The current board message (6x22 array of numbers)
@@ -34,10 +55,6 @@ export function checkBoardPattern(message, pattern) {
     const reverseCharMap = Object.fromEntries(
         Object.entries(charMap).map(([char, num]) => [num, char])
     );
-
-    // Create a set of color values for efficient lookup
-    const colorValues = new Set(['RED', 'ORANGE', 'YELLOW', 'GREEN', 'BLUE', 'VIOLET', 'WHITE', 'BLACK', 'FILLED',
-        '🟥', '🟧', '🟨', '🟩', '🟦', '🟪', '⬜', '⬛️']);
 
     // Check each row in the board
     for (let row = 0; row < 6; row++) {
@@ -79,17 +96,21 @@ export function checkBoardPattern(message, pattern) {
                 positionMatches = false;
                 break;
             }
-            else if (patternValue === 'emoji' && !colorValues.has(boardChar)) {
+            else if (patternValue === 'emoji' && !emojiValues.has(boardChar)) {
                 positionMatches = false;
                 break;
             }
-            else if (patternValue === 'time' && !/^[0-9:]$/.test(boardChar)) {
+            else if (patternValue === 'time' && (!/^[0-9:]$/.test(boardChar) || !isValidTime(boardChars.slice(col, col + 7).join('')))) {
                 positionMatches = false;
                 break;
             }
-            else if (patternValue.length === 1 && boardChar !== patternValue.toUpperCase()) {
-                positionMatches = false;
-                break;
+            else if (patternValue.length === 1) {
+                const expectedChar = patternValue.toUpperCase();
+                const actualChar = boardChar.toUpperCase();
+                if (expectedChar !== actualChar) {
+                    positionMatches = false;
+                    break;
+                }
             }
         }
 
@@ -111,16 +132,16 @@ export function checkBoardPattern(message, pattern) {
 export function checkRowPattern(boardChars, patternType) {
     switch (patternType) {
         case 'date-header':
-            // Check for "Tomorrow" or "Jan 15" style headers
-            return /^[A-Z][a-z]{2,7}$/.test(boardChars.join('').trim()) ||
-                   /^[A-Z][a-z]{2}\s\d{1,2}$/.test(boardChars.join('').trim());
+            // More flexible date header pattern
+            const headerText = boardChars.join('').trim();
+            return /^[A-Z][a-z]{2,7}$/i.test(headerText) || // For "Tomorrow", "Today", etc.
+                   /^[A-Z][a-z]{2}\s\d{1,2}$/i.test(headerText) || // For "Jan 15"
+                   /^[A-Z][a-z]{2,8}\s\d{1,2}$/i.test(headerText); // For "January 15"
         
         case 'event-row':
-            // Check for emoji + time + title pattern
             const colorChar = boardChars[0];
-            const timeStart = boardChars.slice(1, 7).join('').trim();
-            return colorValues.has(colorChar) && 
-                   /^\d{1,2}:\d{2}[ap]m$/.test(timeStart);
+            const timeStr = boardChars.slice(1, 7).join('').trim();
+            return colorValues.has(colorChar) && isValidTime(timeStr);
         
         default:
             return false;
