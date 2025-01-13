@@ -1,6 +1,8 @@
 # Project Architecture
 
-This is a Node.js application that controls a Vestaboard display with various modes and integrations. The application serves as a bridge between different data sources (weather, calendar, etc.) and your Vestaboard display.
+This is a Node.js application that controls a Vestaboard display. The application serves as a bridge between different data sources (weather, calendar, etc.) and your Vestaboard display.
+
+I host this app at [Railway](https://railway.com/), but any place you can have an only on Node.js server will work.
 
 ## System Overview
 
