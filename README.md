@@ -2,7 +2,7 @@
 
 This is a Node.js application that controls a Vestaboard display. The application serves as a bridge between different data sources (weather, calendar, etc.) and your Vestaboard display.
 
-I host this app at [Railway](https://railway.com/), but any place you can have an only on Node.js server will work.
+I host this app at [Railway](https://railway.com/), but any place you can have host a Node.js server will work.
 
 ## System Overview
 
@@ -13,8 +13,9 @@ graph TD
     C -->|Updates| D[Board Service]
     D -->|Displays| E[Vestaboard]
     
-    C -->|Requests| F[Weather Service]
-    C -->|Requests| G[Calendar Service]
+    C -->|Pattern Matching| J[Pattern Matchers]
+    J -->|Requests| F[Weather Service]
+    J -->|Requests| G[Calendar Service]
     
     H[Google Calendar API] -->|Data| G
     I[Weather API] -->|Data| F
@@ -30,14 +31,27 @@ The application's entry point that handles:
 - Environment validation and configuration
 - Error handling and logging
 
-### 2. Mode System (`src/types/Mode.js`)
+### 2. Mode System
+The mode system is split across multiple components:
+- **Mode Types** (`src/types/Mode.js`): Defines available display modes
+- **Mode Controller** (`src/controllers/modeController.js`): Manages mode switching and scheduling
+- **Pattern Matchers** (`src/patterns/`): Implements display logic for each mode
+
 The application supports multiple display modes:
 - **MANUAL**: Direct control of the display through text input
 - **CLOCK**: Shows current time in PST/PDT
 - **WEATHER**: Displays 6-day weather forecast with temperature and conditions
 - **CALENDAR**: Shows upcoming calendar events within a 7-day window
 
-### 3. Services
+### 3. Pattern Matcher System (`src/patterns/`)
+A flexible system that handles the display logic for each mode:
+- **Base Pattern Matcher** (`src/types/PatternMatcher.js`): Defines the interface
+- **Weather Pattern Matcher**: Formats and displays weather forecasts
+- **Calendar Pattern Matcher**: Formats and displays calendar events
+- **Clock Pattern Matcher**: Handles time display
+- **Pattern Matcher Factory**: Creates appropriate matcher instances
+
+### 4. Services
 
 #### Board Service (`src/services/boardService.js`)
 - Manages communication with the Vestaboard API
@@ -59,19 +73,12 @@ The application supports multiple display modes:
 - Filters all-day and declined events
 - Handles timezone conversion (PST/PDT)
 - Implements OAuth2 authentication flow
-- Includes automatic token refresh mechanism
+- Includes token management and refresh mechanism
 
-#### Token Service (`src/services/tokenService.js`)
-- Manages Google OAuth tokens through environment variables
-- Handles token validation and verification
-- Supports automatic token refresh mechanism
-- Provides token management functionality
-
-### 4. Utilities
+### 5. Utilities
 Located in `src/utils/`:
 - **boardCharacters.js**: Manages Vestaboard character mapping
-- **weatherFormatter.js**: Formats weather data for display
-- **calendarFormatter.js**: Formats calendar events for display
+- **cronSchedules.js**: Defines scheduling patterns for different modes
 
 ## Web Interface
 The application includes a web interface (`src/public/`) that provides:
