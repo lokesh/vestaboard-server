@@ -162,6 +162,9 @@ export const getCalendarEvents = async () => {
               const isMultiDay = startTime.getDate() !== endTime.getDate();
               if (isMultiDay) return false;
 
+              // Filter out events that have already finished
+              if (endTime < now) return false;
+
               // Filter out declined events
               const attendees = event.attendees || [];
               const selfAttendee = attendees.find(
