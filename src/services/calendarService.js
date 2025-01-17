@@ -1,5 +1,6 @@
 import { google } from 'googleapis';
 import dotenv from 'dotenv';
+import { saveTokensToRedis, getTokensFromRedis } from '../utils/redisClient.js';
 
 dotenv.config();
 
@@ -8,9 +9,8 @@ const requiredEnvVars = [
   'GOOGLE_CLIENT_ID',
   'GOOGLE_CLIENT_SECRET',
   'GOOGLE_REDIRECT_URI',
-  'GOOGLE_ACCESS_TOKEN',
-  'GOOGLE_REFRESH_TOKEN',
-  'GOOGLE_TOKEN_EXPIRY'
+  'UPSTASH_REDIS_REST_URL',
+  'UPSTASH_REDIS_REST_TOKEN'
 ];
 
 const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName]);
@@ -41,19 +41,20 @@ const SCOPES = [
 ];
 
 // Create OAuth2 client with credentials
-const createOAuth2Client = () => {
+const createOAuth2Client = async () => {
   const client = new google.auth.OAuth2(
     GOOGLE_OAUTH_CONFIG.clientId,
     GOOGLE_OAUTH_CONFIG.clientSecret,
     GOOGLE_OAUTH_CONFIG.redirectUri
   );
 
-  // Set credentials from environment variables
-  client.setCredentials({
-    access_token: process.env.GOOGLE_ACCESS_TOKEN,
-    refresh_token: process.env.GOOGLE_REFRESH_TOKEN,
-    expiry_date: parseInt(process.env.GOOGLE_TOKEN_EXPIRY)
-  });
+  // Get credentials from Redis
+  const tokens = await getTokensFromRedis();
+  if (tokens.access_token && tokens.refresh_token && tokens.expiry_date) {
+    client.setCredentials(tokens);
+  } else {
+    throw new Error('No tokens found. Please authenticate first.');
+  }
 
   return client;
 };
@@ -64,7 +65,14 @@ const createOAuth2Client = () => {
  */
 export const getAuthUrl = () => {
   try {
-    const oauth2Client = createOAuth2Client();
+    // For auth URL generation, create a new OAuth2 client directly
+    // We don't need tokens for this operation
+    const oauth2Client = new google.auth.OAuth2(
+      GOOGLE_OAUTH_CONFIG.clientId,
+      GOOGLE_OAUTH_CONFIG.clientSecret,
+      GOOGLE_OAUTH_CONFIG.redirectUri
+    );
+
     const authUrl = oauth2Client.generateAuthUrl({
       access_type: 'offline',
       scope: SCOPES,
@@ -85,16 +93,17 @@ export const getAuthUrl = () => {
  */
 export const getTokens = async (code) => {
   try {
-    const oauth2Client = createOAuth2Client();
+    const oauth2Client = new google.auth.OAuth2(
+      GOOGLE_OAUTH_CONFIG.clientId,
+      GOOGLE_OAUTH_CONFIG.clientSecret,
+      GOOGLE_OAUTH_CONFIG.redirectUri
+    );
     console.log('Attempting to exchange code for tokens...');
     const { tokens } = await oauth2Client.getToken(code);
     
-    // Log the tokens we need to save to .env
-    console.log('\n=== TOKENS TO SAVE TO .ENV ===');
-    console.log('GOOGLE_ACCESS_TOKEN=' + tokens.access_token);
-    console.log('GOOGLE_REFRESH_TOKEN=' + tokens.refresh_token);
-    console.log('GOOGLE_TOKEN_EXPIRY=' + tokens.expiry_date);
-    console.log('===============================\n');
+    // Save tokens to Redis
+    await saveTokensToRedis(tokens);
+    console.log('Tokens saved to Redis successfully');
     
     return tokens;
   } catch (error) {
@@ -110,18 +119,13 @@ export const getTokens = async (code) => {
 export const getCalendarEvents = async () => {
   try {
     // Create and authorize OAuth2 client
-    const oauth2Client = createOAuth2Client();
+    const oauth2Client = await createOAuth2Client();
 
-    // Set up token refresh callback to log new tokens when they're refreshed
-    oauth2Client.on('tokens', (tokens) => {
+    // Set up token refresh callback to save new tokens to Redis
+    oauth2Client.on('tokens', async (tokens) => {
       if (tokens.access_token) {
-        console.log('\n=== NEW TOKENS TO UPDATE IN .ENV ===');
-        console.log('GOOGLE_ACCESS_TOKEN=' + tokens.access_token);
-        if (tokens.refresh_token) {
-          console.log('GOOGLE_REFRESH_TOKEN=' + tokens.refresh_token);
-        }
-        console.log('GOOGLE_TOKEN_EXPIRY=' + tokens.expiry_date);
-        console.log('===================================\n');
+        await saveTokensToRedis(tokens);
+        console.log('Refreshed tokens saved to Redis successfully');
       }
     });
 

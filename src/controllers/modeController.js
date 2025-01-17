@@ -7,11 +7,30 @@ import { formatWeatherDescription } from '../utils/weatherFormatter.js';
 import { formatCalendarEvents } from '../utils/calendarFormatter.js';
 import { CronSchedules } from '../utils/cronSchedules.js';
 import { PatternMatcherFactory } from '../patterns/PatternMatcherFactory.js';
+import { getCurrentMode, saveCurrentMode } from '../utils/redisClient.js';
 
 class ModeController {
   constructor() {
     this.currentMode = Mode.MANUAL;
     this.cronJobs = new Map();
+    this.initialize();
+  }
+
+  async initialize() {
+    try {
+      // Get saved mode from Redis
+      this.currentMode = await getCurrentMode();
+      console.log('Initialized current mode from Redis:', this.currentMode);
+      
+      // Set up scheduling based on saved mode
+      if (this.currentMode !== Mode.MANUAL) {
+        await this.setMode(this.currentMode);
+      }
+    } catch (error) {
+      console.error('Error initializing mode controller:', error);
+      // Default to MANUAL mode on error
+      this.currentMode = Mode.MANUAL;
+    }
   }
 
   getCurrentMode() {
@@ -27,6 +46,9 @@ class ModeController {
     this.stopAllCronJobs();
     
     this.currentMode = mode;
+    
+    // Save mode to Redis
+    await saveCurrentMode(mode);
     
     // Set up new scheduling based on mode
     switch (mode) {

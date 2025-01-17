@@ -3,6 +3,7 @@ import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv/config';
 import { charMap } from '../utils/boardCharacters.js';
+import { getDebugMode, saveDebugMode } from '../utils/redisClient.js';
 
 // Get the directory name of the current module
 const __filename = fileURLToPath(import.meta.url);
@@ -15,7 +16,30 @@ class BoardService {
     this.apiKey = process.env.VESTABOARD_READ_WRITE_API_KEY;
     this.charMap = charMap;
     this.baseUrl = 'https://rw.vestaboard.com';
-    this.debugMode = process.env.VESTABOARD_DEBUG === 'true';
+    this._debugMode = false;
+    this.initialize();
+  }
+
+  async initialize() {
+    try {
+      this._debugMode = await getDebugMode();
+      console.log('Initialized debug mode from Redis:', this._debugMode);
+    } catch (error) {
+      console.error('Error initializing debug mode:', error);
+      this._debugMode = false;
+    }
+  }
+
+  get debugMode() {
+    return this._debugMode;
+  }
+
+  set debugMode(value) {
+    this._debugMode = value;
+    // Save to Redis
+    saveDebugMode(value).catch(error => {
+      console.error('Error saving debug mode to Redis:', error);
+    });
   }
 
   async updateBoard(message) {

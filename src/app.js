@@ -79,8 +79,8 @@ app.get('/auth/google/callback', async (req, res) => {
 // Get events
 app.get('/calendar/events', async (req, res) => {
   console.log('📅 Calendar Events Request - Started');
-  console.log('Request Headers:', JSON.stringify(req.headers, null, 2));
-  console.log('Request Query Params:', JSON.stringify(req.query, null, 2));
+  // console.log('Request Headers:', JSON.stringify(req.headers, null, 2));
+  // console.log('Request Query Params:', JSON.stringify(req.query, null, 2));
   
   try {
     console.log('Attempting to fetch calendar events...');
