@@ -189,7 +189,7 @@
             fetchBoardContent();
 
             // Refresh every 10 seconds
-            setInterval(fetchBoardContent, 10000);
+            setInterval(fetchBoardContent, 15000);
         </script>
 
 
@@ -341,9 +341,9 @@
             document.getElementById('calendar-auth-status').textContent = 'Authentication Failed';
         }
 
-        // Update status every 5 seconds
+        // Update status every minute
         updateStatus();
-        setInterval(updateStatus, 10000);
+        setInterval(updateStatus, 15000);
 
         // Update calendar status on page load
         fetchCalendarEvents();

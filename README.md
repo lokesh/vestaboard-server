@@ -19,6 +19,10 @@ graph TD
     
     H[Google Calendar API] -->|Data| G
     I[Weather API] -->|Data| F
+    
+    K[Redis] -->|State Management| C
+    K -->|Token Storage| G
+    K -->|Debug Mode| D
 ```
 
 ## Core Components
@@ -36,6 +40,7 @@ The mode system is split across multiple components:
 - **Mode Types** (`src/types/Mode.js`): Defines available display modes
 - **Mode Controller** (`src/controllers/modeController.js`): Manages mode switching and scheduling
 - **Pattern Matchers** (`src/patterns/`): Implements display logic for each mode
+- **Redis Integration**: Persists mode state and configuration
 
 The application supports multiple display modes:
 - **MANUAL**: Direct control of the display through text input
@@ -59,6 +64,7 @@ A flexible system that handles the display logic for each mode:
 - Supports debug mode with console visualization
 - Provides real-time board content retrieval
 - Implements message validation and error handling
+- Uses Redis to persist debug mode state
 
 #### Weather Service (`src/services/weatherService.js`)
 - Integrates with National Weather Service API
@@ -73,12 +79,20 @@ A flexible system that handles the display logic for each mode:
 - Filters all-day and declined events
 - Handles timezone conversion (PST/PDT)
 - Implements OAuth2 authentication flow
-- Includes token management and refresh mechanism
+- Uses Redis for secure token storage and management
 
 ### 5. Utilities
 Located in `src/utils/`:
 - **boardCharacters.js**: Manages Vestaboard character mapping
 - **cronSchedules.js**: Defines scheduling patterns for different modes
+- **redisClient.js**: Handles Redis connection and operations
+
+### 6. State Management
+The application uses Upstash Redis for:
+- Persisting current display mode
+- Storing debug mode state
+- Managing OAuth tokens securely
+- Maintaining application state across restarts
 
 ## Web Interface
 The application includes a web interface (`src/public/`) that provides:
@@ -91,7 +105,7 @@ The application includes a web interface (`src/public/`) that provides:
 ## Authentication
 - Google Calendar integration uses OAuth2
 - Authentication flow is handled through dedicated endpoints
-- Tokens are securely stored and managed
+- Tokens are securely stored in Redis
 
 ## Configuration
 - Environment variables are used for sensitive configuration
@@ -118,15 +132,16 @@ To run this application, you need to set up several environment variables. Creat
    - `VESTABOARD_SECRET`: Your Vestaboard application secret
    - `VESTABOARD_DEBUG`: Set to `true` for debug mode (optional)
 
-2. **Google Calendar Integration**
+2. **Redis Configuration**
+   - `UPSTASH_REDIS_REST_URL`: Your Upstash Redis REST URL
+   - `UPSTASH_REDIS_REST_TOKEN`: Your Upstash Redis REST authentication token
+
+3. **Google Calendar Integration**
    - `GOOGLE_CLIENT_ID`: OAuth 2.0 client ID from Google Cloud Console
    - `GOOGLE_CLIENT_SECRET`: OAuth 2.0 client secret from Google Cloud Console
    - `GOOGLE_REDIRECT_URI`: OAuth redirect URI (typically `http://localhost:3000/auth/google/callback` for local development)
-   - `GOOGLE_ACCESS_TOKEN`: Current access token for Google Calendar API
-   - `GOOGLE_REFRESH_TOKEN`: Refresh token for Google Calendar API
-   - `GOOGLE_TOKEN_EXPIRY`: Expiry timestamp for the access token
 
-3. **Debug Mode**
+4. **Debug Mode**
    - `NODE_DEBUG`: Set to `true` for additional debugging information (optional)
 
 ### How to Obtain the Credentials
@@ -136,7 +151,12 @@ To run this application, you need to set up several environment variables. Creat
    - Create a new application
    - Copy the provided API key, application key, and secret
 
-2. **Google Calendar Credentials**:
+2. **Upstash Redis Credentials**:
+   - Sign up at [Upstash](https://upstash.com/)
+   - Create a new Redis database
+   - Copy the REST URL and REST token from your database settings
+
+3. **Google Calendar Credentials**:
    - Go to [Google Cloud Console](https://console.cloud.google.com)
    - Create a new project
    - Enable the Google Calendar API
@@ -144,7 +164,6 @@ To run this application, you need to set up several environment variables. Creat
    - Create OAuth 2.0 credentials
    - Add authorized redirect URIs
    - Complete the OAuth flow to obtain access and refresh tokens
-   - Add the tokens to your `.env` file
 
 ## API Endpoints
 
