@@ -6,6 +6,7 @@ import cors from 'cors';
 import boardService from './services/boardService.js';
 import { modeController } from './controllers/modeController.js';
 import { getAuthUrl, getTokens, getCalendarEvents } from './services/calendarService.js';
+import { getCurrentMode, getDebugMode } from './utils/redisClient.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -25,15 +26,27 @@ app.get('/', (req, res) => {
 });
 
 // API Endpoints
-app.get('/api/status', (req, res) => {
-  const mode = modeController.getCurrentMode();
-  const scheduleInfo = modeController.getScheduleInfo(mode);
+app.get('/api/status', async (req, res) => {
+  try {
+    // Get current mode from Redis and update local memory
+    const mode = await getCurrentMode();
+    modeController.currentMode = mode;
 
-  res.json({
-    currentMode: mode,
-    debugMode: boardService.debugMode,
-    cronSchedule: scheduleInfo
-  });
+    // Get debug mode from Redis and update local memory
+    const debugMode = await getDebugMode();
+    boardService.debugMode = debugMode;
+
+    const scheduleInfo = modeController.getScheduleInfo(mode);
+
+    res.json({
+      currentMode: mode,
+      debugMode: debugMode,
+      cronSchedule: scheduleInfo
+    });
+  } catch (error) {
+    console.error('Error fetching status:', error);
+    res.status(500).json({ error: 'Failed to fetch status' });
+  }
 });
 
 app.post('/api/mode', (req, res) => {

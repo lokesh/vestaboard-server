@@ -11,7 +11,7 @@ import { getCurrentMode, saveCurrentMode } from '../utils/redisClient.js';
 
 class ModeController {
   constructor() {
-    this.currentMode = Mode.MANUAL;
+    this._currentMode = Mode.MANUAL;
     this.cronJobs = new Map();
     this.initialize();
   }
@@ -19,22 +19,29 @@ class ModeController {
   async initialize() {
     try {
       // Get saved mode from Redis
-      this.currentMode = await getCurrentMode();
-      console.log('Initialized current mode from Redis:', this.currentMode);
+      this._currentMode = await getCurrentMode();
+      console.log('Initialized current mode from Redis:', this._currentMode);
       
       // Set up scheduling based on saved mode
-      if (this.currentMode !== Mode.MANUAL) {
-        await this.setMode(this.currentMode);
+      if (this._currentMode !== Mode.MANUAL) {
+        await this.setMode(this._currentMode);
       }
     } catch (error) {
       console.error('Error initializing mode controller:', error);
       // Default to MANUAL mode on error
-      this.currentMode = Mode.MANUAL;
+      this._currentMode = Mode.MANUAL;
     }
   }
 
   getCurrentMode() {
-    return this.currentMode;
+    return this._currentMode;
+  }
+
+  set currentMode(mode) {
+    if (!Object.values(Mode).includes(mode)) {
+      throw new Error('Invalid mode');
+    }
+    this._currentMode = mode;
   }
 
   async setMode(mode) {
@@ -45,7 +52,7 @@ class ModeController {
     // Clear any existing cron jobs
     this.stopAllCronJobs();
     
-    this.currentMode = mode;
+    this._currentMode = mode;
     
     // Save mode to Redis
     await saveCurrentMode(mode);
