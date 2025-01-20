@@ -36,10 +36,12 @@ class BoardService {
 
   set debugMode(value) {
     this._debugMode = value;
-    // Save to Redis
-    saveDebugMode(value).catch(error => {
-      console.error('Error saving debug mode to Redis:', error);
-    });
+  }
+
+  async toggleDebugMode() {
+    this._debugMode = !this._debugMode;
+    await saveDebugMode(this._debugMode);
+    return this._debugMode;
   }
 
   async updateBoard(message) {

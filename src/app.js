@@ -64,9 +64,14 @@ app.post('/api/mode', (req, res) => {
   }
 });
 
-app.post('/api/debug/toggle', (req, res) => {
-  boardService.debugMode = !boardService.debugMode;
-  res.json({ success: true, debugMode: boardService.debugMode });
+app.post('/api/debug/toggle', async (req, res) => {
+  try {
+    const newDebugMode = await boardService.toggleDebugMode();
+    res.json({ success: true, debugMode: newDebugMode });
+  } catch (error) {
+    console.error('Error toggling debug mode:', error);
+    res.status(500).json({ error: 'Failed to toggle debug mode' });
+  }
 });
 
 // Route to start OAuth flow

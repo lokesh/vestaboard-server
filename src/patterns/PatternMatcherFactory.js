@@ -2,6 +2,7 @@ import { Mode } from '../types/Mode.js';
 import { ClockPatternMatcher } from './ClockPatternMatcher.js';
 import { WeatherPatternMatcher } from './WeatherPatternMatcher.js';
 import { CalendarPatternMatcher } from './CalendarPatternMatcher.js';
+import { TodayPatternMatcher } from './TodayPatternMatcher.js';
 
 /**
  * Factory class for creating pattern matchers based on mode
@@ -20,6 +21,8 @@ export class PatternMatcherFactory {
         return new WeatherPatternMatcher();
       case Mode.CALENDAR:
         return new CalendarPatternMatcher();
+      case Mode.TODAY:
+        return new TodayPatternMatcher();
       case Mode.MANUAL:
         return null; // Manual mode doesn't need pattern matching
       default:

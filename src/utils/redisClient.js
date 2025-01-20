@@ -73,7 +73,7 @@ export const getCurrentMode = async () => {
 
 export const saveDebugMode = async (enabled) => {
   try {
-    await redis.set(REDIS_KEYS.DEBUG_MODE, enabled.toString());
+    await redis.set(REDIS_KEYS.DEBUG_MODE, enabled);
     console.log('Successfully saved debug mode to Redis:', enabled);
   } catch (error) {
     console.error('Error saving debug mode to Redis:', error);
@@ -84,7 +84,7 @@ export const saveDebugMode = async (enabled) => {
 export const getDebugMode = async () => {
   try {
     const debug = await redis.get(REDIS_KEYS.DEBUG_MODE);
-    return debug === 'true'; // Convert string to boolean, defaults to false if not set
+    return debug; // Convert string to boolean, defaults to false if not set
   } catch (error) {
     console.error('Error getting debug mode from Redis:', error);
     return false; // Default to false on error

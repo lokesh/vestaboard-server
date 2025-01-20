@@ -7,6 +7,10 @@ export const CronSchedules = {
     schedule: '0 6,12,18 * * *',
     description: 'Updates at 6am, noon, and 6pm PST every day'
   },
+  TODAY: {
+    schedule: '0 6,12,18 * * *',
+    description: 'Updates at 6am, noon, and 6pm PST every day'
+  },
   CALENDAR: {
     schedule: '0 * * * *',
     description: 'Updates every hour'

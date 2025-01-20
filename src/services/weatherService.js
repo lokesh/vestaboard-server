@@ -32,4 +32,59 @@ export const getWeatherData = async () => {
     console.error('Weather service error:', error);
     throw new Error(`Failed to fetch weather data: ${error.message}`);
   }
+};
+
+export const getHourlyWeatherData = async () => {
+  try {
+    const response = await fetch('https://api.weather.gov/gridpoints/MTR/84,105/forecast/hourly');
+    const data = await response.json();
+
+    // Get current time in PST
+    const now = new Date();
+
+    // Get next 22 hours of forecast data
+    const hourlyData = data.properties.periods
+      .filter(period => {
+        const periodDate = new Date(period.startTime);
+        return periodDate >= now;
+      })
+      .slice(0, 22)
+      .map(period => ({
+        hour: new Date(period.startTime).getHours(),
+        temperature: Math.round(period.temperature),
+        shortForecast: period.shortForecast
+      }));
+
+    return hourlyData;
+  } catch (error) {
+    console.error('Hourly weather service error:', error);
+    throw new Error(`Failed to fetch hourly weather data: ${error.message}`);
+  }
+};
+
+export const getSunData = async () => {
+  try {
+    // Get today's date in PST
+    const today = new Date();
+    const pstDate = today.toLocaleDateString('en-US', { timeZone: 'America/Los_Angeles' });
+    
+    const response = await fetch(`https://api.sunrise-sunset.org/json?lat=37.7749&lng=-122.4194&formatted=0&date=${pstDate}`);
+    const data = await response.json();
+
+    if (data.status !== 'OK') {
+      throw new Error('Failed to get sun data');
+    }
+
+    // Convert UTC times to PST
+    const sunriseUTC = new Date(data.results.sunrise);
+    const sunsetUTC = new Date(data.results.sunset);
+
+    return {
+      sunrise: new Date(sunriseUTC.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' })),
+      sunset: new Date(sunsetUTC.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' })),
+    };
+  } catch (error) {
+    console.error('Sun data service error:', error);
+    throw new Error(`Failed to fetch sun data: ${error.message}`);
+  }
 }; 

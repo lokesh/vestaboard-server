@@ -31,7 +31,7 @@
         }
         .control-panel {
             display: grid;
-            grid-template-columns: repeat(2, calc(50% - 4px));
+            grid-template-columns: repeat(3, calc(33.33% - 6px));
             gap: 8px;
             margin-bottom: 8px;
             max-width: var(--board-width);
@@ -206,6 +206,7 @@
             <button class="button" onclick="setMode('CLOCK')">Clock</button>
             <button class="button" onclick="setMode('WEATHER')">Weather</button>
             <button class="button" onclick="setMode('CALENDAR')">Calendar</button>
+            <button class="button" onclick="setMode('TODAY')">Today</button>
         </div>
 
         <div>Mode: <span id="current-mode">Loading...</span></div>

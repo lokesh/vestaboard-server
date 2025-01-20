@@ -1,6 +1,6 @@
 import { Mode } from '../types/Mode.js';
 import boardService from '../services/boardService.js';
-import { getWeatherData } from '../services/weatherService.js';
+import { getWeatherData, getHourlyWeatherData, getSunData } from '../services/weatherService.js';
 import { getCalendarEvents } from '../services/calendarService.js';
 import cron from 'node-cron';
 import { formatWeatherDescription } from '../utils/weatherFormatter.js';
@@ -70,6 +70,10 @@ class ModeController {
       case Mode.CALENDAR:
         await this.updateCalendar(true); // Immediate update
         this.setupCalendarMode();
+        break;
+      case Mode.TODAY:
+        await this.updateToday(true); // Immediate update
+        this.setupTodayMode();
         break;
       case Mode.MANUAL:
         // Manual mode doesn't need any scheduling
@@ -196,6 +200,117 @@ class ModeController {
     }
   }
 
+  async updateToday(initialUpdate = false) {
+    console.log('Starting updateToday function, initialUpdate:', initialUpdate);
+    
+    // Get hourly weather data
+    console.log('Fetching hourly weather data...');
+    const hourlyData = await getHourlyWeatherData();
+    console.log('Received hourly weather data:', hourlyData ? 'data present' : 'no data');
+    console.log('Hourly data:', hourlyData);
+    // Format current date
+    console.log('Formatting date...');
+    const now = new Date();
+    const dayStr = now.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
+    const monthStr = now.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
+    const dateStr = now.getDate().toString();
+    const firstLine = `${dayStr} ${monthStr} ${dateStr}`;
+    console.log('Formatted first line:', firstLine);
+
+    // Get temperatures for specific hours
+    console.log('Processing temperatures for specific hours...');
+    const temperatures = hourlyData
+      .filter((_, index) => index % 4 === 0)  // Take every 3rd hour
+      .map(data => data.temperature.toString().padStart(2, ' '))
+    
+
+    const tempLine = temperatures.join('  ');  // Increased spacing to account for fewer numbers
+    console.log('Temperature line:', tempLine);
+
+    // Create weather condition boxes
+    console.log('Creating weather condition boxes...');
+    const sunData = await getSunData();
+    console.log('Sun data:', sunData);
+
+    const getWeatherEmoji = (forecast, dateTime) => {
+      const blueConditions = ['rain', 'shower'];
+      
+      const whiteConditions = ['cloud', 'overcast', 'fog', 'smoke', 'ash', 'storm', 'snow', 'ice', 'blizzard'];
+      const yellowConditions = ['sunny', 'clear', 'fair', 'haze'];
+      const redConditions = ['hot'];
+      const purpleConditions = ['windy', 'breezy', 'blustery'];
+
+      if (blueConditions.some(condition => forecast.toLowerCase().includes(condition))) return '🟦';
+      
+      if (dateTime < sunData.sunrise || dateTime > sunData.sunset) {
+        return '⬛️';
+      }
+      if (whiteConditions.some(condition => forecast.toLowerCase().includes(condition))) return '⬜';
+      if (yellowConditions.some(condition => forecast.toLowerCase().includes(condition))) return '🟨';
+      if (redConditions.some(condition => forecast.toLowerCase().includes(condition))) return '🟥';
+      if (purpleConditions.some(condition => forecast.toLowerCase().includes(condition))) return '🟪';
+  
+      return '⬜'; // cloudy or other conditions
+    };
+
+    const boxes = hourlyData
+      .map(data => {
+        const dateTime = new Date();
+        dateTime.setHours(data.hour, 0, 0, 0);
+        return getWeatherEmoji(data.shortForecast, dateTime);
+      })
+      .join('');  // Remove spacing since we want boxes to be adjacent
+    console.log('Weather boxes:', boxes);
+
+    // Create time labels for every 4th hour
+    const timeLabels = hourlyData
+      .filter((_, index) => index % 4 === 0)
+      .map(data => {
+        const hour = data.hour % 12 || 12;  // Convert 24h to 12h format
+        const ampm = data.hour < 12 ? 'a' : 'p';
+        // Add two spaces after single digit hours, one space after double digit hours
+        return `${hour}${ampm}${hour < 10 ? '  ' : ' '}`;
+      })
+      .join('');
+    console.log('Time labels:', timeLabels);
+
+    // Combine all lines with a blank line between date and temperatures
+    const content = `${firstLine}\n\n${tempLine}\n${boxes}\n${timeLabels}`;
+    console.log('Final content to display:', content);
+
+    // Fetch current board content
+    console.log('Fetching current board content...');
+    const currentContent = await boardService.getCurrentBoardContent();
+    console.log('Current board content:', currentContent);
+    
+    // Get the appropriate pattern matcher
+    console.log('Getting pattern matcher for TODAY mode...');
+    const matcher = PatternMatcherFactory.createMatcher(Mode.TODAY);
+    console.log('Pattern matcher created:', matcher ? 'success' : 'failed');
+    
+    if (matcher) {
+      console.log('Checking if content matches pattern...');
+      const isMatch = matcher.matches(currentContent);
+      console.log('Pattern match result:', isMatch);
+    }
+    
+    const isMatch = matcher ? matcher.matches(currentContent) : false;
+
+    // If not initial update and the current content doesn't match today patterns,
+    // don't update it. Stop all cron jobs and set mode to manual.
+    console.log('Checking conditions for update - initialUpdate:', initialUpdate, 'isMatch:', isMatch);
+    if (initialUpdate || isMatch) {
+      console.log('Updating board with new content...');
+      await boardService.updateBoard(content);
+      console.log('Board update complete');
+    } else {
+      console.log('Content pattern mismatch - stopping cron jobs and switching to manual mode');
+      this.stopAllCronJobs();
+      this.currentMode = Mode.MANUAL;
+      return;
+    }
+  }
+
   setupClockMode() {
     // Update every minute, using PST timezone
     const job = cron.schedule(CronSchedules.CLOCK.schedule, () => this.updateClock(), {
@@ -218,6 +333,14 @@ class ModeController {
       timezone: 'America/Los_Angeles'
     });
     this.cronJobs.set('calendar', job);
+  }
+
+  setupTodayMode() {
+    // Update every hour PST
+    const job = cron.schedule(CronSchedules.TODAY.schedule, () => this.updateToday(), {
+      timezone: 'America/Los_Angeles'
+    });
+    this.cronJobs.set('today', job);
   }
 
   getScheduleInfo(mode) {
