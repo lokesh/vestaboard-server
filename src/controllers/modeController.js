@@ -127,11 +127,11 @@ class ModeController {
       const tempStr = `${Math.round(row.temperature)}`.padStart(2, ' ');
       
       // Determine emoji based on temperature and conditions
-      let emoji = '🟪';
-      if (row.temperature >= 40) emoji = '🟩';
-      if (row.temperature >= 55) emoji = '🟨';
-      if (row.temperature >= 70) emoji = '🟧';
-      if (row.temperature >= 80) emoji = '🟥';
+      let emoji = '🟪';  // Default to purple for cold
+      if (row.temperature >= 40) emoji = '🟩';  // Green for cool
+      if (row.temperature >= 55) emoji = '🟨';  // Yellow for mild
+      if (row.temperature >= 70) emoji = '🟧';  // Orange for warm
+      if (row.temperature >= 80) emoji = '🟥';  // Red for hot
 
       // Check for special conditions using PST time
       const now = new Date();
@@ -141,14 +141,14 @@ class ModeController {
       
       // Determine final emoji based on conditions
       const conditionTable = [
-        ['🟥', ['Hot']],
-        [isTonight ? '⬛' : '🟧', ['Dust', 'Sand']],
-        [isTonight ? '⬛' : emoji, ['Sunny', 'Clear', 'Fair', 'Haze']],
-        [isTonight ? '⬛' : '🟩', ['Windy', 'Breezy', 'Blustery']],
-        ['🟪', ['Frost', 'Cold']],
-        ['⬛', ['Cloud', 'Overcast', 'Fog', 'Smoke', 'Ash', 'Storm']],
-        ['🟦', ['Sleet', 'Spray', 'Rain', 'Shower', 'Spouts', 'Drizzle']],
-        ['⬜', ['Snow', 'Ice', 'Blizzard']]
+        ['🟥', ['Hot']],  // Red for hot
+        [isTonight ? '⬛' : '🟧', ['Dust', 'Sand']],  // Black at night, orange in day
+        [isTonight ? '⬛' : emoji, ['Sunny', 'Clear', 'Fair', 'Haze']],  // Black at night, temp-based in day
+        [isTonight ? '⬛' : '🟩', ['Windy', 'Breezy', 'Blustery']],  // Black at night, green in day
+        ['🟪', ['Frost', 'Cold']],  // Purple for cold
+        ['⬛', ['Cloud', 'Overcast', 'Fog', 'Smoke', 'Ash', 'Storm']],  // Black for dark conditions
+        ['🟦', ['Sleet', 'Spray', 'Rain', 'Shower', 'Spouts', 'Drizzle']],  // Blue for rain
+        ['⬜', ['Snow', 'Ice', 'Blizzard']]  // White for snow/ice
       ];
 
       const finalEmoji = conditionTable.find(([_, conditions]) => 
@@ -233,24 +233,24 @@ class ModeController {
     console.log('Sun data:', sunData);
 
     const getWeatherEmoji = (forecast, dateTime) => {
-      const blueConditions = ['rain', 'shower'];
-      
-      const whiteConditions = ['cloud', 'overcast', 'fog', 'smoke', 'ash', 'storm', 'snow', 'ice', 'blizzard'];
-      const yellowConditions = ['sunny', 'clear', 'fair', 'haze'];
-      const redConditions = ['hot'];
-      const purpleConditions = ['windy', 'breezy', 'blustery'];
+      const blueConditions = ['rain', 'shower'];  // 🟦
+      const whiteConditions = ['cloud', 'overcast', 'fog', 'smoke', 'ash', 'storm', 'snow', 'ice', 'blizzard'];  // ⬜
+      const yellowConditions = ['sunny', 'clear', 'fair', 'haze'];  // 🟨
+      const redConditions = ['hot'];  // 🟥
+      const purpleConditions = ['windy', 'breezy', 'blustery'];  // 🟪
 
       if (blueConditions.some(condition => forecast.toLowerCase().includes(condition))) return '🟦';
       
       if (dateTime < sunData.sunrise || dateTime > sunData.sunset) {
-        return '⬛️';
+        return '⬛';  // Black at night
       }
+      
       if (whiteConditions.some(condition => forecast.toLowerCase().includes(condition))) return '⬜';
       if (yellowConditions.some(condition => forecast.toLowerCase().includes(condition))) return '🟨';
       if (redConditions.some(condition => forecast.toLowerCase().includes(condition))) return '🟥';
       if (purpleConditions.some(condition => forecast.toLowerCase().includes(condition))) return '🟪';
   
-      return '⬜'; // cloudy or other conditions
+      return '⬜';  // Default to white for cloudy or other conditions
     };
 
     const boxes = hourlyData

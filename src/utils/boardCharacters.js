@@ -12,14 +12,40 @@ export const charMap = {
   // Special color characters
   'RED': 63, 'ORANGE': 64, 'YELLOW': 65, 'GREEN': 66, 'BLUE': 67,
   'VIOLET': 68, 'WHITE': 69, 'BLACK': 70, 'FILLED': 71,
-  '🟥': 63, '🟧': 64, '🟨': 65, '🟩': 66, '🟦': 67, '🟪': 68, '⬜': 69, '⬛️': 70
+  // Color emojis with all possible variations
+  '🟥': 63, '\u1F7E5': 63, // Red square
+  '🟧': 64, '\u1F7E7': 64, // Orange square
+  '🟨': 65, '\u1F7E8': 65, // Yellow square
+  '🟩': 66, '\u1F7E9': 66, // Green square
+  '🟦': 67, '\u1F7E6': 67, // Blue square
+  '🟪': 68, '\u1F7EA': 68, // Purple square
+  '⬜': 69, '\u2B1C': 69, '\u2B1C\uFE0F': 69, // White square
+  '⬛': 70, '\u2B1B': 70, '\u2B1B\uFE0F': 70  // Black square
 };
 
-// Move colorValues to module scope for shared access
-export const colorValues = new Set(['RED', 'ORANGE', 'YELLOW', 'GREEN', 'BLUE', 'VIOLET', 'WHITE', 'BLACK', 'FILLED',
-    '🟥', '🟧', '🟨', '🟩', '🟦', '🟪', '⬜', '⬛️']);
+// Update the sets to include all variations
+export const colorValues = new Set([
+  'RED', 'ORANGE', 'YELLOW', 'GREEN', 'BLUE', 'VIOLET', 'WHITE', 'BLACK', 'FILLED',
+  '🟥', '\u1F7E5',
+  '🟧', '\u1F7E7',
+  '🟨', '\u1F7E8',
+  '🟩', '\u1F7E9',
+  '🟦', '\u1F7E6',
+  '🟪', '\u1F7EA',
+  '⬜', '\u2B1C', '\u2B1C\uFE0F',
+  '⬛', '\u2B1B', '\u2B1B\uFE0F'
+]);
 
-export const emojiValues = new Set(['🟥', '🟧', '🟨', '🟩', '🟦', '🟪', '⬜', '⬛️']);
+export const emojiValues = new Set([
+  '🟥', '\u1F7E5',
+  '🟧', '\u1F7E7',
+  '🟨', '\u1F7E8',
+  '🟩', '\u1F7E9',
+  '🟦', '\u1F7E6',
+  '🟪', '\u1F7EA',
+  '⬜', '\u2B1C', '\u2B1C\uFE0F',
+  '⬛', '\u2B1B', '\u2B1B\uFE0F'
+]);
 
 /**
  * Validates if a time string is in correct format and range

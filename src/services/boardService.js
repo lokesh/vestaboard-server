@@ -128,6 +128,7 @@ class BoardService {
       
       // Convert each character to its Vestaboard code
       for (let j = 0; j < 22; j++) {
+        console.log(chars[j], this.charMap[chars[j]]);
         matrix[i][j] = this.charMap[chars[j]] || 0;
       }
     }
