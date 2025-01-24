@@ -69,7 +69,6 @@ class BoardService {
     
     try {
       
-      console.log(characters);
       const response = await fetch(this.baseUrl, {
         method: 'POST',
         headers,

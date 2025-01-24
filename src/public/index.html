@@ -163,7 +163,7 @@
                     const response = await fetch('/api/board/content');
                     const data = await response.json();
                     
-                    console.log('Board content response:', data);
+                    // console.log('Board content response:', data);
                     
                     // Check if data is an array of arrays
                     if (!Array.isArray(data) || !data.every(row => Array.isArray(row))) {
