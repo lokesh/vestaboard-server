@@ -211,6 +211,30 @@
 
         <div>Mode: <span id="current-mode">Loading...</span></div>
 
+        <div class="pattern-test-panel">
+            <h2>Pattern Tests</h2>
+            <div class="control-panel">
+                <button class="button" onclick="testPattern('CLOCK')">Test Clock</button>
+                <button class="button" onclick="testPattern('WEATHER')">Test Weather</button>
+                <button class="button" onclick="testPattern('CALENDAR')">Test Calendar</button>
+                <button class="button" onclick="testPattern('TODAY')">Test Today</button>
+            </div>
+            <div id="pattern-test-results">
+                <div class="status-item">
+                    <span class="status-label">Last Test:&nbsp;</span>
+                    <span id="pattern-test-mode">None</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Result:&nbsp;</span>
+                    <span id="pattern-test-result">Not tested</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Time:&nbsp;</span>
+                    <span id="pattern-test-time">N/A</span>
+                </div>
+            </div>
+        </div>
+
         <div class="status-item">
             <span class="status-label">Cron:&nbsp;</span>
             <span id="cron-schedule">Loading...</span>
@@ -394,6 +418,32 @@
                 console.error('Error sending message:', error);
                 statusElement.textContent = `Error: ${error.message}`;
                 statusElement.style.color = '#dc3545';
+            }
+        }
+
+        async function testPattern(mode) {
+            try {
+                const response = await fetch('/api/pattern/test', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ mode })
+                });
+                
+                const data = await response.json();
+                
+                document.getElementById('pattern-test-mode').textContent = mode;
+                document.getElementById('pattern-test-result').textContent = data.matches ? '✅ Match' : '❌ No Match';
+                document.getElementById('pattern-test-time').textContent = new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' });
+                
+                // Add success/failure styling
+                const resultElement = document.getElementById('pattern-test-result');
+                resultElement.style.color = data.matches ? '#28a745' : '#dc3545';
+            } catch (error) {
+                console.error('Error testing pattern:', error);
+                document.getElementById('pattern-test-result').textContent = '❌ Error';
+                document.getElementById('pattern-test-result').style.color = '#dc3545';
             }
         }
     </script>

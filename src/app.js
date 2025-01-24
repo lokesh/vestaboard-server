@@ -151,6 +151,18 @@ app.post('/api/board/message', async (req, res) => {
     }
 });
 
+// Pattern test endpoint
+app.post('/api/pattern/test', async (req, res) => {
+    try {
+        const { mode } = req.body;
+        const result = await modeController.testPattern(mode);
+        res.json(result);
+    } catch (error) {
+        console.error('Error testing pattern:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

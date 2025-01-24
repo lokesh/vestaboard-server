@@ -74,6 +74,7 @@ export function checkBoardPattern(message, pattern) {
         message.length !== 6 || pattern.length !== 6 ||
         !message.every(row => row.length === 22) ||
         !pattern.every(row => row.length === 22)) {
+        console.log('Pattern matching failed: Invalid dimensions');
         return false;
     }
 
@@ -93,9 +94,6 @@ export function checkBoardPattern(message, pattern) {
         // Skip empty pattern rows (all empty strings)
         if (patternRow.every(val => val === '')) continue;
 
-        // Check if this row matches any of our known patterns
-        let rowMatches = false;
-
         // Check each position in the row
         let positionMatches = true;
         for (let col = 0; col < 22; col++) {
@@ -107,26 +105,32 @@ export function checkBoardPattern(message, pattern) {
 
             // Check different pattern types
             if (patternValue === ':' && boardChar !== ':') {
+                console.log(`Pattern mismatch at row ${row}, col ${col}: Expected ':' but found '${boardChar}'`);
                 positionMatches = false;
                 break;
             }
             else if (patternValue === 'COLOR' && !colorValues.has(boardChar)) {
+                console.log(`Pattern mismatch at row ${row}, col ${col}: Expected a color value but found '${boardChar}'`);
                 positionMatches = false;
                 break;
             }
             else if (patternValue === 'a-z' && !/^[A-Z]$/.test(boardChar)) {
+                console.log(`Pattern mismatch at row ${row}, col ${col}: Expected letter but found '${boardChar}'`);
                 positionMatches = false;
                 break;
             }
             else if (patternValue === '0-9' && !/^[0-9]$/.test(boardChar)) {
+                console.log(`Pattern mismatch at row ${row}, col ${col}: Expected digit but found '${boardChar}'`);
                 positionMatches = false;
                 break;
             }
             else if (patternValue === 'emoji' && !emojiValues.has(boardChar)) {
+                console.log(`Pattern mismatch at row ${row}, col ${col}: Expected emoji but found '${boardChar}'`);
                 positionMatches = false;
                 break;
             }
             else if (patternValue === 'time' && (!/^[0-9:]$/.test(boardChar) || !isValidTime(boardChars.slice(col, col + 7).join('')))) {
+                console.log(`Pattern mismatch at row ${row}, col ${col}: Expected valid time character but found '${boardChar}'`);
                 positionMatches = false;
                 break;
             }
@@ -134,16 +138,20 @@ export function checkBoardPattern(message, pattern) {
                 const expectedChar = patternValue.toUpperCase();
                 const actualChar = boardChar.toUpperCase();
                 if (expectedChar !== actualChar) {
+                    console.log(`Pattern mismatch at row ${row}, col ${col}: Expected '${expectedChar}' but found '${actualChar}'`);
                     positionMatches = false;
                     break;
                 }
             }
         }
 
-        rowMatches = positionMatches;
-
         // If this row doesn't match any pattern, return false
-        if (!rowMatches) return false;
+        if (!positionMatches) {
+            console.log(`Row ${row} failed to match pattern`);
+            console.log('Board row:', boardChars.join(''));
+            console.log('Pattern row:', patternRow.join(''));
+            return false;
+        }
     }
 
     return true;

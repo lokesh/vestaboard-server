@@ -206,7 +206,7 @@ class ModeController {
     // Get hourly weather data
     console.log('Fetching hourly weather data...');
     const hourlyData = await getHourlyWeatherData();
-    console.log('Received hourly weather data:', hourlyData ? 'data present' : 'no data');
+    // console.log('Received hourly weather data:', hourlyData ? 'data present' : 'no data');
     console.log('Hourly data:', hourlyData);
     // Format current date
     console.log('Formatting date...');
@@ -353,6 +353,27 @@ class ModeController {
       job.stop();
     }
     this.cronJobs.clear();
+  }
+
+  async testPattern(mode) {
+    if (!Object.values(Mode).includes(mode)) {
+      throw new Error('Invalid mode');
+    }
+
+    // Get current board content
+    const currentContent = await boardService.getCurrentBoardContent();
+    
+    // Get the appropriate pattern matcher
+    const matcher = PatternMatcherFactory.createMatcher(mode);
+    
+    // Test the pattern
+    const matches = matcher ? matcher.matches(currentContent) : false;
+    
+    return {
+      mode,
+      matches,
+      description: matcher ? matcher.getDescription() : 'No pattern matcher available'
+    };
   }
 }
 
