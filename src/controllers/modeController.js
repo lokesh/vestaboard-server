@@ -311,36 +311,37 @@ class ModeController {
     }
   }
 
-  setupClockMode() {
-    // Update every minute, using PST timezone
-    const job = cron.schedule(CronSchedules.CLOCK.schedule, () => this.updateClock(), {
+  setupCronJob(mode, updateFn) {
+    const schedule = CronSchedules[mode].schedule;
+    const job = cron.schedule(schedule, async () => {
+      const serverTime = new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' });
+      console.log(`[${serverTime}] Starting ${mode} cron job. Current mode: ${this._currentMode}`);
+      try {
+        await updateFn();
+        console.log(`[${serverTime}] Successfully completed ${mode} cron job`);
+      } catch (error) {
+        console.error(`[${serverTime}] Failed ${mode} cron job:`, error);
+      }
+    }, {
       timezone: 'America/Los_Angeles'
     });
-    this.cronJobs.set('clock', job);
+    this.cronJobs.set(mode.toLowerCase(), job);
+  }
+
+  setupClockMode() {
+    this.setupCronJob(Mode.CLOCK, () => this.updateClock());
   }
 
   setupWeatherMode() {
-    // Update at 6am, noon, and 6pm PST every day
-    const job = cron.schedule(CronSchedules.WEATHER.schedule, () => this.updateWeather(), {
-      timezone: 'America/Los_Angeles'
-    });
-    this.cronJobs.set('weather', job);
+    this.setupCronJob(Mode.WEATHER, () => this.updateWeather());
   }
 
   setupCalendarMode() {
-    // Update every hour PST
-    const job = cron.schedule(CronSchedules.CALENDAR.schedule, () => this.updateCalendar(), {
-      timezone: 'America/Los_Angeles'
-    });
-    this.cronJobs.set('calendar', job);
+    this.setupCronJob(Mode.CALENDAR, () => this.updateCalendar());
   }
 
   setupTodayMode() {
-    // Update every hour PST
-    const job = cron.schedule(CronSchedules.TODAY.schedule, () => this.updateToday(), {
-      timezone: 'America/Los_Angeles'
-    });
-    this.cronJobs.set('today', job);
+    this.setupCronJob(Mode.TODAY, () => this.updateToday());
   }
 
   getScheduleInfo(mode) {

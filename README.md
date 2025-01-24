@@ -2,7 +2,7 @@
 
 This is a Node.js application that controls a Vestaboard display. The application serves as a bridge between different data sources (weather, calendar, etc.) and your Vestaboard display.
 
-I host this app at [Railway](https://railway.com/), but any place you can have host a Node.js server will work.
+I host this app at [Railway](https://railway.com/), but any place you can have host a Node.js server will work. Additionally, I use [Upstash](https://upstash.com/) for Redis.
 
 ## System Overview
 
