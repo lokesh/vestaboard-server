@@ -113,7 +113,7 @@ class BoardService {
   }
 
   _convertToVestaboardCharacters(message) {
-    console.log('Converting msg: ', message);
+    // console.log('Converting msg: ', message);
     // Split message into lines
     const lines = message.split('\n');
     
@@ -127,7 +127,7 @@ class BoardService {
       
       // Convert each character to its Vestaboard code
       for (let j = 0; j < 22; j++) {
-        console.log(chars[j], this.charMap[chars[j]]);
+        // console.log(chars[j], this.charMap[chars[j]]);
         matrix[i][j] = this.charMap[chars[j]] || 0;
       }
     }
