@@ -242,7 +242,7 @@ class ModeController {
       if (blueConditions.some(condition => forecast.toLowerCase().includes(condition))) return '🟦';
       
       if (dateTime < sunData.sunrise || dateTime > sunData.sunset) {
-        return '⬛';  // Black at night
+        return '-';  // Black at night
       }
       
       if (whiteConditions.some(condition => forecast.toLowerCase().includes(condition))) return '⬜';
