@@ -224,7 +224,8 @@ class ModeController {
       .map(data => data.temperature.toString().padStart(2, ' '))
     
 
-    const tempLine = temperatures.join('  ');  // Increased spacing to account for fewer numbers
+    const tempLine = temperatures.join('° ');  // Remove the last space
+    
     console.log('Temperature line:', tempLine);
 
     // Create weather condition boxes
@@ -239,7 +240,12 @@ class ModeController {
       const redConditions = ['hot'];  // 🟥
       const purpleConditions = ['windy', 'breezy', 'blustery'];  // 🟪
 
-      if (blueConditions.some(condition => forecast.toLowerCase().includes(condition))) return '🟦';
+      if (forecast.includes('rain') || forecast.includes('shower')) {
+        if (!forecast.includes('chance')) {
+          return '🟦';
+        }
+      }
+      // if (blueConditions.some(condition => forecast.toLowerCase().includes(condition))) return '🟦';
       
       if (dateTime < sunData.sunrise || dateTime > sunData.sunset) {
         return '-';  // Black at night
