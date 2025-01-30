@@ -15,9 +15,9 @@
                 <div class="board-grid">
                     <div v-for="(char, index) in boardContent" 
                          :key="index" 
-                         class="grid-cell">
+                         :class="['grid-cell', { 'animating': animatingCells.has(index) }]">
                         <template v-if="isColorEmoji(char)">
-                            <div :class="['color-block', `color-${getColorClass(char)}`]"></div>
+                            <div :class="['color-block', `color-${getColorClass(char)}`, { 'animating': animatingCells.has(index) }]"></div>
                         </template>
                         <template v-else>
                             {{ char || '\u00A0' }}
@@ -141,18 +141,26 @@
         const { createApp, ref, onMounted, watch } = Vue;
 
         const charMap = {
-            0: ' ',
-            1: 'A', 2: 'B', 3: 'C', 4: 'D', 5: 'E', 6: 'F', 7: 'G', 8: 'H', 9: 'I',
-            10: 'J', 11: 'K', 12: 'L', 13: 'M', 14: 'N', 15: 'O', 16: 'P', 17: 'Q',
-            18: 'R', 19: 'S', 20: 'T', 21: 'U', 22: 'V', 23: 'W', 24: 'X', 25: 'Y',
-            26: 'Z',
-            27: '1', 28: '2', 29: '3', 30: '4', 31: '5', 32: '6', 33: '7', 34: '8',
-            35: '9', 36: '0',
-            37: '!', 38: '@', 39: '#', 40: '$', 41: '(', 42: ')', 44: '-', 46: '+',
-            47: '&', 48: '=', 49: ';', 50: ':', 52: "'", 53: '"', 54: '%', 55: ',',
-            56: '.', 59: '/', 60: '?', 62: '°',
-            63: '🟥', 64: '🟧', 65: '🟨', 66: '🟩', 67: '🟦', 68: '🟪', 69: '⬜', 70: '⬛️', 71: '■'
+            ' ': 0,
+            'A': 1, 'B': 2, 'C': 3, 'D': 4, 'E': 5, 'F': 6, 'G': 7, 'H': 8, 'I': 9,
+            'J': 10, 'K': 11, 'L': 12, 'M': 13, 'N': 14, 'O': 15, 'P': 16, 'Q': 17,
+            'R': 18, 'S': 19, 'T': 20, 'U': 21, 'V': 22, 'W': 23, 'X': 24, 'Y': 25,
+            'Z': 26,
+            '1': 27, '2': 28, '3': 29, '4': 30, '5': 31, '6': 32, '7': 33, '8': 34,
+            '9': 35, '0': 36,
+            '!': 37, '@': 38, '#': 39, '$': 40, '(': 41, ')': 42, '-': 44, '+': 46,
+            '&': 47, '=': 48, ';': 49, ':': 50, "'": 52, '"': 53, '%': 54, ',': 55,
+            '.': 56, '/': 59, '?': 60, '°': 62,
+            '🟥': 63, '🟧': 64, '🟨': 65, '🟩': 66, '🟦': 67, '🟪': 68, '⬜': 69, 
+            '⬛': 70, '⬛️': 70, '\u2B1B': 70, '\u2B1B\uFE0F': 70,  // All black square variations
+            '■': 71
         };
+
+        // Create code to char map for API responses
+        const codeToChar = {};
+        Object.entries(charMap).forEach(([char, code]) => {
+            codeToChar[code] = char;
+        });
 
         const emojiColorMap = {
             '🟥': 'red',
@@ -162,7 +170,10 @@
             '🟦': 'blue',
             '🟪': 'purple',
             '⬜': 'white',
-            '⬛️': 'black',
+            '⬛': 'black',
+            '⬛️': 'black',  // Variation with variation selector
+            '\u2B1B': 'black',  // Unicode escape sequence
+            '\u2B1B\uFE0F': 'black',  // Unicode with variation selector
             '■': 'block-filled'
         };
 
@@ -191,6 +202,97 @@
                     color: '#666'
                 });
                 const boardContentIntervalId = ref(null);
+
+                // Create reverse character map (code to char)
+                const reverseCharMap = {};
+                Object.entries(charMap).forEach(([char, code]) => {
+                    reverseCharMap[code] = char;
+                });
+
+                // Animation configuration
+                const ANIMATION_DELAY = 100; // milliseconds between each character change
+                const animatingCells = ref(new Set());
+                const targetContent = ref(Array(132).fill(' '));
+
+                // Get the next character in the sequence
+                const getNextChar = (currentChar, targetChar) => {
+                    if (currentChar === targetChar) return currentChar;
+                    
+                    // Get the current and target character codes
+                    let currentCode = charMap[currentChar];
+                    let targetCode = charMap[targetChar];
+                                        
+                    // If either character is not found in the map and it's a regular character, try uppercase
+                    if (currentCode === undefined && typeof currentChar === 'string' && currentChar.length === 1) {
+                        currentCode = charMap[currentChar.toUpperCase()];
+                    }
+                    if (targetCode === undefined && typeof targetChar === 'string' && targetChar.length === 1) {
+                        targetCode = charMap[targetChar.toUpperCase()];
+                    }
+                    
+                    // If still not found, return target char
+                    if (currentCode === undefined || targetCode === undefined) {
+                        console.log('Character not found in map');
+                        return targetChar;
+                    }
+                    
+                    // Always move forward, wrapping around if needed
+                    const maxCode = 71; // Highest code in our charMap
+                    const nextCode = (currentCode + 1) > maxCode ? 0 : currentCode + 1;
+                    
+                    // If we've reached the target code after wrapping around, return the target char
+                    if (nextCode === currentCode) return targetChar;
+                    
+                    // Get the character for this code from our reverse map
+                    const nextChar = reverseCharMap[nextCode];
+                    
+                    return nextChar || targetChar;
+                };
+
+                // Animate a single cell
+                const animateCell = async (index, targetChar) => {
+                    if (animatingCells.value.has(index)) return;
+                    animatingCells.value.add(index);
+                    
+                    let currentChar = boardContent.value[index];
+                    
+                    while (currentChar !== targetChar) {
+                        const nextChar = getNextChar(currentChar, targetChar);
+                        
+                        if (nextChar === currentChar) {
+                            break;
+                        }
+                        
+                        currentChar = nextChar;
+                        boardContent.value = [...boardContent.value.slice(0, index), currentChar, ...boardContent.value.slice(index + 1)];
+                        await new Promise(resolve => setTimeout(resolve, ANIMATION_DELAY));
+                    }
+                    
+                    animatingCells.value.delete(index);
+                };
+
+                // Update board content with animation
+                const updateBoardContent = async (newContent) => {
+                    console.log('Starting board content update');
+                    console.log('Current content:', boardContent.value);
+                    console.log('New content:', newContent);
+                    
+                    targetContent.value = newContent;
+                    const animations = [];
+                    
+                    // Create initial copy of the board content
+                    boardContent.value = [...boardContent.value];
+                    
+                    // Start animations for changed cells
+                    for (let i = 0; i < newContent.length; i++) {
+                        if (boardContent.value[i] !== newContent[i]) {
+                            animations.push(animateCell(i, newContent[i]));
+                        }
+                    }
+                    
+                    await Promise.all(animations);
+                    console.log('All animations complete');
+                };
 
                 // Constants
                 const modes = [
@@ -263,10 +365,11 @@
                         const content = [];
                         data.forEach(row => {
                             row.forEach(charCode => {
-                                content.push(charMap[charCode] || ' ');
+                                // Use codeToChar map to convert API codes to characters
+                                content.push(codeToChar[charCode] || ' ');
                             });
                         });
-                        boardContent.value = content;
+                        await updateBoardContent(content);
                     } catch (error) {
                         console.error('Error fetching board content:', error);
                     }
@@ -383,7 +486,7 @@
                 };
 
                 const testContent = async (test) => {
-                    boardContent.value = test.content;
+                    await updateBoardContent(test.content);
                     contentTest.value = {
                         name: test.name,
                         result: '✅ Preview Updated',
@@ -420,8 +523,13 @@
                     }
                 };
 
-                const isColorEmoji = (char) => char in emojiColorMap;
-                const getColorClass = (char) => emojiColorMap[char];
+                const isColorEmoji = (char) => {
+                    return char in emojiColorMap;
+                };
+
+                const getColorClass = (char) => {
+                    return emojiColorMap[char];
+                };
 
                 // Lifecycle hooks
                 onMounted(() => {
@@ -456,6 +564,9 @@
                     patternTest,
                     contentTest,
                     boardContentIntervalId,
+                    // Animation
+                    animatingCells,
+                    ANIMATION_DELAY,
                     // Constants
                     modes,
                     controlModes,

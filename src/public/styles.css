@@ -75,7 +75,12 @@ body.debug-mode {
     display: flex;
     justify-content: center;
     align-items: center;
+    transition: transform 0.1s ease-in-out;
 }
+
+/* .grid-cell.animating {
+    transform: scale(0.7);
+} */
 
 /* First row alignment */
 .grid-cell:nth-child(-n+22) {
@@ -231,9 +236,14 @@ h2 {
 
 .color-block {
     width: 10px;
-    height: 14px;
+    height: 18px;
     border-radius: 2px;
+    transition: transform 0.1s ease-in-out;
 }
+
+/* .color-block.animating {
+    transform: scale(1.1);
+} */
 
 .color-red { background-color: #ff4444; }
 .color-orange { background-color: #ff8c00; }
