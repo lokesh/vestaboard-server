@@ -69,22 +69,22 @@ class BoardService {
     
     try {
       
-      // const response = await fetch(this.baseUrl, {
-      //   method: 'POST',
-      //   headers,
-      //   body:  JSON.stringify(characters),
-      // });
+      const response = await fetch(this.baseUrl, {
+        method: 'POST',
+        headers,
+        body:  JSON.stringify(characters),
+      });
 
-      // console.log('Vestaboard API Response:', {
-      //   status: response.status,
-      //   statusText: response.statusText
-      // });
+      console.log('Vestaboard API Response:', {
+        status: response.status,
+        statusText: response.statusText
+      });
 
-      // // Log response body if there's an error
-      // if (!response.ok) {
-      //   const responseBody = await response.text();
-      //   console.log('Error Response Body:', responseBody);
-      // }
+      // Log response body if there's an error
+      if (!response.ok) {
+        const responseBody = await response.text();
+        console.log('Error Response Body:', responseBody);
+      }
       
     } catch (error) {
       console.error('Error posting to Vestaboard:', error);
@@ -178,22 +178,22 @@ class BoardService {
             throw new Error('Message text is required');
         }
 
-        // const response = await fetch(this.baseUrl, {
-        //     method: 'POST',
-        //     headers: {
-        //         'Content-Type': 'application/json',
-        //         'X-Vestaboard-Read-Write-Key': this.apiKey
-        //     },
-        //     body: JSON.stringify({ text })
-        // });
+        const response = await fetch(this.baseUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Vestaboard-Read-Write-Key': this.apiKey
+            },
+            body: JSON.stringify({ text })
+        });
 
-        // const data = await response.json();
+        const data = await response.json();
 
-        // if (!response.ok) {
-        //     throw new Error(data.error || 'Failed to send message to Vestaboard');
-        // }
+        if (!response.ok) {
+            throw new Error(data.error || 'Failed to send message to Vestaboard');
+        }
 
-        // return data;
+        return data;
     } catch (error) {
         console.error('Error sending message to Vestaboard:', error);
         throw error;

@@ -43,56 +43,6 @@ body.debug-mode {
     background: #bbb;
 }
 
-/* .status-panel {
-    margin-bottom: 8px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    max-width: var(--board-width);
-}
-
-.control-panel {
-    display: grid;
-    grid-template-columns: repeat(3, calc(33.33% - 6px));
-    gap: 8px;
-    margin-bottom: 8px;
-    max-width: var(--board-width);
-}
-
-.button {
-    padding: 8px 8px;
-    font-family: 'IBM Plex Mono', 'Menlo', -apple-system, BlinkMacSystemFont, sans-serif;
-    font-size: 12px;
-    text-transform: uppercase;
-    border: none;
-    background-color: #000;
-    color: white;
-    cursor: pointer;
-    transition: background-color 0.2s;
-    border-radius: 4px;
-}
-
-.button:hover {
-    background-color: #0056b3;
-}
-
-.button.active {
-    background-color: #28a745;
-}
-
-.debug-toggle {
-    margin-top: 8px;
-}
-
-.status-item {
-    display: flex;
-    margin-bottom: 8px;
-}
-
-.status-label {
-    font-weight: 500;
-} */
-
 .container {
     width: var(--board-width);
     margin: 0 auto;
@@ -154,10 +104,6 @@ body.debug-mode {
     text-align: center;
 }
 
-#board-content {
-    margin: 0;
-}
-
 .calendar-debug {
     margin-top: 8px;
 }
@@ -212,16 +158,6 @@ h2 {
     min-width: 120px;
 }
 
-.debug-container {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.debug-status-label {
-    margin-left: 8px;
-}
-
 .mode-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -250,4 +186,20 @@ h2 {
     /* font-size: 14px;
     color: #666; */
 }
+
+.color-block {
+    width: 10px;
+    height: 14px;
+    border-radius: 2px;
+}
+
+.color-red { background-color: #ff4444; }
+.color-orange { background-color: #ff8c00; }
+.color-yellow { background-color: #ffd700; }
+.color-green { background-color: #4caf50; }
+.color-blue { background-color: #2196f3; }
+.color-purple { background-color: #9c27b0; }
+.color-white { background-color: #ffffff; border: 1px solid #ddd; }
+.color-black { background-color: #000000; }
+.color-block-filled { background-color: #666666; }
 
