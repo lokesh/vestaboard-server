@@ -40,7 +40,7 @@ body {
 }
 
 body.debug-mode {
-    background: #bbb;
+    /* background: #666; */
 }
 
 .container {
@@ -180,12 +180,11 @@ h2 {
     transition: transform 0.2s ease-in-out;
 }
 
-/* .mode.mode-active {
+.mode.mode-active {
     background: var(--color-active);
     background-position: bottom right;
-    background-repeat: no-rep eat;
-    position: relative;
-} */
+    background-repeat: no-repeat;
+}
 
 .mode.mode-today {
     background-image: url('images/mode\ bg\ today.svg');

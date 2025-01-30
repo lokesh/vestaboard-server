@@ -1,11 +1,6 @@
-Thu Jan 19 2025
 
-42   50   62   56   64
-▊▊▊▊▊▊▊▊▊▊▊▊▊▊▊▊▊▊▊▊▊▊
-10p 1a        12       6pm
+1. Add flip animations for board letter changes
+2. Consider using Svelte or Vue for the frontend
+3. Add UI for sending messages
+4. Enable debug mode
 
-
-SUN JAN 19
-
-46 44 43 43 52 60 60 53
-⬛️⬛️⬛️⬛️⬛️⬛️⬛️⬛️⬛️⬛️🟨🟨🟨🟨🟨🟨🟨🟨🟨🟨⬛️⬛️

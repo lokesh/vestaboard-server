@@ -6,505 +6,474 @@
     <title>Vestaboard</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap">
     <link rel="stylesheet" href="styles.css">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 </head>
 <body>
-    <div class="container">
-        <div class="board board-mock">
-            <div class="board-grid">
-                <!-- Row 1 -->
-                <div class="grid-cell">L</div>
-                <div class="grid-cell">O</div>
-                <div class="grid-cell">A</div>
-                <div class="grid-cell">D</div>
-                <div class="grid-cell">I</div>
-                <div class="grid-cell">N</div>
-                <div class="grid-cell">G</div>
-                <div class="grid-cell">.</div>
-                <div class="grid-cell">.</div>
-                <div class="grid-cell">.</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <!-- Row 2 -->
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <!-- Row 3 -->
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <!-- Row 4 -->
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <!-- Row 5 -->
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <!-- Row 6 -->
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-                <div class="grid-cell">&nbsp;</div>
-            </div>
-        </div>
-        <div class="update-timing">Updates at 6am, 9am, noon, 3pm, and 6pm</div>
-
-        <div class="mode-grid">
-            <div class="mode xmode-active mode-today" onclick="setMode('TODAY')">
-                <div class="mode-title">Today</div>
-                <div class="mode-subtitle">Hourly weather</div>
-            </div>
-            <div class="mode xmode-active mode-weather">
-                <div class="mode-title" onclick="setMode('WEATHER')">Weather</div>
-                <div class="mode-subtitle">5-Day Forecast</div>
-            </div>
-            <div class="mode xmode-active mode-calendar">
-                <div class="mode-title" onclick="setMode('CALENDAR')">Calendar</div>
-                <div class="mode-subtitle">Upcoming events</div>
-            </div>
-            <div class="mode xmode-active mode-clock">
-                <div class="mode-title" onclick="setMode('CLOCK')">Clock</div>
-                <div class="mode-subtitle">PST</div>
-            </div>
-        </div>
-
-        <script>
-            // Define the reverse character map
-            const charMap = {
-                0: ' ',
-                1: 'A', 2: 'B', 3: 'C', 4: 'D', 5: 'E', 6: 'F', 7: 'G', 8: 'H', 9: 'I',
-                10: 'J', 11: 'K', 12: 'L', 13: 'M', 14: 'N', 15: 'O', 16: 'P', 17: 'Q',
-                18: 'R', 19: 'S', 20: 'T', 21: 'U', 22: 'V', 23: 'W', 24: 'X', 25: 'Y',
-                26: 'Z',
-                27: '1', 28: '2', 29: '3', 30: '4', 31: '5', 32: '6', 33: '7', 34: '8',
-                35: '9', 36: '0',
-                37: '!', 38: '@', 39: '#', 40: '$', 41: '(', 42: ')', 44: '-', 46: '+',
-                47: '&', 48: '=', 49: ';', 50: ':', 52: "'", 53: '"', 54: '%', 55: ',',
-                56: '.', 59: '/', 60: '?', 62: '°',
-                63: '🟥', 64: '🟧', 65: '🟨', 66: '🟩', 67: '🟦', 68: '🟪', 69: '⬜', 70: '⬛️', 71: '■'
-            };
-
-            async function fetchBoardContent() {
-                try {
-                    const response = await fetch('/api/board/content');
-                    const data = await response.json();
-                    
-                    if (!Array.isArray(data) || !data.every(row => Array.isArray(row))) {
-                        console.error('Unexpected data format:', data);
-                        return;
-                    }
-
-                    // Get all grid cells
-                    const gridCells = document.querySelectorAll('.board-grid .grid-cell');
-                    
-                    // Clear existing content
-                    gridCells.forEach(cell => {
-                        cell.innerHTML = '';
-                    });
-
-                    // Map emoji characters to color classes
-                    const emojiColorMap = {
-                        '🟥': 'red',
-                        '🟧': 'orange',
-                        '🟨': 'yellow',
-                        '🟩': 'green',
-                        '🟦': 'blue',
-                        '🟪': 'purple',
-                        '⬜': 'white',
-                        '⬛️': 'black',
-                        '■': 'block-filled'
-                    };
-
-                    // Populate the grid cells
-                    data.forEach((row, rowIndex) => {
-                        row.forEach((charCode, colIndex) => {
-                            const cellIndex = rowIndex * 22 + colIndex;
-                            const cell = gridCells[cellIndex];
-                            if (!cell) return;
-
-                            const char = charMap[charCode];
-                            
-                            // Handle color emojis
-                            if (char in emojiColorMap) {
-                                const colorBlock = document.createElement('div');
-                                colorBlock.className = `color-block color-${emojiColorMap[char]}`;
-                                cell.appendChild(colorBlock);
-                            } else {
-                                // Handle regular characters
-                                cell.textContent = char || '\u00A0'; // Use non-breaking space for empty cells
-                            }
-                        });
-                    });
-                } catch (error) {
-                    console.error('Error fetching board content:', error);
-                }
-            }
-
-            // Initial fetch
-            fetchBoardContent();
-
-            // Refresh every 10 seconds
-            setInterval(fetchBoardContent, 15000);
-        </script>
-
-
-
-    <div class="status-panel">
-        <div id="debug-status" style="margin-bottom: 8px;">Loading...</div>
-        <button class="button" id="debug-toggle" onclick="toggleDebug()">
-            Toggle Debug
-        </button>
-    </div>
-
-        <div class="control-panel">
-            <button class="button" onclick="setMode('MANUAL')">Manual</button>
-            <button class="button" onclick="setMode('CLOCK')">Clock</button>
-            <button class="button" onclick="setMode('WEATHER')">Weather</button>
-            <button class="button" onclick="setMode('CALENDAR')">Calendar</button>
-            <button class="button" onclick="setMode('TODAY')">Today</button>
-        </div>
-
-        <div>Mode: <span id="current-mode">Loading...</span></div>
-
-        <div class="pattern-test-panel">
-            <h2>Pattern Tests</h2>
-            <div class="control-panel">
-                <button class="button" onclick="testPattern('CLOCK')">Test Clock</button>
-                <button class="button" onclick="testPattern('WEATHER')">Test Weather</button>
-                <button class="button" onclick="testPattern('CALENDAR')">Test Calendar</button>
-                <button class="button" onclick="testPattern('TODAY')">Test Today</button>
-            </div>
-            <div id="pattern-test-results">
-                <div class="status-item">
-                    <span class="status-label">Last Test:&nbsp;</span>
-                    <span id="pattern-test-mode">None</span>
-                </div>
-                <div class="status-item">
-                    <span class="status-label">Result:&nbsp;</span>
-                    <span id="pattern-test-result">Not tested</span>
-                </div>
-                <div class="status-item">
-                    <span class="status-label">Time:&nbsp;</span>
-                    <span id="pattern-test-time">N/A</span>
+    <div id="app">
+        <div class="container">
+            <div class="board board-mock">
+                <div class="board-grid">
+                    <div v-for="(char, index) in boardContent" 
+                         :key="index" 
+                         class="grid-cell">
+                        <template v-if="isColorEmoji(char)">
+                            <div :class="['color-block', `color-${getColorClass(char)}`]"></div>
+                        </template>
+                        <template v-else>
+                            {{ char || '\u00A0' }}
+                        </template>
+                    </div>
                 </div>
             </div>
-        </div>
+            <div class="update-timing">Updates at 6am, 9am, noon, 3pm, and 6pm</div>
 
-        <div class="status-item">
-            <span class="status-label">Cron:&nbsp;</span>
-            <span id="cron-schedule">Loading...</span>
-        </div>
-
-
-        <div class="message-panel">
-            <h2>Send Message</h2>
-            <div class="message-input-container">
-                <textarea 
-                    id="message-input" 
-                    placeholder="Enter your message here..."
-                    rows="3"
-                    maxlength="142"></textarea>
-                <button class="button" onclick="sendMessage()">Send Message</button>
-                <div id="message-status"></div>
+            <div class="mode-grid">
+                <div v-for="mode in modes" 
+                     :key="mode.name"
+                     :class="['mode', `mode-${mode.name.toLowerCase()}`, { 'mode-active': currentMode === mode.name }]"
+                     @click="setMode(mode.name)">
+                    <div class="mode-title">{{ mode.title }}</div>
+                    <div class="mode-subtitle">{{ mode.subtitle }}</div>
+                </div>
             </div>
-        </div>
 
-        <div class="calendar-debug">
-            <h2>Calendar</h2>
+            <div class="status-panel">
+                <div id="debug-status" style="margin-bottom: 8px;">{{ debugStatus }}</div>
+                <button class="button" @click="toggleDebug">
+                    Toggle Debug
+                </button>
+            </div>
+
+            <div>Mode: <span>{{ currentMode || 'Loading...' }}</span></div>            
+
+            <div class="content-test-panel">
+                <h2>Content Tests</h2>
+                <div class="control-panel">
+                    <button v-for="test in contentTests" 
+                            :key="test.name"
+                            class="button"
+                            @click="testContent(test)">
+                        {{ test.name }}
+                    </button>
+                </div>
+                <div id="content-test-results">
+                    <div class="status-item">
+                        <span class="status-label">Last Test:&nbsp;</span>
+                        <span>{{ contentTest.name }}</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Result:&nbsp;</span>
+                        <span :style="{ color: contentTest.color }">{{ contentTest.result }}</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Time:&nbsp;</span>
+                        <span>{{ contentTest.time }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pattern-test-panel">
+                <h2>Pattern Tests</h2>
+                <div class="control-panel">
+                    <button v-for="mode in testModes" 
+                            :key="mode"
+                            class="button"
+                            @click="testPattern(mode)">
+                        Test {{ mode }}
+                    </button>
+                </div>
+                <div id="pattern-test-results">
+                    <div class="status-item">
+                        <span class="status-label">Last Test:&nbsp;</span>
+                        <span>{{ patternTest.mode }}</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Result:&nbsp;</span>
+                        <span :style="{ color: patternTest.color }">{{ patternTest.result }}</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Time:&nbsp;</span>
+                        <span>{{ patternTest.time }}</span>
+                    </div>
+                </div>
+            </div>
+
             <div class="status-item">
-                <span class="status-label">Calendar Auth Status:</span>
-                <span id="calendar-auth-status">Checking...</span>
+                <span class="status-label">Cron:&nbsp;</span>
+                <span>{{ cronSchedule }}</span>
             </div>
-            <div class="control-panel">
-                <button class="button" onclick="initiateCalendarAuth()">Start Calendar Auth</button>
-                <button class="button" onclick="fetchCalendarEvents()">Fetch Calendar Events</button>
+
+            <div class="message-panel">
+                <h2>Send Message</h2>
+                <div class="message-input-container">
+                    <textarea 
+                        v-model="messageInput"
+                        placeholder="Enter your message here..."
+                        rows="3"
+                        maxlength="142"></textarea>
+                    <button class="button" @click="sendMessage">Send Message</button>
+                    <div :style="{ color: messageStatus.color }">{{ messageStatus.text }}</div>
+                </div>
             </div>
-            <div>
-                Latest Events:<br />
-                <div id="calendar-events-container" style="max-width: 100%; overflow-x: hidden;">
-                    <pre id="calendar-events">No events found</pre>
-                    <div id="calendar-events-timestamp"></div>
+
+            <div class="calendar-debug">
+                <h2>Calendar</h2>
+                <div class="status-item">
+                    <span class="status-label">Calendar Auth Status:</span>
+                    <span>{{ calendarAuthStatus }}</span>
+                </div>
+                <div class="control-panel">
+                    <button class="button" @click="initiateCalendarAuth">Start Calendar Auth</button>
+                    <button class="button" @click="fetchCalendarEvents">Fetch Calendar Events</button>
+                </div>
+                <div>
+                    Latest Events:<br />
+                    <div id="calendar-events-container" style="max-width: 100%; overflow-x: hidden;">
+                        <pre>{{ calendarEvents }}</pre>
+                        <div>{{ calendarEventsTimestamp }}</div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Function to update the UI with current status
-        async function updateStatus() {
-            try {
-                const response = await fetch('/api/status');
-                if (!response.ok) {
-                    const error = await response.json();
-                    throw new Error(error.error || 'Failed to fetch status');
-                }
-                const data = await response.json();
-                
-                document.getElementById('current-mode').textContent = data.currentMode;
-                document.getElementById('debug-status').textContent = data.debugMode ? '🟡 DEBUG MODE' : '🟢 LIVE';
-                document.body.classList.toggle('debug-mode', data.debugMode);
-                
-                // Update cron schedule from API response
-                document.getElementById('cron-schedule').textContent = data.cronSchedule?.description || 'No automatic updates';
-                
-                // Update button states
-                document.querySelectorAll('.control-panel .button').forEach(button => {
-                    const mode = button.textContent.replace(' Mode', '').toUpperCase();
-                    button.classList.toggle('active', mode === data.currentMode);
-                });
-            } catch (error) {
-                console.error('Error fetching status:', error);
-                document.getElementById('current-mode').textContent = 'Error';
-                document.getElementById('debug-status').textContent = '❌ ERROR';
-                document.getElementById('cron-schedule').textContent = 'Failed to fetch status';
-            }
-        }
+        const { createApp, ref, onMounted, watch } = Vue;
 
-        // Function to set mode
-        async function setMode(mode) {
-            try {
-                await fetch('/api/mode', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
+        const charMap = {
+            0: ' ',
+            1: 'A', 2: 'B', 3: 'C', 4: 'D', 5: 'E', 6: 'F', 7: 'G', 8: 'H', 9: 'I',
+            10: 'J', 11: 'K', 12: 'L', 13: 'M', 14: 'N', 15: 'O', 16: 'P', 17: 'Q',
+            18: 'R', 19: 'S', 20: 'T', 21: 'U', 22: 'V', 23: 'W', 24: 'X', 25: 'Y',
+            26: 'Z',
+            27: '1', 28: '2', 29: '3', 30: '4', 31: '5', 32: '6', 33: '7', 34: '8',
+            35: '9', 36: '0',
+            37: '!', 38: '@', 39: '#', 40: '$', 41: '(', 42: ')', 44: '-', 46: '+',
+            47: '&', 48: '=', 49: ';', 50: ':', 52: "'", 53: '"', 54: '%', 55: ',',
+            56: '.', 59: '/', 60: '?', 62: '°',
+            63: '🟥', 64: '🟧', 65: '🟨', 66: '🟩', 67: '🟦', 68: '🟪', 69: '⬜', 70: '⬛️', 71: '■'
+        };
+
+        const emojiColorMap = {
+            '🟥': 'red',
+            '🟧': 'orange',
+            '🟨': 'yellow',
+            '🟩': 'green',
+            '🟦': 'blue',
+            '🟪': 'purple',
+            '⬜': 'white',
+            '⬛️': 'black',
+            '■': 'block-filled'
+        };
+
+        createApp({
+            setup() {
+                // State
+                const boardContent = ref(Array(132).fill(' '));
+                const currentMode = ref('');
+                const debugStatus = ref('Loading...');
+                const cronSchedule = ref('Loading...');
+                const messageInput = ref('');
+                const messageStatus = ref({ text: '', color: '#666' });
+                const calendarAuthStatus = ref('Checking...');
+                const calendarEvents = ref('No events found');
+                const calendarEventsTimestamp = ref('');
+                const patternTest = ref({
+                    mode: 'None',
+                    result: 'Not tested',
+                    time: 'N/A',
+                    color: '#666'
+                });
+                const contentTest = ref({
+                    name: 'None',
+                    result: 'Not tested',
+                    time: 'N/A',
+                    color: '#666'
+                });
+                const boardContentIntervalId = ref(null);
+
+                // Constants
+                const modes = [
+                    { name: 'TODAY', title: 'Today', subtitle: 'Hourly weather' },
+                    { name: 'WEATHER', title: 'Weather', subtitle: '5-Day Forecast' },
+                    { name: 'CALENDAR', title: 'Calendar', subtitle: 'Upcoming events' },
+                    { name: 'CLOCK', title: 'Clock', subtitle: 'PST' }
+                ];
+
+                const controlModes = ['MANUAL', 'CLOCK', 'WEATHER', 'CALENDAR', 'TODAY'];
+                const testModes = ['CLOCK', 'WEATHER', 'CALENDAR', 'TODAY'];
+
+                const contentTests = [
+                    {
+                        name: 'Rainbow Border',
+                        content: Array(132).fill(' ').map((_, i) => {
+                            if (i < 22) return '🟥';
+                            if (i < 44) return '🟧';
+                            if (i < 66) return '🟨';
+                            if (i < 88) return '🟩';
+                            if (i < 110) return '🟦';
+                            return '🟪';
+                        })
                     },
-                    body: JSON.stringify({ mode })
-                });
-                updateStatus();
-            } catch (error) {
-                console.error('Error setting mode:', error);
-            }
-        }
-
-        // Function to toggle debug mode
-        async function toggleDebug() {
-            try {
-                await fetch('/api/debug/toggle', {
-                    method: 'POST'
-                });
-                updateStatus();
-            } catch (error) {
-                console.error('Error toggling debug mode:', error);
-            }
-        }
-
-        // Calendar-related functions
-        async function initiateCalendarAuth() {
-            window.location.href = '/auth/google';
-        }
-
-        async function fetchCalendarEvents() {
-            try {
-                document.getElementById('calendar-events').textContent = 'Loading...';
-                const response = await fetch('/calendar/events');
-                const data = await response.json();
-                
-                if (response.status === 401 && data.authUrl) {
-                    document.getElementById('calendar-auth-status').textContent = 'Not Authenticated';
-                    document.getElementById('calendar-events').textContent = 'Authentication required';
-                } else if (response.ok) {
-                    document.getElementById('calendar-auth-status').textContent = 'Authenticated';
-                    if (Array.isArray(data) && data.length === 0) {
-                        document.getElementById('calendar-events').textContent = 'No upcoming events found';
-                    } else {
-                        document.getElementById('calendar-events').textContent = JSON.stringify(data, null, 2);
+                    {
+                        name: 'Checkerboard',
+                        content: Array(132).fill(' ').map((_, i) => 
+                            (Math.floor(i / 22) + (i % 22)) % 2 === 0 ? '⬜' : '⬛️'
+                        )
+                    },
+                    {
+                        name: 'Hello World',
+                        content: Array(132).fill(' ').map((_, i) => {
+                            const message = '   HELLO WORLD   ';
+                            const row = Math.floor(i / 22);
+                            const col = i % 22;
+                            return row === 2 ? message[col] || ' ' : ' ';
+                        })
+                    },
+                    {
+                        name: 'Color Blocks',
+                        content: Array(132).fill(' ').map((_, i) => {
+                            const colors = ['🟥', '🟧', '🟨', '🟩', '🟦', '🟪'];
+                            const blockSize = 22;
+                            const colorIndex = Math.floor(i / blockSize) % colors.length;
+                            return colors[colorIndex];
+                        })
+                    },
+                    {
+                        name: 'Frame',
+                        content: Array(132).fill(' ').map((_, i) => {
+                            const row = Math.floor(i / 22);
+                            const col = i % 22;
+                            return (row === 0 || row === 5 || col === 0 || col === 21) ? '■' : ' ';
+                        })
                     }
-                } else {
-                    throw new Error(data.error || 'Failed to fetch events');
-                }
-                document.getElementById('calendar-events-timestamp').textContent = `Last updated: ${new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' })}`;
-            } catch (error) {
-                console.error('Error fetching calendar events:', error);
-                document.getElementById('calendar-events-timestamp').textContent = `Error occurred: ${new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' })}`;
-            }
-        }
+                ];
 
-        // Check URL parameters for auth status
-        const urlParams = new URLSearchParams(window.location.search);
-        const authStatus = urlParams.get('auth');
-        if (authStatus === 'success') {
-            document.getElementById('calendar-auth-status').textContent = 'Authentication Successful';
-        } else if (authStatus === 'error') {
-            document.getElementById('calendar-auth-status').textContent = 'Authentication Failed';
-        }
+                // Methods
+                const fetchBoardContent = async () => {
+                    try {
+                        const response = await fetch('/api/board/content');
+                        const data = await response.json();
+                        
+                        if (!Array.isArray(data) || !data.every(row => Array.isArray(row))) {
+                            console.error('Unexpected data format:', data);
+                            return;
+                        }
 
-        // Update status every minute
-        updateStatus();
-        setInterval(updateStatus, 15000);
+                        const content = [];
+                        data.forEach(row => {
+                            row.forEach(charCode => {
+                                content.push(charMap[charCode] || ' ');
+                            });
+                        });
+                        boardContent.value = content;
+                    } catch (error) {
+                        console.error('Error fetching board content:', error);
+                    }
+                };
 
-        // Update calendar status on page load
-        fetchCalendarEvents();
+                const updateStatus = async () => {
+                    try {
+                        const response = await fetch('/api/status');
+                        if (!response.ok) {
+                            const error = await response.json();
+                            throw new Error(error.error || 'Failed to fetch status');
+                        }
+                        const data = await response.json();
+                        
+                        currentMode.value = data.currentMode;
+                        debugStatus.value = data.debugMode ? '🟡 DEBUG MODE' : '🟢 LIVE';
+                        document.body.classList.toggle('debug-mode', data.debugMode);
+                        cronSchedule.value = data.cronSchedule?.description || 'No automatic updates';
 
-        async function sendMessage() {
-            const messageInput = document.getElementById('message-input');
-            const statusElement = document.getElementById('message-status');
-            const message = messageInput.value.trim();
-            
-            if (!message) {
-                statusElement.textContent = 'Please enter a message';
-                statusElement.style.color = '#dc3545';
-                return;
-            }
+                        // Handle board content interval based on debug mode
+                        if (data.debugMode) {
+                            if (boardContentIntervalId.value) {
+                                clearInterval(boardContentIntervalId.value);
+                                boardContentIntervalId.value = null;
+                            }
+                        } else if (!boardContentIntervalId.value) {
+                            boardContentIntervalId.value = setInterval(fetchBoardContent, 15000);
+                        }
+                    } catch (error) {
+                        console.error('Error fetching status:', error);
+                        currentMode.value = 'Error';
+                        debugStatus.value = '❌ ERROR';
+                        cronSchedule.value = 'Failed to fetch status';
+                    }
+                };
 
-            statusElement.textContent = 'Sending message...';
-            statusElement.style.color = '#666';
+                const setMode = async (mode) => {
+                    try {
+                        await fetch('/api/mode', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ mode })
+                        });
+                        updateStatus();
+                    } catch (error) {
+                        console.error('Error setting mode:', error);
+                    }
+                };
 
-            try {
-                const response = await fetch('/api/board/message', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ text: message })
-                });
+                const toggleDebug = async () => {
+                    try {
+                        await fetch('/api/debug/toggle', { method: 'POST' });
+                        updateStatus();
+                    } catch (error) {
+                        console.error('Error toggling debug mode:', error);
+                    }
+                };
 
-                const data = await response.json();
+                const sendMessage = async () => {
+                    if (!messageInput.value.trim()) {
+                        messageStatus.value = { text: 'Please enter a message', color: '#dc3545' };
+                        return;
+                    }
 
-                if (response.ok) {
-                    statusElement.textContent = 'Message sent successfully!';
-                    statusElement.style.color = '#28a745';
-                    messageInput.value = ''; // Clear the input
-                    // Refresh the board preview
+                    messageStatus.value = { text: 'Sending message...', color: '#666' };
+
+                    try {
+                        const response = await fetch('/api/board/message', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ text: messageInput.value.trim() })
+                        });
+
+                        const data = await response.json();
+
+                        if (response.ok) {
+                            messageStatus.value = { text: 'Message sent successfully!', color: '#28a745' };
+                            messageInput.value = '';
+                            fetchBoardContent();
+                        } else {
+                            throw new Error(data.error || 'Failed to send message');
+                        }
+                    } catch (error) {
+                        console.error('Error sending message:', error);
+                        messageStatus.value = { text: `Error: ${error.message}`, color: '#dc3545' };
+                    }
+                };
+
+                const testPattern = async (mode) => {
+                    try {
+                        const response = await fetch('/api/pattern/test', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ mode })
+                        });
+                        
+                        const data = await response.json();
+                        
+                        patternTest.value = {
+                            mode,
+                            result: data.matches ? '✅ Match' : '❌ No Match',
+                            time: new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }),
+                            color: data.matches ? '#28a745' : '#dc3545'
+                        };
+                    } catch (error) {
+                        console.error('Error testing pattern:', error);
+                        patternTest.value = {
+                            mode,
+                            result: '❌ Error',
+                            time: new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }),
+                            color: '#dc3545'
+                        };
+                    }
+                };
+
+                const testContent = async (test) => {
+                    boardContent.value = test.content;
+                    contentTest.value = {
+                        name: test.name,
+                        result: '✅ Preview Updated',
+                        time: new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }),
+                        color: '#28a745'
+                    };
+                };
+
+                const initiateCalendarAuth = () => {
+                    window.location.href = '/auth/google';
+                };
+
+                const fetchCalendarEvents = async () => {
+                    try {
+                        calendarEvents.value = 'Loading...';
+                        const response = await fetch('/calendar/events');
+                        const data = await response.json();
+                        
+                        if (response.status === 401 && data.authUrl) {
+                            calendarAuthStatus.value = 'Not Authenticated';
+                            calendarEvents.value = 'Authentication required';
+                        } else if (response.ok) {
+                            calendarAuthStatus.value = 'Authenticated';
+                            calendarEvents.value = Array.isArray(data) && data.length === 0 
+                                ? 'No upcoming events found' 
+                                : JSON.stringify(data, null, 2);
+                        } else {
+                            throw new Error(data.error || 'Failed to fetch events');
+                        }
+                        calendarEventsTimestamp.value = `Last updated: ${new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' })}`;
+                    } catch (error) {
+                        console.error('Error fetching calendar events:', error);
+                        calendarEventsTimestamp.value = `Error occurred: ${new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' })}`;
+                    }
+                };
+
+                const isColorEmoji = (char) => char in emojiColorMap;
+                const getColorClass = (char) => emojiColorMap[char];
+
+                // Lifecycle hooks
+                onMounted(() => {
                     fetchBoardContent();
-                } else {
-                    throw new Error(data.error || 'Failed to send message');
-                }
-            } catch (error) {
-                console.error('Error sending message:', error);
-                statusElement.textContent = `Error: ${error.message}`;
-                statusElement.style.color = '#dc3545';
-            }
-        }
+                    updateStatus();
+                    fetchCalendarEvents();
 
-        async function testPattern(mode) {
-            try {
-                const response = await fetch('/api/pattern/test', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ mode })
+                    // Check URL parameters for auth status
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const authStatus = urlParams.get('auth');
+                    if (authStatus === 'success') {
+                        calendarAuthStatus.value = 'Authentication Successful';
+                    } else if (authStatus === 'error') {
+                        calendarAuthStatus.value = 'Authentication Failed';
+                    }
+
+                    // Set up intervals - board content interval will be managed by updateStatus
+                    setInterval(updateStatus, 15000);
                 });
-                
-                const data = await response.json();
-                
-                document.getElementById('pattern-test-mode').textContent = mode;
-                document.getElementById('pattern-test-result').textContent = data.matches ? '✅ Match' : '❌ No Match';
-                document.getElementById('pattern-test-time').textContent = new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' });
-                
-                // Add success/failure styling
-                const resultElement = document.getElementById('pattern-test-result');
-                resultElement.style.color = data.matches ? '#28a745' : '#dc3545';
-            } catch (error) {
-                console.error('Error testing pattern:', error);
-                document.getElementById('pattern-test-result').textContent = '❌ Error';
-                document.getElementById('pattern-test-result').style.color = '#dc3545';
+
+                return {
+                    // State
+                    boardContent,
+                    currentMode,
+                    debugStatus,
+                    cronSchedule,
+                    messageInput,
+                    messageStatus,
+                    calendarAuthStatus,
+                    calendarEvents,
+                    calendarEventsTimestamp,
+                    patternTest,
+                    contentTest,
+                    boardContentIntervalId,
+                    // Constants
+                    modes,
+                    controlModes,
+                    testModes,
+                    contentTests,
+                    // Methods
+                    setMode,
+                    toggleDebug,
+                    sendMessage,
+                    testPattern,
+                    testContent,
+                    initiateCalendarAuth,
+                    fetchCalendarEvents,
+                    isColorEmoji,
+                    getColorClass
+                };
             }
-        }
+        }).mount('#app');
     </script>
 </body>
 </html> 
