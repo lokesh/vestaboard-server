@@ -170,10 +170,53 @@ h2 {
     padding: 12px;
     height: var(--mode-height);
     border-radius: var(--border-radius);
+    background-position: bottom right;
+    background-repeat: no-rep eat;
 }
 
-.mode.mode-active {
+.mode:hover {
+    cursor: pointer;
+    transform: scale(1.05);
+    transition: transform 0.2s ease-in-out;
+}
+
+/* .mode.mode-active {
     background: var(--color-active);
+    background-position: bottom right;
+    background-repeat: no-rep eat;
+    position: relative;
+} */
+
+.mode.mode-today {
+    background-image: url('images/mode\ bg\ today.svg');
+}
+
+.mode.mode-weather {
+    background-image: url('images/mode\ bg\ weather.svg');
+}
+
+.mode.mode-calendar {
+    background-image: url('images/mode\ bg\ calendar.svg');
+}
+
+.mode.mode-clock {
+    background-image: url('images/mode\ bg\ clock.svg');
+}
+
+.mode.mode-active.mode-today {
+    background-image: url('images/mode\ bg\ today\ active.svg');
+}
+
+.mode.mode-active.mode-weather {
+    background-image: url('images/mode\ bg\ weather.svg');
+}
+
+.mode.mode-active.mode-calendar {
+    background-image: url('images/mode\ bg\ calendar.svg');
+}
+
+.mode.mode-active.mode-clock {
+    background-image: url('images/mode\ bg\ clock.svg');
 }
 
 .mode-title {

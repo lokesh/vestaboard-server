@@ -154,20 +154,20 @@
         <div class="update-timing">Updates at 6am, 9am, noon, 3pm, and 6pm</div>
 
         <div class="mode-grid">
-            <div class="mode mode-active" onclick="setMode('TODAY')">
+            <div class="mode xmode-active mode-today" onclick="setMode('TODAY')">
                 <div class="mode-title">Today</div>
                 <div class="mode-subtitle">Hourly weather</div>
             </div>
-            <div class="mode">
-                <div class="mode-title">Weather</div>
+            <div class="mode xmode-active mode-weather">
+                <div class="mode-title" onclick="setMode('WEATHER')">Weather</div>
                 <div class="mode-subtitle">5-Day Forecast</div>
             </div>
-            <div class="mode">
-                <div class="mode-title">Calendar</div>
+            <div class="mode xmode-active mode-calendar">
+                <div class="mode-title" onclick="setMode('CALENDAR')">Calendar</div>
                 <div class="mode-subtitle">Upcoming events</div>
             </div>
-            <div class="mode">
-                <div class="mode-title">Clock</div>
+            <div class="mode xmode-active mode-clock">
+                <div class="mode-title" onclick="setMode('CLOCK')">Clock</div>
                 <div class="mode-subtitle">PST</div>
             </div>
         </div>
