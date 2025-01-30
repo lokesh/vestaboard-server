@@ -11,25 +11,39 @@
     --color-button-bg-hover: #444546;
     --color-button-bg-active: #555657;
 
+    --color-active: #3755ED;
 
-    --board-width: 380px;
-    
+    --border-radius: 8px;
+
+    --board-width: 344px;
+    --board-height: 160px;
+
+    --mode-height: 100px;
+
 }
 
 * {
     box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+    line-height: 1;
 }
 
 body {
-    font-family: 'Menlo', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--color-text);
+    background-color: var(--color-bg);
+    font-family: 'IBM Plex Mono', 'Menlo', -apple-system, BlinkMacSystemFont, sans-serif;
     font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 16px;
 }
 
 body.debug-mode {
     background: #bbb;
 }
 
-.status-panel {
+/* .status-panel {
     margin-bottom: 8px;
     display: flex;
     justify-content: space-between;
@@ -47,7 +61,7 @@ body.debug-mode {
 
 .button {
     padding: 8px 8px;
-    font-family: 'Menlo', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'IBM Plex Mono', 'Menlo', -apple-system, BlinkMacSystemFont, sans-serif;
     font-size: 12px;
     text-transform: uppercase;
     border: none;
@@ -77,18 +91,67 @@ body.debug-mode {
 
 .status-label {
     font-weight: 500;
+} */
+
+.container {
+    width: var(--board-width);
+    margin: 0 auto;
 }
 
-.board-preview {
-    background: #2c3e50;
-    color: white;
-    padding: 8px;
-    margin-bottom: 8px;
-    overflow-x: auto;
-    letter-spacing: 0.2em;
-    line-height: 1.4;
-    max-width: 360px;
-    border-radius: 4px;
+.board {
+    border-radius: var(--border-radius);
+    font-weight: 500;
+    overflow: hidden;
+    width: var(--board-width);
+    height: var(--board-height);
+}
+
+.board-grid {
+    display: grid;
+    grid-template-columns: 1.5fr repeat(20, 1fr) 1.5fr;
+    grid-template-rows: 1.3fr repeat(4, 1fr) 1.3fr;
+    gap: 1px;
+    background-color: var(--color-bg);
+    width: var(--board-width);
+    height: var(--board-height);
+    aspect-ratio: 22/6;
+}
+
+.grid-cell {
+    background-color: var(--color-board-bg);
+    width: 100%;
+    height: 100%;
+    padding: 2px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* First row alignment */
+.grid-cell:nth-child(-n+22) {
+    align-items: flex-end;
+}
+
+/* Last row alignment */
+.grid-cell:nth-child(n+111) {
+    align-items: flex-start;
+}
+
+/* First column alignment */
+.grid-cell:nth-child(22n+1) {
+    justify-content: flex-end;
+}
+
+/* Last column alignment */
+.grid-cell:nth-child(22n) {
+    justify-content: flex-start;
+}
+
+.update-timing {
+    margin: 8px 0 32px 0;
+    font-size: 12px;
+    color: var(--color-text-muted);
+    text-align: center;
 }
 
 #board-content {
@@ -131,7 +194,7 @@ h2 {
 }
 
 #message-input {
-    font-family: 'Menlo', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'IBM Plex Mono', 'Menlo', -apple-system, BlinkMacSystemFont, sans-serif;
     font-size: 14px;
     padding: 8px;
     border: 1px solid #ccc;
@@ -157,4 +220,34 @@ h2 {
 
 .debug-status-label {
     margin-left: 8px;
-} 
+}
+
+.mode-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin: 20px 0;
+}
+
+.mode {
+    background: var(--color-board-bg);
+    padding: 12px;
+    height: var(--mode-height);
+    border-radius: var(--border-radius);
+}
+
+.mode.mode-active {
+    background: var(--color-active);
+}
+
+.mode-title {
+    font-weight: 700;
+    color: var(--color-title);
+    margin-bottom: 4px;
+}
+
+.mode-subtitle {
+    /* font-size: 14px;
+    color: #666; */
+}
+
