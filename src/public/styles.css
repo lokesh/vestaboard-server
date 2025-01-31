@@ -19,7 +19,6 @@
     --board-height: 160px;
 
     --mode-height: 100px;
-
 }
 
 * {
@@ -37,10 +36,6 @@ body {
     text-transform: uppercase;
     letter-spacing: 0.05em;
     padding: 16px;
-}
-
-body.debug-mode {
-    /* background: #666; */
 }
 
 .container {
@@ -167,7 +162,7 @@ h2 {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 8px;
-    margin: 20px 0;
+    margin-bottom: 32px;
 }
 
 .mode {
@@ -176,13 +171,13 @@ h2 {
     height: var(--mode-height);
     border-radius: var(--border-radius);
     background-position: bottom right;
-    background-repeat: no-rep eat;
+    background-repeat: no-repeat;
 }
 
 .mode:hover {
     cursor: pointer;
-    transform: scale(1.05);
-    transition: transform 0.2s ease-in-out;
+    background: var(--color-button-bg-hover);
+    background-blend-mode: screen;
 }
 
 .mode.mode-active {
@@ -229,9 +224,70 @@ h2 {
     margin-bottom: 4px;
 }
 
-.mode-subtitle {
-    /* font-size: 14px;
-    color: #666; */
+.action-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 32px;
+}
+
+.action {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--color-board-bg);
+    padding: 12px;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.action:hover {
+    background: var(--color-button-bg-hover);
+}
+
+.action-title {
+    font-weight: 700;
+    color: var(--color-title);
+    /* margin-bottom: 4px; */
+}
+
+.action-message {
+}
+
+.action-debug {
+}
+
+.toggle-switch {
+    width: 36px;
+    height: 24px;
+    background-color: #444546;
+    border-radius: 12px;
+    position: relative;
+    transition: background-color 0.3s ease;
+}
+
+.toggle-switch.active {
+    background-color: var(--color-active);
+}
+
+.action-debug:hover .toggle-switch:not(.active) {
+    background-color: #666768;
+}
+
+.toggle-circle {
+    width: 20px;
+    height: 20px;
+    background-color: white;
+    border-radius: 50%;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    transition: transform 0.3s ease;
+}
+
+.toggle-switch.active .toggle-circle {
+    transform: translateX(12px);
 }
 
 .color-block {
@@ -240,10 +296,6 @@ h2 {
     border-radius: 2px;
     transition: transform 0.1s ease-in-out;
 }
-
-/* .color-block.animating {
-    transform: scale(1.1);
-} */
 
 .color-red { background-color: #ff4444; }
 .color-orange { background-color: #ff8c00; }
@@ -254,4 +306,12 @@ h2 {
 .color-white { background-color: #ffffff; border: 1px solid #ddd; }
 .color-black { background-color: #000000; }
 .color-block-filled { background-color: #666666; }
+
+.debug-only-content {
+    display: block;
+}
+
+.debug-only-content.hidden {
+    display: none;
+}
 

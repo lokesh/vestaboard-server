@@ -37,100 +37,114 @@
                 </div>
             </div>
 
-            <div class="status-panel">
-                <div id="debug-status" style="margin-bottom: 8px;">{{ debugStatus }}</div>
-                <button class="button" @click="toggleDebug">
-                    Toggle Debug
-                </button>
-            </div>
-
-            <div>Mode: <span>{{ currentMode || 'Loading...' }}</span></div>            
-
-            <div class="content-test-panel">
-                <h2>Content Tests</h2>
-                <div class="control-panel">
-                    <button v-for="test in contentTests" 
-                            :key="test.name"
-                            class="button"
-                            @click="testContent(test)">
-                        {{ test.name }}
-                    </button>
-                </div>
-                <div id="content-test-results">
-                    <div class="status-item">
-                        <span class="status-label">Last Test:&nbsp;</span>
-                        <span>{{ contentTest.name }}</span>
+                <div class="action-grid">
+                    <div class="action action-message">
+                        <img src="images/icon-message.svg" alt="Message" class="action-icon">
+                        <div class="action-title">Message</div>
                     </div>
-                    <div class="status-item">
-                        <span class="status-label">Result:&nbsp;</span>
-                        <span :style="{ color: contentTest.color }">{{ contentTest.result }}</span>
-                    </div>
-                    <div class="status-item">
-                        <span class="status-label">Time:&nbsp;</span>
-                        <span>{{ contentTest.time }}</span>
+                    <div class="action action-debug" @click="toggleDebug()">
+                        <div class="toggle-switch" :class="{ 'active': debugStatus.includes('DEBUG') }">
+                            <div class="toggle-circle"></div>
+                        </div>
+                        <div class="action-title">Debug</div>
                     </div>
                 </div>
-            </div>
 
-            <div class="pattern-test-panel">
-                <h2>Pattern Tests</h2>
-                <div class="control-panel">
-                    <button v-for="mode in testModes" 
-                            :key="mode"
-                            class="button"
-                            @click="testPattern(mode)">
-                        Test {{ mode }}
-                    </button>
+            <div class="debug-only-content" :class="{ 'hidden': !debugStatus.includes('DEBUG') }">
+
+                
+                <div class="status-panel">
+                    <div id="debug-status" style="margin-bottom: 8px;">{{ debugStatus }}</div>
                 </div>
-                <div id="pattern-test-results">
-                    <div class="status-item">
-                        <span class="status-label">Last Test:&nbsp;</span>
-                        <span>{{ patternTest.mode }}</span>
+
+                <div>Mode: <span>{{ currentMode || 'Loading...' }}</span></div>            
+
+                <div class="content-test-panel">
+                    <h2>Content Tests</h2>
+                    <div class="control-panel">
+                        <button v-for="test in contentTests" 
+                                :key="test.name"
+                                class="button"
+                                @click="testContent(test)">
+                            {{ test.name }}
+                        </button>
                     </div>
-                    <div class="status-item">
-                        <span class="status-label">Result:&nbsp;</span>
-                        <span :style="{ color: patternTest.color }">{{ patternTest.result }}</span>
-                    </div>
-                    <div class="status-item">
-                        <span class="status-label">Time:&nbsp;</span>
-                        <span>{{ patternTest.time }}</span>
+                    <div id="content-test-results">
+                        <div class="status-item">
+                            <span class="status-label">Last Test:&nbsp;</span>
+                            <span>{{ contentTest.name }}</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Result:&nbsp;</span>
+                            <span :style="{ color: contentTest.color }">{{ contentTest.result }}</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Time:&nbsp;</span>
+                            <span>{{ contentTest.time }}</span>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="status-item">
-                <span class="status-label">Cron:&nbsp;</span>
-                <span>{{ cronSchedule }}</span>
-            </div>
-
-            <div class="message-panel">
-                <h2>Send Message</h2>
-                <div class="message-input-container">
-                    <textarea 
-                        v-model="messageInput"
-                        placeholder="Enter your message here..."
-                        rows="3"
-                        maxlength="142"></textarea>
-                    <button class="button" @click="sendMessage">Send Message</button>
-                    <div :style="{ color: messageStatus.color }">{{ messageStatus.text }}</div>
+                <div class="pattern-test-panel">
+                    <h2>Pattern Tests</h2>
+                    <div class="control-panel">
+                        <button v-for="mode in testModes" 
+                                :key="mode"
+                                class="button"
+                                @click="testPattern(mode)">
+                            Test {{ mode }}
+                        </button>
+                    </div>
+                    <div id="pattern-test-results">
+                        <div class="status-item">
+                            <span class="status-label">Last Test:&nbsp;</span>
+                            <span>{{ patternTest.mode }}</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Result:&nbsp;</span>
+                            <span :style="{ color: patternTest.color }">{{ patternTest.result }}</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Time:&nbsp;</span>
+                            <span>{{ patternTest.time }}</span>
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-            <div class="calendar-debug">
-                <h2>Calendar</h2>
                 <div class="status-item">
-                    <span class="status-label">Calendar Auth Status:</span>
-                    <span>{{ calendarAuthStatus }}</span>
+                    <span class="status-label">Cron:&nbsp;</span>
+                    <span>{{ cronSchedule }}</span>
                 </div>
-                <div class="control-panel">
-                    <button class="button" @click="initiateCalendarAuth">Start Calendar Auth</button>
-                    <button class="button" @click="fetchCalendarEvents">Fetch Calendar Events</button>
+
+                <div class="message-panel">
+                    <h2>Send Message</h2>
+                    <div class="message-input-container">
+                        <textarea 
+                            v-model="messageInput"
+                            placeholder="Enter your message here..."
+                            rows="3"
+                            maxlength="142"></textarea>
+                        <button class="button" @click="sendMessage">Send Message</button>
+                        <div :style="{ color: messageStatus.color }">{{ messageStatus.text }}</div>
+                    </div>
                 </div>
-                <div>
-                    Latest Events:<br />
-                    <div id="calendar-events-container" style="max-width: 100%; overflow-x: hidden;">
-                        <pre>{{ calendarEvents }}</pre>
-                        <div>{{ calendarEventsTimestamp }}</div>
+
+                <div class="calendar-debug">
+                    <h2>Calendar</h2>
+                    <div class="status-item">
+                        <span class="status-label">Calendar Auth Status:</span>
+                        <span>{{ calendarAuthStatus }}</span>
+                    </div>
+                    <div class="control-panel">
+                        <button class="button" @click="initiateCalendarAuth">Start Calendar Auth</button>
+                        <button class="button" @click="fetchCalendarEvents">Fetch Calendar Events</button>
+                    </div>
+                    <div>
+                        Latest Events:<br />
+                        <div id="calendar-events-container" style="max-width: 100%; overflow-x: hidden;">
+                            <pre>{{ calendarEvents }}</pre>
+                            <div>{{ calendarEventsTimestamp }}</div>
+                        </div>
                     </div>
                 </div>
             </div>
