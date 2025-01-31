@@ -54,7 +54,7 @@ export const getHourlyWeatherData = async () => {
         temperature: Math.round(period.temperature),
         shortForecast: period.shortForecast
       }));
-
+    // console.log('Hourly weather data:', hourlyData);
     return hourlyData;
   } catch (error) {
     console.error('Hourly weather service error:', error);

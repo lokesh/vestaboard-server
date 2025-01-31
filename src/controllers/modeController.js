@@ -234,18 +234,18 @@ class ModeController {
     console.log('Sun data:', sunData);
 
     const getWeatherEmoji = (forecast, dateTime) => {
-      const blueConditions = ['rain', 'shower'];  // 🟦
-      const whiteConditions = ['cloud', 'overcast', 'fog', 'smoke', 'ash', 'storm', 'snow', 'ice', 'blizzard'];  // ⬜
-      const yellowConditions = ['sunny', 'clear', 'fair', 'haze'];  // 🟨
-      const redConditions = ['hot'];  // 🟥
-      const purpleConditions = ['windy', 'breezy', 'blustery'];  // 🟪
+      // const blueConditions = ['rain', 'shower', 'drizzle'];  // 🟦
+      const whiteConditions = ['Cloud', 'Overcast', 'Fog', 'Smoke', 'Ash', 'Storm', 'Snow', 'Ice', 'Blizzard'];  // ⬜
+      const yellowConditions = ['Sunny', 'Clear', 'Fair', 'Haze'];  // 🟨
+      const redConditions = ['Hot'];  // 🟥
+      const purpleConditions = ['Windy', 'Breezy', 'Blustery'];  // 🟪
 
-      if (forecast.includes('rain') || forecast.includes('shower')) {
-        if (!forecast.includes('chance')) {
+      console.log('Forecast:', forecast);
+      if (forecast.includes('Rain') || forecast.includes('Shower') || forecast.includes('Drizzle')) {
+        if (!forecast.includes('Chance')) {
           return '🟦';
         }
       }
-      // if (blueConditions.some(condition => forecast.toLowerCase().includes(condition))) return '🟦';
       
       if (dateTime < sunData.sunrise || dateTime > sunData.sunset) {
         return '-';  // Black at night
