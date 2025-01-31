@@ -386,6 +386,183 @@
                             const col = i % 22;
                             return (row === 0 || row === 5 || col === 0 || col === 21) ? '■' : ' ';
                         })
+                    },
+                    {
+                        name: 'Diagonal Weave',
+                        content: Array(132).fill(' ').map((_, i) => {
+                            const row = Math.floor(i / 22);
+                            const col = i % 22;
+                            return ((row + col) % 3 === 0) ? '⬛️' : '⬜'
+                        })
+                    },
+                    {
+                        name: 'Nested Squares',
+                        content: Array(132).fill(' ').map((_, i) => {
+                            const row = Math.floor(i / 22);
+                            const col = i % 22;
+                            const distFromEdge = Math.min(
+                                row, 5 - row,
+                                col, 21 - col
+                            );
+                            return distFromEdge % 2 === 0 ? '⬛️' : '⬜'
+                        })
+                    },
+                    {
+                        name: 'Triangular Weave',
+                        content: Array(132).fill(' ').map((_, i) => {
+                            const row = Math.floor(i / 22);
+                            const col = i % 22;
+                            return ((row + col) % 2 === 0 && (row - col) % 2 === 0) ? '⬛️' : '⬜'
+                        })
+                    },
+                    {
+                        name: 'Interlocking T',
+                        content: Array(132).fill(' ').map((_, i) => {
+                            const row = Math.floor(i / 22);
+                            const col = i % 22;
+                            return (row % 3 === 1 || col % 3 === 1) ? '⬛️' : '⬜'
+                        })
+                    },
+                    {
+                        name: 'Broken Stripes',
+                        content: Array(132).fill(' ').map((_, i) => {
+                            const row = Math.floor(i / 22);
+                            const col = i % 22;
+                            return ((col + Math.floor(row/2)) % 4 < 2) ? '⬛️' : '⬜'
+                        })
+                    },
+                    {
+                        name: 'Maze Pattern',
+                        content: Array(132).fill(' ').map((_, i) => {
+                            const row = Math.floor(i / 22);
+                            const col = i % 22;
+                            return ((row % 4 < 2) !== (col % 4 < 2)) ? '⬛️' : '⬜'
+                        })
+                    },
+                    {
+                        name: 'Color Gradient Weave',
+                        content: Array(132).fill(' ').map((_, i) => {
+                            const row = Math.floor(i / 22);
+                            const col = i % 22;
+                            const colors = ['🟥', '🟧', '🟨', '🟩', '🟦', '🟪'];
+                            const colorIndex = (row + Math.floor(col/4)) % colors.length;
+                            return ((row + col) % 2 === 0) ? colors[colorIndex] : '⬜'
+                        })
+                    },
+                    {
+                        name: 'Rainbow Diamonds',
+                        content: Array(132).fill(' ').map((_, i) => {
+                            const row = Math.floor(i / 22);
+                            const col = i % 22;
+                            const colors = ['🟥', '🟧', '🟨', '🟩', '🟦', '🟪'];
+                            const dist = Math.abs(row - 2.5) + Math.abs(col - 10.5);
+                            return colors[Math.floor(dist) % colors.length]
+                        })
+                    },
+                    {
+                        name: 'Color Steps',
+                        content: Array(132).fill(' ').map((_, i) => {
+                            const row = Math.floor(i / 22);
+                            const col = i % 22;
+                            const colors = ['🟥', '🟧', '🟨', '🟩', '🟦', '🟪'];
+                            const step = Math.floor((row + col) / 3);
+                            return colors[step % colors.length]
+                        })
+                    },
+                    {
+                        name: 'Rainbow Maze',
+                        content: Array(132).fill(' ').map((_, i) => {
+                            const row = Math.floor(i / 22);
+                            const col = i % 22;
+                            const colors = ['🟥', '🟧', '🟨', '🟩', '🟦', '🟪'];
+                            const mazeVal = (row % 3) * 2 + (col % 3);
+                            return ((row % 3 === 1) || (col % 3 === 1)) ? colors[mazeVal % colors.length] : '⬜'
+                        })
+                    },
+                    {
+                        name: 'Color Waves',
+                        content: Array(132).fill(' ').map((_, i) => {
+                            const row = Math.floor(i / 22);
+                            const col = i % 22;
+                            const colors = ['🟦', '🟩', '🟨'];
+                            const wave = Math.sin(col * 0.3 + row * 0.5);
+                            const colorIndex = Math.floor((wave + 1) * colors.length / 2);
+                            return colors[colorIndex]
+                        })
+                    },
+                    {
+                        name: 'Spectrum Blocks',
+                        content: Array(132).fill(' ').map((_, i) => {
+                            const row = Math.floor(i / 22);
+                            const col = i % 22;
+                            const colors = ['🟥', '🟧', '🟨', '🟩', '🟦', '🟪'];
+                            const blockSize = 3;
+                            const blockRow = Math.floor(row / blockSize);
+                            const blockCol = Math.floor(col / blockSize);
+                            return colors[(blockRow + blockCol) % colors.length]
+                        })
+                    },
+                    {
+                        name: 'Herringbone',
+                        content: Array(132).fill(' ').map((_, i) => {
+                            const row = Math.floor(i / 22);
+                            const col = i % 22;
+                            const pattern = ((row * 2 + col) % 4 < 2);
+                            return pattern ? '🟦' : '⬜'
+                        })
+                    },
+                    {
+                        name: 'Ikat Waves',
+                        content: Array(132).fill(' ').map((_, i) => {
+                            const row = Math.floor(i / 22);
+                            const col = i % 22;
+                            const colors = ['🟥', '🟦', '⬜'];
+                            const wave = Math.sin(col * 0.4 + row * 0.8);
+                            const fuzzyEdge = (Math.random() < 0.2);
+                            const baseIndex = Math.floor((wave + 1) * colors.length / 2);
+                            return fuzzyEdge ? colors[(baseIndex + 1) % colors.length] : colors[baseIndex]
+                        })
+                    },
+                    {
+                        name: 'Tartan',
+                        content: Array(132).fill(' ').map((_, i) => {
+                            const row = Math.floor(i / 22);
+                            const col = i % 22;
+                            const colors = ['🟦', '🟩', '⬜', '🟥'];
+                            const verticalStripe = Math.floor(col / 2) % colors.length;
+                            const horizontalStripe = Math.floor(row / 2) % colors.length;
+                            return (col % 4 === 0 || row % 4 === 0) ? colors[horizontalStripe] : colors[verticalStripe]
+                        })
+                    },
+                    {
+                        name: 'Basket Weave',
+                        content: Array(132).fill(' ').map((_, i) => {
+                            const row = Math.floor(i / 22);
+                            const col = i % 22;
+                            const blockRow = Math.floor(row / 2);
+                            const blockCol = Math.floor(col / 2);
+                            return ((blockRow + blockCol) % 2 === 0) ? '🟨' : '🟧'
+                        })
+                    },
+                    {
+                        name: 'Kente Inspired',
+                        content: Array(132).fill(' ').map((_, i) => {
+                            const row = Math.floor(i / 22);
+                            const col = i % 22;
+                            const colors = ['🟨', '🟩', '🟥', '⬛️'];
+                            const pattern = (col % 4) + (row % 2) * 2;
+                            return colors[pattern % colors.length]
+                        })
+                    },
+                    {
+                        name: 'Twill Pattern',
+                        content: Array(132).fill(' ').map((_, i) => {
+                            const row = Math.floor(i / 22);
+                            const col = i % 22;
+                            const shift = row % 4;
+                            const pattern = ((col + shift) % 4 < 2);
+                            return pattern ? '🟦' : '⬜'
+                        })
                     }
                 ];
 
@@ -501,6 +678,8 @@
                         if (response.ok) {
                             messageStatus.value = { text: 'Message sent successfully!', color: '#28a745' };
                             messageInput.value = '';
+                            // Set mode to MANUAL after sending message
+                            await setMode('MANUAL');
                             fetchBoardContent();
                             setTimeout(() => {
                                 closeMessageModal();
