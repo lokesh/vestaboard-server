@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
     <title>Vestaboard</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap">
     <link rel="stylesheet" href="styles.css">
@@ -10,7 +10,7 @@
 </head>
 <body>
     <div id="app">
-        <div class="container">
+        <div class="container" :class="{ 'blur-background': isMessageModalOpen }">
             <div class="board board-mock">
                 <div class="board-grid">
                     <div v-for="(char, index) in boardContent" 
@@ -37,22 +37,20 @@
                 </div>
             </div>
 
-                <div class="action-grid">
-                    <div class="action action-message">
-                        <img src="images/icon-message.svg" alt="Message" class="action-icon">
-                        <div class="action-title">Message</div>
-                    </div>
-                    <div class="action action-debug" @click="toggleDebug()">
-                        <div class="toggle-switch" :class="{ 'active': debugStatus.includes('DEBUG') }">
-                            <div class="toggle-circle"></div>
-                        </div>
-                        <div class="action-title">Debug</div>
-                    </div>
+            <div class="action-grid">
+                <div class="action action-message" @click="openMessageModal">
+                    <img src="images/icon-message.svg" alt="Message" class="action-icon">
+                    <div class="action-title">Message</div>
                 </div>
+                <div class="action action-debug" @click="toggleDebug()">
+                    <div class="toggle-switch" :class="{ 'active': debugStatus.includes('DEBUG') }">
+                        <div class="toggle-circle"></div>
+                    </div>
+                    <div class="action-title">Debug</div>
+                </div>
+            </div>
 
             <div class="debug-only-content" :class="{ 'hidden': !debugStatus.includes('DEBUG') }">
-
-                
                 <div class="status-panel">
                     <div id="debug-status" style="margin-bottom: 8px;">{{ debugStatus }}</div>
                 </div>
@@ -120,11 +118,14 @@
                     <h2>Send Message</h2>
                     <div class="message-input-container">
                         <textarea 
+                            ref="messageTextarea"
                             v-model="messageInput"
                             placeholder="Enter your message here..."
-                            rows="3"
-                            maxlength="142"></textarea>
-                        <button class="button" @click="sendMessage">Send Message</button>
+                            rows="6"
+                            maxlength="132"></textarea>
+                        <div style="display: flex; justify-content: flex-end;">
+                            <button class="button" @click="sendMessage">Send</button>
+                        </div>
                         <div :style="{ color: messageStatus.color }">{{ messageStatus.text }}</div>
                     </div>
                 </div>
@@ -149,10 +150,31 @@
                 </div>
             </div>
         </div>
+
+        <!-- Message Modal -->
+        <div class="message-modal" :class="{ 'show': isMessageModalOpen }" @click.self="closeMessageModal">
+            <div class="modal-content">
+                <!-- <div class="modal-header">
+                    <h2>Message</h2>
+                </div> -->
+                <div class="message-input-container">
+                    <textarea 
+                        ref="messageTextarea"
+                        v-model="messageInput"
+                        placeholder="Enter your message here..."
+                        rows="6"
+                        maxlength="132"></textarea>
+                    <div style="display: flex; justify-content: flex-end;">
+                        <button class="button" @click="sendMessage">Send</button>
+                    </div>
+                    <div v-if="false" :style="{ color: messageStatus.color }">{{ messageStatus.text }}</div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
-        const { createApp, ref, onMounted, watch } = Vue;
+        const { createApp, ref, onMounted, watch, nextTick } = Vue;
 
         const charMap = {
             ' ': 0,
@@ -216,6 +238,8 @@
                     color: '#666'
                 });
                 const boardContentIntervalId = ref(null);
+                const isMessageModalOpen = ref(false);
+                const messageTextarea = ref(null);
 
                 // Create reverse character map (code to char)
                 const reverseCharMap = {};
@@ -442,6 +466,21 @@
                     }
                 };
 
+                const openMessageModal = () => {
+                    isMessageModalOpen.value = true;
+                    // Use nextTick to ensure the modal is rendered before focusing
+                    setTimeout(() => {
+                        console.log(messageTextarea.value);
+                        messageTextarea.value.focus();
+                    }, 100);
+                };
+
+                const closeMessageModal = () => {
+                    isMessageModalOpen.value = false;
+                    messageInput.value = '';
+                    messageStatus.value = { text: '', color: '#666' };
+                };
+
                 const sendMessage = async () => {
                     if (!messageInput.value.trim()) {
                         messageStatus.value = { text: 'Please enter a message', color: '#dc3545' };
@@ -463,6 +502,9 @@
                             messageStatus.value = { text: 'Message sent successfully!', color: '#28a745' };
                             messageInput.value = '';
                             fetchBoardContent();
+                            setTimeout(() => {
+                                closeMessageModal();
+                            }, 1500);
                         } else {
                             throw new Error(data.error || 'Failed to send message');
                         }
@@ -578,6 +620,8 @@
                     patternTest,
                     contentTest,
                     boardContentIntervalId,
+                    isMessageModalOpen,
+                    messageTextarea,
                     // Animation
                     animatingCells,
                     ANIMATION_DELAY,
@@ -589,6 +633,8 @@
                     // Methods
                     setMode,
                     toggleDebug,
+                    openMessageModal,
+                    closeMessageModal,
                     sendMessage,
                     testPattern,
                     testContent,
