@@ -37,13 +37,6 @@
                     <img src="images/icon-image.svg" alt="Image" class="action-icon">
                     <div class="action-title">Image</div>
                 </div>
-
-                <div class="action action-debug" @click="toggleDebug()">
-                    <div class="toggle-switch" :class="{ 'active': debugStatus.includes('DEBUG') }">
-                        <div class="toggle-circle"></div>
-                    </div>
-                    <div class="action-title">Debug</div>
-                </div>
             </div>
 
             <div class="mode-grid">
@@ -55,6 +48,14 @@
                     <div class="mode-subtitle">{{ mode.subtitle }}</div>
                 </div>
             </div>
+
+            <div class="action action-debug" @click="toggleDebug()">
+                <div class="toggle-switch" :class="{ 'active': debugStatus.includes('DEBUG') }">
+                    <div class="toggle-circle"></div>
+                </div>
+                <div class="action-title">Debug</div>
+            </div>
+
 
             <div class="debug-only-content" :class="{ 'hidden': !debugStatus.includes('DEBUG') }">
                 <div class="status-panel">
@@ -1004,15 +1005,21 @@
                 };
 
                 const setMode = async (mode) => {
+                    // Update UI immediately
+                    currentMode.value = mode;
+                    
                     try {
                         await fetch('/api/mode', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ mode })
                         });
+                        // Still call updateStatus to sync other state
                         updateStatus();
                     } catch (error) {
                         console.error('Error setting mode:', error);
+                        // Optionally revert the mode if the API call fails
+                        // updateStatus() will handle this automatically
                     }
                 };
 

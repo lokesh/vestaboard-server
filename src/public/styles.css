@@ -83,7 +83,6 @@ button {
     display: flex;
     justify-content: center;
     align-items: center;
-    /* transition: transform 0.1s ease-in-out; */
 }
 
 /* .grid-cell.animating {
@@ -176,8 +175,12 @@ h2 {
     border-radius: var(--border-radius);
     background-position: bottom right;
     background-repeat: no-repeat;
-    transition: background var(--transition-duration) ease;
+    transition: background var(--transition-duration) ease, transform var(--transition-duration) ease;
     cursor: pointer;
+}
+
+.mode:active {
+    transform: scale(0.95);
 }
 
 .mode:not(.mode-active):hover {
@@ -191,7 +194,7 @@ h2 {
     background-repeat: no-repeat;
 }
 
-
+/* 
 .mode.mode-today {
     background-image: url('images/mode\ bg\ today.svg');
 }
@@ -222,7 +225,7 @@ h2 {
 
 .mode.mode-active.mode-clock {
     background-image: url('images/mode\ bg\ clock.svg');
-}
+} */
 
 .mode-title {
     font-weight: 700;
@@ -298,7 +301,6 @@ h2 {
     width: 10px;
     height: 18px;
     border-radius: 2px;
-    /* transition: transform 0.1s ease-in-out; */
 }
 
 .color-red { background-color: #ff4444; }
@@ -422,10 +424,10 @@ h2 {
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    padding-top: 80px;
+    padding-top: 24px;
     z-index: 1000;
     overflow-y: auto;
-    background-color: rgba(0, 0, 0, 0.5);
+    /* background-color: rgba(0, 0, 0, 0.5); */
 }
 
 .image-grid-overlay ~ .container {
@@ -441,30 +443,20 @@ body.modal-open {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 24px;
-    /* width: 90%; */
-    /* max-width: 800px; */
-    /* padding: 20px; */
-    /* background: var(--color-bg); */
-    /* border-radius: var(--border-radius); */
-    /* box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); */
+    background: white;
+    padding: 12px;
+    border-radius: var(--border-radius);
 }
 
 .image-box {
-    /* background: var(--color-board-bg);
-    border-radius: var(--border-radius); */
-    /* padding: 12px; */
-    /* cursor: pointer; */
-    /* transition: transform var(--transition-duration) ease, 
-                background-color var(--transition-duration) ease; */
+    /* No styles needed */
 }
 
 .image-preview {
-    /* aspect-ratio: 22/6; */
-    /* margin-bottom: 8px; */
-    /* overflow: hidden; */
     background: var(--color-board-bg);
-    padding: 6px;
+    padding: 12px;
     border-radius: var(--border-radius);
+    cursor: pointer;
 }
 
 .preview-grid {
@@ -472,15 +464,10 @@ body.modal-open {
     grid-template-columns: repeat(22, 8px);
     grid-template-rows: repeat(6, 12px);
     gap: 3px;
-    /* background-color: var(--color-bg);
-    width: 100%;
-    height: 100%; */
 }
 
 .preview-cell {
     background-color: var(--color-board-bg);
-    /* width: 8px; */
-    /* height: 12px; */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -490,14 +477,13 @@ body.modal-open {
 .preview-cell .color-block {
     width: 100%;
     height: 100%;
-    /* border-radius: 0; */
 }
 
 .image-title {
     color: var(--color-text-muted);
     font-size: 12px;
     text-align: center;
-    margin-top: 8px;
+    margin-top: 6px;
 }
 
 /* Customize scrollbar for image grid */
@@ -519,7 +505,7 @@ body.modal-open {
     background: rgba(255, 255, 255, 0.5);
 }
 
-/* Remove old image modal styles */
+/* Remove unused image modal styles */
 .image-modal,
 .image-modal.show,
 .image-modal .modal-content,
