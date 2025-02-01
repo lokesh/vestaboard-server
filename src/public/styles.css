@@ -23,6 +23,10 @@
     --board-height: 160px;
 
     --mode-height: 100px;
+
+    --transition-duration: 0.2s;
+    --transition-duration-slow: 0.6s;
+    --easing: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 * {
@@ -79,7 +83,7 @@ button {
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: transform 0.1s ease-in-out;
+    /* transition: transform 0.1s ease-in-out; */
 }
 
 /* .grid-cell.animating {
@@ -172,19 +176,21 @@ h2 {
     border-radius: var(--border-radius);
     background-position: bottom right;
     background-repeat: no-repeat;
+    transition: background var(--transition-duration) ease;
+    cursor: pointer;
 }
 
-.mode:hover {
-    cursor: pointer;
-    background: var(--color-button-bg-hover);
+.mode:not(.mode-active):hover {
+    background-color: var(--color-button-bg-hover);
     background-blend-mode: screen;
 }
 
 .mode.mode-active {
-    background: var(--color-active);
+    background-color: var(--color-active);
     background-position: bottom right;
     background-repeat: no-repeat;
 }
+
 
 .mode.mode-today {
     background-image: url('images/mode\ bg\ today.svg');
@@ -239,7 +245,7 @@ h2 {
     padding: 12px;
     border-radius: var(--border-radius);
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all var(--transition-duration) ease;
 }
 
 .action:hover {
@@ -252,10 +258,8 @@ h2 {
     /* margin-bottom: 4px; */
 }
 
-.action-message {
-}
-
 .action-debug {
+    justify-content: space-between;
 }
 
 .toggle-switch {
@@ -264,7 +268,7 @@ h2 {
     background-color: #444546;
     border-radius: 12px;
     position: relative;
-    transition: background-color 0.3s ease;
+    transition: background-color var(--transition-duration) ease;
 }
 
 .toggle-switch.active {
@@ -283,7 +287,7 @@ h2 {
     position: absolute;
     top: 2px;
     left: 2px;
-    transition: transform 0.3s ease;
+    transition: transform var(--transition-duration) ease;
 }
 
 .toggle-switch.active .toggle-circle {
@@ -294,7 +298,7 @@ h2 {
     width: 10px;
     height: 18px;
     border-radius: 2px;
-    transition: transform 0.1s ease-in-out;
+    /* transition: transform 0.1s ease-in-out; */
 }
 
 .color-red { background-color: #ff4444; }
@@ -318,7 +322,7 @@ h2 {
 /* Modal Styles */
 .blur-background {
     filter: blur(5px);
-    transition: filter 0.3s ease;
+    transition: filter var(--transition-duration) ease;
     pointer-events: none;
 }
 
@@ -334,7 +338,7 @@ h2 {
     align-items: center;
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
+    transition: opacity var(--transition-duration) ease, visibility var(--transition-duration) ease;
     z-index: 1000;
 }
 
@@ -349,8 +353,8 @@ h2 {
     padding: 16px;
     /* width: 90%; */
     max-width: var(--board-width);
-    transform: translateY(20px);
-    transition: transform 0.3s ease;
+    transform: translateY(100px);
+    transition: transform var(--transition-duration-slow) var(--easing);
 }
 
 .message-modal.show .modal-content {
@@ -399,11 +403,137 @@ h2 {
     border-radius: var(--border-radius);
     padding: 12px 24px;
     cursor: pointer;
-    transition: background-color 0.2s ease;
+    transition: background-color var(--transition-duration) ease;
     align-self: flex-start;
 }
 
 .message-modal .button:hover {
-    background-color: #4866ff;
+    background-color: var(--color-active);
+    color: white;
+}
+
+/* Image Grid Overlay Styles */
+.image-grid-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 80px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--transition-duration) ease;
+    z-index: 1000;
+    overflow-y: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.image-grid-overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.image-grid-overlay.show ~ .container {
+    overflow: hidden;
+    height: 100vh;
+}
+
+body.modal-open {
+    overflow: hidden;
+}
+
+.image-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px;
+    width: 90%;
+    max-width: 800px;
+    padding: 20px;
+    background: var(--color-bg);
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.image-box {
+    background: var(--color-board-bg);
+    border-radius: var(--border-radius);
+    padding: 12px;
+    cursor: pointer;
+    transition: transform var(--transition-duration) ease, 
+                background-color var(--transition-duration) ease;
+}
+
+.image-box:hover {
+    transform: scale(1.02);
+    background-color: var(--color-button-bg-hover);
+}
+
+.image-preview {
+    aspect-ratio: 22/6;
+    margin-bottom: 8px;
+    overflow: hidden;
+}
+
+.preview-grid {
+    display: grid;
+    grid-template-columns: repeat(22, 1fr);
+    grid-template-rows: repeat(6, 1fr);
+    gap: 1px;
+    background-color: var(--color-bg);
+    width: 100%;
+    height: 100%;
+}
+
+.preview-cell {
+    background-color: var(--color-board-bg);
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 6px;
+}
+
+.preview-cell .color-block {
+    width: 4px;
+    height: 8px;
+    border-radius: 1px;
+}
+
+.image-title {
+    color: var(--color-text);
+    font-size: 12px;
+    text-align: center;
+    margin-top: 8px;
+}
+
+/* Customize scrollbar for image grid */
+.image-grid-overlay::-webkit-scrollbar {
+    width: 8px;
+}
+
+.image-grid-overlay::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 4px;
+}
+
+.image-grid-overlay::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+}
+
+.image-grid-overlay::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+/* Remove old image modal styles */
+.image-modal,
+.image-modal.show,
+.image-modal .modal-content,
+.image-modal.show .modal-content {
+    display: none;
 }
 

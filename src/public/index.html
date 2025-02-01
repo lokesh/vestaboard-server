@@ -10,7 +10,7 @@
 </head>
 <body>
     <div id="app">
-        <div class="container" :class="{ 'blur-background': isMessageModalOpen }">
+        <div class="container" :class="{ 'blur-background': isMessageModalOpen || isImageModalOpen }">
             <div class="board board-mock">
                 <div class="board-grid">
                     <div v-for="(char, index) in boardContent" 
@@ -27,6 +27,25 @@
             </div>
             <div class="update-timing">Updates at 6am, 9am, noon, 3pm, and 6pm</div>
 
+            <div class="action-grid">
+                <div class="action action-message" @click="openMessageModal">
+                    <img src="images/icon-message.svg" alt="Message" class="action-icon">
+                    <div class="action-title">Message</div>
+                </div>
+
+                <div class="action action-image" @click="openImageModal">
+                    <img src="images/icon-image.svg" alt="Image" class="action-icon">
+                    <div class="action-title">Image</div>
+                </div>
+
+                <div class="action action-debug" @click="toggleDebug()">
+                    <div class="toggle-switch" :class="{ 'active': debugStatus.includes('DEBUG') }">
+                        <div class="toggle-circle"></div>
+                    </div>
+                    <div class="action-title">Debug</div>
+                </div>
+            </div>
+
             <div class="mode-grid">
                 <div v-for="mode in modes" 
                      :key="mode.name"
@@ -34,19 +53,6 @@
                      @click="setMode(mode.name)">
                     <div class="mode-title">{{ mode.title }}</div>
                     <div class="mode-subtitle">{{ mode.subtitle }}</div>
-                </div>
-            </div>
-
-            <div class="action-grid">
-                <div class="action action-message" @click="openMessageModal">
-                    <img src="images/icon-message.svg" alt="Message" class="action-icon">
-                    <div class="action-title">Message</div>
-                </div>
-                <div class="action action-debug" @click="toggleDebug()">
-                    <div class="toggle-switch" :class="{ 'active': debugStatus.includes('DEBUG') }">
-                        <div class="toggle-circle"></div>
-                    </div>
-                    <div class="action-title">Debug</div>
                 </div>
             </div>
 
@@ -154,9 +160,6 @@
         <!-- Message Modal -->
         <div class="message-modal" :class="{ 'show': isMessageModalOpen }" @click.self="closeMessageModal">
             <div class="modal-content">
-                <!-- <div class="modal-header">
-                    <h2>Message</h2>
-                </div> -->
                 <div class="message-input-container">
                     <textarea 
                         ref="messageTextarea"
@@ -168,6 +171,32 @@
                         <button class="button" @click="sendMessage">Send</button>
                     </div>
                     <div v-if="false" :style="{ color: messageStatus.color }">{{ messageStatus.text }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Image Grid -->
+        <div class="image-grid-overlay" :class="{ 'show': isImageModalOpen }" @click.self="closeImageModal">
+            <div class="image-grid">
+                <div v-for="test in contentTests" 
+                     :key="test.name" 
+                     class="image-box"
+                     @click="applyTestPattern(test)">
+                    <div class="image-preview">
+                        <div class="preview-grid">
+                            <div v-for="(char, index) in test.content" 
+                                 :key="index" 
+                                 class="preview-cell">
+                                <template v-if="isColorEmoji(char)">
+                                    <div :class="['color-block', `color-${getColorClass(char)}`]"></div>
+                                </template>
+                                <template v-else>
+                                    {{ char || '\u00A0' }}
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="image-title">{{ test.name }}</div>
                 </div>
             </div>
         </div>
@@ -240,6 +269,7 @@
                 const boardContentIntervalId = ref(null);
                 const isMessageModalOpen = ref(false);
                 const messageTextarea = ref(null);
+                const isImageModalOpen = ref(false);
 
                 // Create reverse character map (code to char)
                 const reverseCharMap = {};
@@ -766,6 +796,29 @@
                     return emojiColorMap[char];
                 };
 
+                const openImageModal = () => {
+                    isImageModalOpen.value = true;
+                    document.body.classList.add('modal-open');
+                };
+
+                const closeImageModal = () => {
+                    isImageModalOpen.value = false;
+                    document.body.classList.remove('modal-open');
+                };
+
+                const applyTestPattern = async (test) => {
+                    try {
+                        // Set mode to MANUAL first
+                        await setMode('MANUAL');
+                        // Update the board content
+                        await updateBoardContent(test.content);
+                        // Close the modal
+                        closeImageModal();
+                    } catch (error) {
+                        console.error('Error applying test pattern:', error);
+                    }
+                };
+
                 // Lifecycle hooks
                 onMounted(() => {
                     fetchBoardContent();
@@ -801,6 +854,7 @@
                     boardContentIntervalId,
                     isMessageModalOpen,
                     messageTextarea,
+                    isImageModalOpen,
                     // Animation
                     animatingCells,
                     ANIMATION_DELAY,
@@ -820,7 +874,10 @@
                     initiateCalendarAuth,
                     fetchCalendarEvents,
                     isColorEmoji,
-                    getColorClass
+                    getColorClass,
+                    openImageModal,
+                    closeImageModal,
+                    applyTestPattern
                 };
             }
         }).mount('#app');
