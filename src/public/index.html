@@ -176,29 +176,381 @@
         </div>
 
         <!-- Image Grid -->
-        <div class="image-grid-overlay" :class="{ 'show': isImageModalOpen }" @click.self="closeImageModal">
+        <div class="image-grid-overlay" v-if="isImageModalOpen" @click.self="closeImageModal">
             <div class="image-grid">
-                <div v-for="test in contentTests" 
-                     :key="test.name" 
-                     class="image-box"
-                     @click="applyTestPattern(test)">
+                <!-- Rainbow Border -->
+                <div class="image-box" @click="applyTestPattern(contentTests[0])">
                     <div class="image-preview">
                         <div class="preview-grid">
-                            <div v-for="(char, index) in test.content" 
-                                 :key="index" 
-                                 class="preview-cell">
-                                <template v-if="isColorEmoji(char)">
-                                    <div :class="['color-block', `color-${getColorClass(char)}`]"></div>
-                                </template>
-                                <template v-else>
-                                    {{ char || '\u00A0' }}
-                                </template>
-                            </div>
+                            <div class="preview-cell" v-for="i in 22"><div class="color-block color-red"></div></div>
+                            <div class="preview-cell" v-for="i in 22"><div class="color-block color-orange"></div></div>
+                            <div class="preview-cell" v-for="i in 22"><div class="color-block color-yellow"></div></div>
+                            <div class="preview-cell" v-for="i in 22"><div class="color-block color-green"></div></div>
+                            <div class="preview-cell" v-for="i in 22"><div class="color-block color-blue"></div></div>
+                            <div class="preview-cell" v-for="i in 22"><div class="color-block color-purple"></div></div>
                         </div>
                     </div>
-                    <div class="image-title">{{ test.name }}</div>
+                    <div class="image-title">Rainbow Border</div>
+                </div>
+
+                <!-- Checkerboard -->
+                <div class="image-box" @click="applyTestPattern(contentTests[1])">
+                    <div class="image-preview">
+                        <div class="preview-grid">
+                            <template v-for="row in 6">
+                                <div v-for="col in 22" class="preview-cell">
+                                    <div :class="['color-block', ((row + col) % 2 === 0) ? 'color-white' : 'color-black']"></div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                    <div class="image-title">Checkerboard</div>
+                </div>
+
+                <!-- Hello World -->
+                <div class="image-box" @click="applyTestPattern(contentTests[2])">
+                    <div class="image-preview">
+                        <div class="preview-grid">
+                            <div class="preview-cell" v-for="i in 44">&nbsp;</div>
+                            <div class="preview-cell" v-for="i in 3">&nbsp;</div>
+                            <div class="preview-cell">H</div>
+                            <div class="preview-cell">E</div>
+                            <div class="preview-cell">L</div>
+                            <div class="preview-cell">L</div>
+                            <div class="preview-cell">O</div>
+                            <div class="preview-cell">&nbsp;</div>
+                            <div class="preview-cell">W</div>
+                            <div class="preview-cell">O</div>
+                            <div class="preview-cell">R</div>
+                            <div class="preview-cell">L</div>
+                            <div class="preview-cell">D</div>
+                            <div class="preview-cell" v-for="i in 7">&nbsp;</div>
+                            <div class="preview-cell" v-for="i in 44">&nbsp;</div>
+                        </div>
+                    </div>
+                    <div class="image-title">Hello World</div>
+                </div>
+
+                <!-- Color Blocks -->
+                <div class="image-box" @click="applyTestPattern(contentTests[3])">
+                    <div class="image-preview">
+                        <div class="preview-grid">
+                            <div class="preview-cell" v-for="i in 22"><div class="color-block color-red"></div></div>
+                            <div class="preview-cell" v-for="i in 22"><div class="color-block color-orange"></div></div>
+                            <div class="preview-cell" v-for="i in 22"><div class="color-block color-yellow"></div></div>
+                            <div class="preview-cell" v-for="i in 22"><div class="color-block color-green"></div></div>
+                            <div class="preview-cell" v-for="i in 22"><div class="color-block color-blue"></div></div>
+                            <div class="preview-cell" v-for="i in 22"><div class="color-block color-purple"></div></div>
+                        </div>
+                    </div>
+                    <div class="image-title">Color Blocks</div>
+                </div>
+
+                <!-- Frame -->
+                <div class="image-box" @click="applyTestPattern(contentTests[4])">
+                    <div class="image-preview">
+                        <div class="preview-grid">
+                            <div class="preview-cell" v-for="i in 22">■</div>
+                            <template v-for="row in 4">
+                                <div class="preview-cell">■</div>
+                                <div class="preview-cell" v-for="i in 20">&nbsp;</div>
+                                <div class="preview-cell">■</div>
+                            </template>
+                            <div class="preview-cell" v-for="i in 22">■</div>
+                        </div>
+                    </div>
+                    <div class="image-title">Frame</div>
+                </div>
+
+                <!-- Color Waves -->
+                <div class="image-box" @click="applyTestPattern(contentTests[15])">
+                    <div class="image-preview">
+                        <div class="preview-grid">
+                            <template v-for="row in 6">
+                                <template v-for="col in 22">
+                                    <div class="preview-cell">
+                                        <div :class="['color-block', `color-${['blue', 'green', 'yellow'][Math.floor((Math.sin(col * 0.3 + row * 0.5) + 1) * 1.5)]}`]"></div>
+                                    </div>
+                                </template>
+                            </template>
+                        </div>
+                    </div>
+                    <div class="image-title">Color Waves</div>
+                </div>
+
+                <!-- Herringbone -->
+                <div class="image-box" @click="applyTestPattern(contentTests[17])">
+                    <div class="image-preview">
+                        <div class="preview-grid">
+                            <template v-for="row in 6">
+                                <template v-for="col in 22">
+                                    <div class="preview-cell">
+                                        <div :class="['color-block', ((row * 2 + col) % 4 < 2) ? 'color-blue' : 'color-white']"></div>
+                                    </div>
+                                </template>
+                            </template>
+                        </div>
+                    </div>
+                    <div class="image-title">Herringbone</div>
+                </div>
+
+                <!-- Basket Weave -->
+                <div class="image-box" @click="applyTestPattern(contentTests[19])">
+                    <div class="image-preview">
+                        <div class="preview-grid">
+                            <template v-for="row in 6">
+                                <template v-for="col in 22">
+                                    <div class="preview-cell">
+                                        <div :class="['color-block', ((Math.floor(row/2) + Math.floor(col/2)) % 2 === 0) ? 'color-yellow' : 'color-orange']"></div>
+                                    </div>
+                                </template>
+                            </template>
+                        </div>
+                    </div>
+                    <div class="image-title">Basket Weave</div>
+                </div>
+
+                <!-- Diagonal Weave -->
+                <div class="image-box" @click="applyTestPattern(contentTests[5])">
+                    <div class="image-preview">
+                        <div class="preview-grid">
+                            <template v-for="row in 6">
+                                <template v-for="col in 22">
+                                    <div class="preview-cell">
+                                        <div :class="['color-block', ((row + col) % 3 === 0) ? 'color-black' : 'color-white']"></div>
+                                    </div>
+                                </template>
+                            </template>
+                        </div>
+                    </div>
+                    <div class="image-title">Diagonal Weave</div>
+                </div>
+
+                <!-- Nested Squares -->
+                <div class="image-box" @click="applyTestPattern(contentTests[6])">
+                    <div class="image-preview">
+                        <div class="preview-grid">
+                            <template v-for="row in 6">
+                                <template v-for="col in 22">
+                                    <div class="preview-cell">
+                                        <div :class="['color-block', (Math.min(row, 5-row, col, 21-col) % 2 === 0) ? 'color-black' : 'color-white']"></div>
+                                    </div>
+                                </template>
+                            </template>
+                        </div>
+                    </div>
+                    <div class="image-title">Nested Squares</div>
+                </div>
+
+                <!-- Triangular Weave -->
+                <div class="image-box" @click="applyTestPattern(contentTests[7])">
+                    <div class="image-preview">
+                        <div class="preview-grid">
+                            <template v-for="row in 6">
+                                <template v-for="col in 22">
+                                    <div class="preview-cell">
+                                        <div :class="['color-block', ((row + col) % 2 === 0 && (row - col) % 2 === 0) ? 'color-black' : 'color-white']"></div>
+                                    </div>
+                                </template>
+                            </template>
+                        </div>
+                    </div>
+                    <div class="image-title">Triangular Weave</div>
+                </div>
+
+                <!-- Interlocking T -->
+                <div class="image-box" @click="applyTestPattern(contentTests[8])">
+                    <div class="image-preview">
+                        <div class="preview-grid">
+                            <template v-for="row in 6">
+                                <template v-for="col in 22">
+                                    <div class="preview-cell">
+                                        <div :class="['color-block', (row % 3 === 1 || col % 3 === 1) ? 'color-black' : 'color-white']"></div>
+                                    </div>
+                                </template>
+                            </template>
+                        </div>
+                    </div>
+                    <div class="image-title">Interlocking T</div>
+                </div>
+
+                <!-- Broken Stripes -->
+                <div class="image-box" @click="applyTestPattern(contentTests[9])">
+                    <div class="image-preview">
+                        <div class="preview-grid">
+                            <template v-for="row in 6">
+                                <template v-for="col in 22">
+                                    <div class="preview-cell">
+                                        <div :class="['color-block', ((col + Math.floor(row/2)) % 4 < 2) ? 'color-black' : 'color-white']"></div>
+                                    </div>
+                                </template>
+                            </template>
+                        </div>
+                    </div>
+                    <div class="image-title">Broken Stripes</div>
+                </div>
+
+                <!-- Maze Pattern -->
+                <div class="image-box" @click="applyTestPattern(contentTests[10])">
+                    <div class="image-preview">
+                        <div class="preview-grid">
+                            <template v-for="row in 6">
+                                <template v-for="col in 22">
+                                    <div class="preview-cell">
+                                        <div :class="['color-block', ((row % 4 < 2) !== (col % 4 < 2)) ? 'color-black' : 'color-white']"></div>
+                                    </div>
+                                </template>
+                            </template>
+                        </div>
+                    </div>
+                    <div class="image-title">Maze Pattern</div>
+                </div>
+
+                <!-- Color Gradient Weave -->
+                <div class="image-box" @click="applyTestPattern(contentTests[11])">
+                    <div class="image-preview">
+                        <div class="preview-grid">
+                            <template v-for="row in 6">
+                                <template v-for="col in 22">
+                                    <div class="preview-cell">
+                                        <div :class="['color-block', ((row + col) % 2 === 0) ? `color-${['red', 'orange', 'yellow', 'green', 'blue', 'purple'][(row + Math.floor(col/4)) % 6]}` : 'color-white']"></div>
+                                    </div>
+                                </template>
+                            </template>
+                        </div>
+                    </div>
+                    <div class="image-title">Color Gradient Weave</div>
+                </div>
+
+                <!-- Rainbow Diamonds -->
+                <div class="image-box" @click="applyTestPattern(contentTests[12])">
+                    <div class="image-preview">
+                        <div class="preview-grid">
+                            <template v-for="row in 6">
+                                <template v-for="col in 22">
+                                    <div class="preview-cell">
+                                        <div :class="['color-block', `color-${['red', 'orange', 'yellow', 'green', 'blue', 'purple'][Math.floor(Math.abs(row - 2.5) + Math.abs(col - 10.5)) % 6]}`]"></div>
+                                    </div>
+                                </template>
+                            </template>
+                        </div>
+                    </div>
+                    <div class="image-title">Rainbow Diamonds</div>
+                </div>
+
+                <!-- Color Steps -->
+                <div class="image-box" @click="applyTestPattern(contentTests[13])">
+                    <div class="image-preview">
+                        <div class="preview-grid">
+                            <template v-for="row in 6">
+                                <template v-for="col in 22">
+                                    <div class="preview-cell">
+                                        <div :class="['color-block', `color-${['red', 'orange', 'yellow', 'green', 'blue', 'purple'][Math.floor((row + col) / 3) % 6]}`]"></div>
+                                    </div>
+                                </template>
+                            </template>
+                        </div>
+                    </div>
+                    <div class="image-title">Color Steps</div>
+                </div>
+
+                <!-- Rainbow Maze -->
+                <div class="image-box" @click="applyTestPattern(contentTests[14])">
+                    <div class="image-preview">
+                        <div class="preview-grid">
+                            <template v-for="row in 6">
+                                <template v-for="col in 22">
+                                    <div class="preview-cell">
+                                        <div :class="['color-block', (row % 3 === 1 || col % 3 === 1) ? `color-${['red', 'orange', 'yellow', 'green', 'blue', 'purple'][((row % 3) * 2 + (col % 3)) % 6]}` : 'color-white']"></div>
+                                    </div>
+                                </template>
+                            </template>
+                        </div>
+                    </div>
+                    <div class="image-title">Rainbow Maze</div>
+                </div>
+
+                <!-- Spectrum Blocks -->
+                <div class="image-box" @click="applyTestPattern(contentTests[16])">
+                    <div class="image-preview">
+                        <div class="preview-grid">
+                            <template v-for="row in 6">
+                                <template v-for="col in 22">
+                                    <div class="preview-cell">
+                                        <div :class="['color-block', `color-${['red', 'orange', 'yellow', 'green', 'blue', 'purple'][(Math.floor(row/3) + Math.floor(col/3)) % 6]}`]"></div>
+                                    </div>
+                                </template>
+                            </template>
+                        </div>
+                    </div>
+                    <div class="image-title">Spectrum Blocks</div>
+                </div>
+
+                <!-- Ikat Waves -->
+                <div class="image-box" @click="applyTestPattern(contentTests[18])">
+                    <div class="image-preview">
+                        <div class="preview-grid">
+                            <template v-for="row in 6">
+                                <template v-for="col in 22">
+                                    <div class="preview-cell">
+                                        <div :class="['color-block', `color-${['red', 'blue', 'white'][Math.floor((Math.sin(col * 0.4 + row * 0.8) + 1) * 1.5)]}`]"></div>
+                                    </div>
+                                </template>
+                            </template>
+                        </div>
+                    </div>
+                    <div class="image-title">Ikat Waves</div>
+                </div>
+
+                <!-- Tartan -->
+                <div class="image-box" @click="applyTestPattern(contentTests[20])">
+                    <div class="image-preview">
+                        <div class="preview-grid">
+                            <template v-for="row in 6">
+                                <template v-for="col in 22">
+                                    <div class="preview-cell">
+                                        <div :class="['color-block', `color-${['blue', 'green', 'white', 'red'][(col % 4 === 0 || row % 4 === 0) ? Math.floor(row/2) % 4 : Math.floor(col/2) % 4]}`]"></div>
+                                    </div>
+                                </template>
+                            </template>
+                        </div>
+                    </div>
+                    <div class="image-title">Tartan</div>
+                </div>
+
+                <!-- Kente Inspired -->
+                <div class="image-box" @click="applyTestPattern(contentTests[21])">
+                    <div class="image-preview">
+                        <div class="preview-grid">
+                            <template v-for="row in 6">
+                                <template v-for="col in 22">
+                                    <div class="preview-cell">
+                                        <div :class="['color-block', `color-${['yellow', 'green', 'red', 'black'][((col % 4) + (row % 2) * 2) % 4]}`]"></div>
+                                    </div>
+                                </template>
+                            </template>
+                        </div>
+                    </div>
+                    <div class="image-title">Kente Inspired</div>
+                </div>
+
+                <!-- Twill Pattern -->
+                <div class="image-box" @click="applyTestPattern(contentTests[22])">
+                    <div class="image-preview">
+                        <div class="preview-grid">
+                            <template v-for="row in 6">
+                                <template v-for="col in 22">
+                                    <div class="preview-cell">
+                                        <div :class="['color-block', ((col + row % 4) % 4 < 2) ? 'color-blue' : 'color-white']"></div>
+                                    </div>
+                                </template>
+                            </template>
+                        </div>
+                    </div>
+                    <div class="image-title">Twill Pattern</div>
                 </div>
             </div>
+        </div>
         </div>
     </div>
 
@@ -807,13 +1159,14 @@
                 };
 
                 const applyTestPattern = async (test) => {
+                    // Close the modal
+                    closeImageModal();
+
                     try {
                         // Set mode to MANUAL first
                         await setMode('MANUAL');
                         // Update the board content
                         await updateBoardContent(test.content);
-                        // Close the modal
-                        closeImageModal();
                     } catch (error) {
                         console.error('Error applying test pattern:', error);
                     }
