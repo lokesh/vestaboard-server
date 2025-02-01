@@ -1,28 +1,29 @@
 :root {
+    --color-text: #D7D3Da;
+    --color-text-muted: #8f8995;
+    --color-title: #f7f3ff;
 
-    --color-text: #D0D0D0;
-    --color-text-muted: #8D8C8D;
-    --color-title: #fff;
+    --color-bg: #1C191f;
+    --color-board-bg: #2D2a31;
 
-    --color-bg: #1C1A1B;
-    --color-board-bg: #2D2F31;
+    --color-mode-bg: var(--color-board-bg);
 
     --color-bg-modal: #fff;
     --color-textarea: var(--color-bg);
     --color-bg-textarea: #eee;
 
-    --color-button-bg: #333435;
-    --color-button-bg-hover: #444546;
-    --color-button-bg-active: #555657;
+    --color-button-bg: #35303a;
+    --color-button-bg-hover: #45404a;
+    --color-button-bg-active: #55505a;
 
     --color-active: #3755ED;
 
-    --border-radius: 8px;
+    --border-radius: 6px;
 
     --board-width: 344px;
     --board-height: 160px;
 
-    --mode-height: 100px;
+    --mode-height: 80px;
 
     --transition-duration: 0.2s;
     --transition-duration-slow: 0.6s;
@@ -169,7 +170,7 @@ h2 {
 }
 
 .mode {
-    background: var(--color-board-bg);
+    background: var(--color-mode-bg);
     padding: 12px;
     height: var(--mode-height);
     border-radius: var(--border-radius);
@@ -199,12 +200,13 @@ h2 {
 }
 
 .mode.mode-active {
-    background-color: var(--color-active);
+    /* background-color: var(--color-active); */
+    box-shadow: 0 0 0 2px var(--color-active);
     background-position: bottom right;
     background-repeat: no-repeat;
 }
 
-
+/* 
 .mode.mode-today {
     background-image: url('images/mode\ bg\ today.svg');
 }
@@ -235,7 +237,7 @@ h2 {
 
 .mode.mode-active.mode-clock {
     background-image: url('images/mode\ bg\ clock.svg');
-}
+} */
 
 .mode-title {
     font-weight: 700;
