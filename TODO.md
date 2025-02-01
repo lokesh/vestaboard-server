@@ -1,9 +1,4 @@
-- button press
-
-
-
-Pt 2 - Server
-- [x] Renable Railway server
+image icon
 
 Pt 3 - Share
 - [ ] Record videos and screenshots

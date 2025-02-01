@@ -177,10 +177,20 @@ h2 {
     background-repeat: no-repeat;
     transition: background var(--transition-duration) ease, transform var(--transition-duration) ease;
     cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
 }
 
-.mode:active {
-    transform: scale(0.95);
+@media (hover: hover) {
+    .mode:active {
+        transform: scale(0.95);
+    }
+}
+
+/* Touch devices */
+@media (hover: none) {
+    .mode:active {
+        transform: scale(0.95);
+    }
 }
 
 .mode:not(.mode-active):hover {
@@ -194,7 +204,7 @@ h2 {
     background-repeat: no-repeat;
 }
 
-/* 
+
 .mode.mode-today {
     background-image: url('images/mode\ bg\ today.svg');
 }
@@ -225,7 +235,7 @@ h2 {
 
 .mode.mode-active.mode-clock {
     background-image: url('images/mode\ bg\ clock.svg');
-} */
+}
 
 .mode-title {
     font-weight: 700;
