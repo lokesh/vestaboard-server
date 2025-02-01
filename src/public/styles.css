@@ -4,9 +4,12 @@
     --color-title: #f7f3ff;
 
     --color-bg: #1C191f;
-    --color-board-bg: #2D2a31;
 
-    --color-mode-bg: var(--color-board-bg);
+    --color-border: #3f3945;
+
+    --color-board-bg: #2D2a31;
+    --color-mode-bg: var(--color-bg);
+    --color-action-bg: var(--color-bg);
 
     --color-bg-modal: #fff;
     --color-textarea: var(--color-bg);
@@ -16,7 +19,7 @@
     --color-button-bg-hover: #45404a;
     --color-button-bg-active: #55505a;
 
-    --color-active: #3755ED;
+    --color-active: #638BFF;
 
     --border-radius: 6px;
 
@@ -173,6 +176,7 @@ h2 {
     background: var(--color-mode-bg);
     padding: 12px;
     height: var(--mode-height);
+    border: 2px solid var(--color-border);
     border-radius: var(--border-radius);
     background-position: bottom right;
     background-repeat: no-repeat;
@@ -201,7 +205,8 @@ h2 {
 
 .mode.mode-active {
     /* background-color: var(--color-active); */
-    box-shadow: 0 0 0 2px var(--color-active);
+    border-color: var(--color-active);
+    /* box-shadow: 0 0 0 2px var(--color-active); */
     background-position: bottom right;
     background-repeat: no-repeat;
 }
@@ -256,11 +261,12 @@ h2 {
     display: flex;
     align-items: center;
     gap: 8px;
-    background: var(--color-board-bg);
+    background: var(--color-action-bg);
     padding: 12px;
     border-radius: var(--border-radius);
     cursor: pointer;
     transition: all var(--transition-duration) ease;
+    border: 2px solid var(--color-border);
 }
 
 .action:hover {
@@ -439,16 +445,15 @@ h2 {
     padding-top: 24px;
     z-index: 1000;
     overflow-y: auto;
-    /* background-color: rgba(0, 0, 0, 0.5); */
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--transition-duration) ease, visibility var(--transition-duration) ease;
 }
 
-.image-grid-overlay ~ .container {
-    overflow: hidden;
-    height: 100vh;
-}
-
-body.modal-open {
-    overflow: hidden;
+.image-grid-overlay.show {
+    opacity: 1;
+    visibility: visible;
 }
 
 .image-grid {
@@ -456,8 +461,14 @@ body.modal-open {
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 24px;
     background: white;
-    padding: 12px;
-    border-radius: var(--border-radius);
+    padding: 24px;
+    border-radius: calc(var(--border-radius) * 2);
+    transform: translateY(100px);
+    transition: transform var(--transition-duration-slow) var(--easing);
+}
+
+.image-grid-overlay.show .image-grid {
+    transform: translateY(0);
 }
 
 .image-box {
@@ -523,5 +534,9 @@ body.modal-open {
 .image-modal .modal-content,
 .image-modal.show .modal-content {
     display: none;
+}
+
+body.modal-open {
+    overflow: hidden;
 }
 

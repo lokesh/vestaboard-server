@@ -1,3 +1,10 @@
+- [ ] animated modal up
+- [ ] Add click sound for buttons
+- [ ] Update image icon
+- [ ] Test image feature
+- [ ] Ship it
+
+
 - [x] image icon
 - [ ] test images to see if they work
 

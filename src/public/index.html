@@ -29,12 +29,12 @@
 
             <div class="action-grid">
                 <div class="action action-message" @click="openMessageModal">
-                    <img src="images/icon-message.svg" alt="Message" class="action-icon">
+                    <img src="images/icon-message-sm.svg" alt="Message" class="action-icon">
                     <div class="action-title">Message</div>
                 </div>
 
                 <div class="action action-image" @click="openImageModal">
-                    <img src="images/icon-image.svg" alt="Image" class="action-icon">
+                    <img src="images/icon-image-sm.svg" alt="Image" class="action-icon">
                     <div class="action-title">Image</div>
                 </div>
             </div>
@@ -177,25 +177,10 @@
         </div>
 
         <!-- Image Grid -->
-        <div class="image-grid-overlay" v-if="isImageModalOpen" @click.self="closeImageModal">
+        <div class="image-grid-overlay" :class="{ 'show': isImageModalOpen }" @click.self="closeImageModal">
             <div class="image-grid">
-                <!-- Rainbow Border -->
-                <div class="image-box" @click="applyTestPattern(contentTests[0])">
-                    <div class="image-preview">
-                        <div class="preview-grid">
-                            <div class="preview-cell" v-for="i in 22"><div class="color-block color-red"></div></div>
-                            <div class="preview-cell" v-for="i in 22"><div class="color-block color-orange"></div></div>
-                            <div class="preview-cell" v-for="i in 22"><div class="color-block color-yellow"></div></div>
-                            <div class="preview-cell" v-for="i in 22"><div class="color-block color-green"></div></div>
-                            <div class="preview-cell" v-for="i in 22"><div class="color-block color-blue"></div></div>
-                            <div class="preview-cell" v-for="i in 22"><div class="color-block color-purple"></div></div>
-                        </div>
-                    </div>
-                    <div class="image-title">Rainbow Border</div>
-                </div>
-
                 <!-- Checkerboard -->
-                <div class="image-box" @click="applyTestPattern(contentTests[1])">
+                <div class="image-box" @click="applyTestPattern(contentTests[0])">
                     <div class="image-preview">
                         <div class="preview-grid">
                             <template v-for="row in 6">
@@ -208,32 +193,8 @@
                     <div class="image-title">Checkerboard</div>
                 </div>
 
-                <!-- Hello World -->
-                <div class="image-box" @click="applyTestPattern(contentTests[2])">
-                    <div class="image-preview">
-                        <div class="preview-grid">
-                            <div class="preview-cell" v-for="i in 44">&nbsp;</div>
-                            <div class="preview-cell" v-for="i in 3">&nbsp;</div>
-                            <div class="preview-cell">H</div>
-                            <div class="preview-cell">E</div>
-                            <div class="preview-cell">L</div>
-                            <div class="preview-cell">L</div>
-                            <div class="preview-cell">O</div>
-                            <div class="preview-cell">&nbsp;</div>
-                            <div class="preview-cell">W</div>
-                            <div class="preview-cell">O</div>
-                            <div class="preview-cell">R</div>
-                            <div class="preview-cell">L</div>
-                            <div class="preview-cell">D</div>
-                            <div class="preview-cell" v-for="i in 7">&nbsp;</div>
-                            <div class="preview-cell" v-for="i in 44">&nbsp;</div>
-                        </div>
-                    </div>
-                    <div class="image-title">Hello World</div>
-                </div>
-
                 <!-- Color Blocks -->
-                <div class="image-box" @click="applyTestPattern(contentTests[3])">
+                <div class="image-box" @click="applyTestPattern(contentTests[1])">
                     <div class="image-preview">
                         <div class="preview-grid">
                             <div class="preview-cell" v-for="i in 22"><div class="color-block color-red"></div></div>
@@ -247,24 +208,8 @@
                     <div class="image-title">Color Blocks</div>
                 </div>
 
-                <!-- Frame -->
-                <div class="image-box" @click="applyTestPattern(contentTests[4])">
-                    <div class="image-preview">
-                        <div class="preview-grid">
-                            <div class="preview-cell" v-for="i in 22">■</div>
-                            <template v-for="row in 4">
-                                <div class="preview-cell">■</div>
-                                <div class="preview-cell" v-for="i in 20">&nbsp;</div>
-                                <div class="preview-cell">■</div>
-                            </template>
-                            <div class="preview-cell" v-for="i in 22">■</div>
-                        </div>
-                    </div>
-                    <div class="image-title">Frame</div>
-                </div>
-
                 <!-- Color Waves -->
-                <div class="image-box" @click="applyTestPattern(contentTests[15])">
+                <div class="image-box" @click="applyTestPattern(contentTests[14])">
                     <div class="image-preview">
                         <div class="preview-grid">
                             <template v-for="row in 6">
@@ -280,7 +225,7 @@
                 </div>
 
                 <!-- Herringbone -->
-                <div class="image-box" @click="applyTestPattern(contentTests[17])">
+                <div class="image-box" @click="applyTestPattern(contentTests[4])">
                     <div class="image-preview">
                         <div class="preview-grid">
                             <template v-for="row in 6">
@@ -296,13 +241,13 @@
                 </div>
 
                 <!-- Basket Weave -->
-                <div class="image-box" @click="applyTestPattern(contentTests[19])">
+                <div class="image-box" @click="applyTestPattern(contentTests[5])">
                     <div class="image-preview">
                         <div class="preview-grid">
                             <template v-for="row in 6">
                                 <template v-for="col in 22">
                                     <div class="preview-cell">
-                                        <div :class="['color-block', ((Math.floor(row/2) + Math.floor(col/2)) % 2 === 0) ? 'color-yellow' : 'color-orange']"></div>
+                                        <div :class="['color-block', ((row + col) % 3 === 0) ? 'color-black' : 'color-white']"></div>
                                     </div>
                                 </template>
                             </template>
@@ -312,7 +257,7 @@
                 </div>
 
                 <!-- Diagonal Weave -->
-                <div class="image-box" @click="applyTestPattern(contentTests[5])">
+                <div class="image-box" @click="applyTestPattern(contentTests[6])">
                     <div class="image-preview">
                         <div class="preview-grid">
                             <template v-for="row in 6">
@@ -327,40 +272,8 @@
                     <div class="image-title">Diagonal Weave</div>
                 </div>
 
-                <!-- Nested Squares -->
-                <div class="image-box" @click="applyTestPattern(contentTests[6])">
-                    <div class="image-preview">
-                        <div class="preview-grid">
-                            <template v-for="row in 6">
-                                <template v-for="col in 22">
-                                    <div class="preview-cell">
-                                        <div :class="['color-block', (Math.min(row, 5-row, col, 21-col) % 2 === 0) ? 'color-black' : 'color-white']"></div>
-                                    </div>
-                                </template>
-                            </template>
-                        </div>
-                    </div>
-                    <div class="image-title">Nested Squares</div>
-                </div>
-
-                <!-- Triangular Weave -->
-                <div class="image-box" @click="applyTestPattern(contentTests[7])">
-                    <div class="image-preview">
-                        <div class="preview-grid">
-                            <template v-for="row in 6">
-                                <template v-for="col in 22">
-                                    <div class="preview-cell">
-                                        <div :class="['color-block', ((row + col) % 2 === 0 && (row - col) % 2 === 0) ? 'color-black' : 'color-white']"></div>
-                                    </div>
-                                </template>
-                            </template>
-                        </div>
-                    </div>
-                    <div class="image-title">Triangular Weave</div>
-                </div>
-
                 <!-- Interlocking T -->
-                <div class="image-box" @click="applyTestPattern(contentTests[8])">
+                <div class="image-box" @click="applyTestPattern(contentTests[7])">
                     <div class="image-preview">
                         <div class="preview-grid">
                             <template v-for="row in 6">
@@ -376,7 +289,7 @@
                 </div>
 
                 <!-- Broken Stripes -->
-                <div class="image-box" @click="applyTestPattern(contentTests[9])">
+                <div class="image-box" @click="applyTestPattern(contentTests[8])">
                     <div class="image-preview">
                         <div class="preview-grid">
                             <template v-for="row in 6">
@@ -392,7 +305,7 @@
                 </div>
 
                 <!-- Maze Pattern -->
-                <div class="image-box" @click="applyTestPattern(contentTests[10])">
+                <div class="image-box" @click="applyTestPattern(contentTests[9])">
                     <div class="image-preview">
                         <div class="preview-grid">
                             <template v-for="row in 6">
@@ -408,7 +321,7 @@
                 </div>
 
                 <!-- Color Gradient Weave -->
-                <div class="image-box" @click="applyTestPattern(contentTests[11])">
+                <div class="image-box" @click="applyTestPattern(contentTests[10])">
                     <div class="image-preview">
                         <div class="preview-grid">
                             <template v-for="row in 6">
@@ -424,7 +337,7 @@
                 </div>
 
                 <!-- Rainbow Diamonds -->
-                <div class="image-box" @click="applyTestPattern(contentTests[12])">
+                <div class="image-box" @click="applyTestPattern(contentTests[11])">
                     <div class="image-preview">
                         <div class="preview-grid">
                             <template v-for="row in 6">
@@ -440,7 +353,7 @@
                 </div>
 
                 <!-- Color Steps -->
-                <div class="image-box" @click="applyTestPattern(contentTests[13])">
+                <div class="image-box" @click="applyTestPattern(contentTests[12])">
                     <div class="image-preview">
                         <div class="preview-grid">
                             <template v-for="row in 6">
@@ -456,7 +369,7 @@
                 </div>
 
                 <!-- Rainbow Maze -->
-                <div class="image-box" @click="applyTestPattern(contentTests[14])">
+                <div class="image-box" @click="applyTestPattern(contentTests[13])">
                     <div class="image-preview">
                         <div class="preview-grid">
                             <template v-for="row in 6">
@@ -472,7 +385,7 @@
                 </div>
 
                 <!-- Spectrum Blocks -->
-                <div class="image-box" @click="applyTestPattern(contentTests[16])">
+                <div class="image-box" @click="applyTestPattern(contentTests[14])">
                     <div class="image-preview">
                         <div class="preview-grid">
                             <template v-for="row in 6">
@@ -488,7 +401,7 @@
                 </div>
 
                 <!-- Ikat Waves -->
-                <div class="image-box" @click="applyTestPattern(contentTests[18])">
+                <div class="image-box" @click="applyTestPattern(contentTests[15])">
                     <div class="image-preview">
                         <div class="preview-grid">
                             <template v-for="row in 6">
@@ -504,7 +417,7 @@
                 </div>
 
                 <!-- Tartan -->
-                <div class="image-box" @click="applyTestPattern(contentTests[20])">
+                <div class="image-box" @click="applyTestPattern(contentTests[16])">
                     <div class="image-preview">
                         <div class="preview-grid">
                             <template v-for="row in 6">
@@ -520,7 +433,7 @@
                 </div>
 
                 <!-- Kente Inspired -->
-                <div class="image-box" @click="applyTestPattern(contentTests[21])">
+                <div class="image-box" @click="applyTestPattern(contentTests[17])">
                     <div class="image-preview">
                         <div class="preview-grid">
                             <template v-for="row in 6">
@@ -536,7 +449,7 @@
                 </div>
 
                 <!-- Twill Pattern -->
-                <div class="image-box" @click="applyTestPattern(contentTests[22])">
+                <div class="image-box" @click="applyTestPattern(contentTests[18])">
                     <div class="image-preview">
                         <div class="preview-grid">
                             <template v-for="row in 6">
@@ -728,30 +641,10 @@
 
                 const contentTests = [
                     {
-                        name: 'Rainbow Border',
-                        content: Array(132).fill(' ').map((_, i) => {
-                            if (i < 22) return '🟥';
-                            if (i < 44) return '🟧';
-                            if (i < 66) return '🟨';
-                            if (i < 88) return '🟩';
-                            if (i < 110) return '🟦';
-                            return '🟪';
-                        })
-                    },
-                    {
                         name: 'Checkerboard',
                         content: Array(132).fill(' ').map((_, i) => 
                             (Math.floor(i / 22) + (i % 22)) % 2 === 0 ? '⬜' : '⬛️'
                         )
-                    },
-                    {
-                        name: 'Hello World',
-                        content: Array(132).fill(' ').map((_, i) => {
-                            const message = '   HELLO WORLD   ';
-                            const row = Math.floor(i / 22);
-                            const col = i % 22;
-                            return row === 2 ? message[col] || ' ' : ' ';
-                        })
                     },
                     {
                         name: 'Color Blocks',
@@ -763,39 +656,11 @@
                         })
                     },
                     {
-                        name: 'Frame',
-                        content: Array(132).fill(' ').map((_, i) => {
-                            const row = Math.floor(i / 22);
-                            const col = i % 22;
-                            return (row === 0 || row === 5 || col === 0 || col === 21) ? '■' : ' ';
-                        })
-                    },
-                    {
                         name: 'Diagonal Weave',
                         content: Array(132).fill(' ').map((_, i) => {
                             const row = Math.floor(i / 22);
                             const col = i % 22;
                             return ((row + col) % 3 === 0) ? '⬛️' : '⬜'
-                        })
-                    },
-                    {
-                        name: 'Nested Squares',
-                        content: Array(132).fill(' ').map((_, i) => {
-                            const row = Math.floor(i / 22);
-                            const col = i % 22;
-                            const distFromEdge = Math.min(
-                                row, 5 - row,
-                                col, 21 - col
-                            );
-                            return distFromEdge % 2 === 0 ? '⬛️' : '⬜'
-                        })
-                    },
-                    {
-                        name: 'Triangular Weave',
-                        content: Array(132).fill(' ').map((_, i) => {
-                            const row = Math.floor(i / 22);
-                            const col = i % 22;
-                            return ((row + col) % 2 === 0 && (row - col) % 2 === 0) ? '⬛️' : '⬜'
                         })
                     },
                     {
