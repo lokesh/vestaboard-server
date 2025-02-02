@@ -1,5 +1,6 @@
-- [ ] animated modal up
-- [ ] Add click sound for buttons
+- [x] update page title and icon
+- [x] update icons to use dot system, but try making them rounded rectangles
+- [x] animated modal up
 - [ ] Update image icon
 - [ ] Test image feature
 - [ ] Ship it

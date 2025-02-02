@@ -8,8 +8,8 @@
     --color-border: #3f3945;
 
     --color-board-bg: #2D2a31;
-    --color-mode-bg: var(--color-bg);
-    --color-action-bg: var(--color-bg);
+    --color-mode-bg: var(--color-border);
+    --color-action-bg: var(--color-border);
 
     --color-bg-modal: #fff;
     --color-textarea: var(--color-bg);
@@ -26,7 +26,9 @@
     --board-width: 344px;
     --board-height: 160px;
 
-    --mode-height: 80px;
+    --mode-height: auto;
+
+    --icon-opacity: 1;
 
     --transition-duration: 0.2s;
     --transition-duration-slow: 0.6s;
@@ -176,7 +178,7 @@ h2 {
     background: var(--color-mode-bg);
     padding: 12px;
     height: var(--mode-height);
-    border: 2px solid var(--color-border);
+    /* border: 2px solid var(--color-border); */
     border-radius: var(--border-radius);
     background-position: bottom right;
     background-repeat: no-repeat;
@@ -200,15 +202,15 @@ h2 {
 
 .mode:not(.mode-active):hover {
     background-color: var(--color-button-bg-hover);
-    background-blend-mode: screen;
+    /* background-blend-mode: screen; */
 }
 
 .mode.mode-active {
     /* background-color: var(--color-active); */
-    border-color: var(--color-active);
-    /* box-shadow: 0 0 0 2px var(--color-active); */
-    background-position: bottom right;
-    background-repeat: no-repeat;
+    /* border-color: var(--color-active); */
+    box-shadow: 0 0 0 2px var(--color-active);
+    /* background-position: bottom right; */
+    /* background-repeat: no-repeat; */
 }
 
 /* 
@@ -244,10 +246,21 @@ h2 {
     background-image: url('images/mode\ bg\ clock.svg');
 } */
 
+.mode-icon {
+    opacity: var(--icon-opacity);
+    margin-bottom: 8px;
+
+}
+
 .mode-title {
     font-weight: 700;
     color: var(--color-title);
     margin-bottom: 4px;
+}
+
+.mode-subtitle {
+    color: var(--color-text-muted);
+    font-size: 12px;
 }
 
 .action-grid {
@@ -266,7 +279,7 @@ h2 {
     border-radius: var(--border-radius);
     cursor: pointer;
     transition: all var(--transition-duration) ease;
-    border: 2px solid var(--color-border);
+    /* border: 2px solid var(--color-border); */
 }
 
 .action:hover {
@@ -277,6 +290,10 @@ h2 {
     font-weight: 700;
     color: var(--color-title);
     /* margin-bottom: 4px; */
+}
+
+.action-icon {
+    opacity: var(--icon-opacity);
 }
 
 .action-debug {
