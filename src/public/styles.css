@@ -91,10 +91,6 @@ button {
     align-items: center;
 }
 
-/* .grid-cell.animating {
-    transform: scale(0.7);
-} */
-
 /* First row alignment */
 .grid-cell:nth-child(-n+22) {
     align-items: flex-end;
@@ -178,7 +174,6 @@ h2 {
     background: var(--color-mode-bg);
     padding: 12px;
     height: var(--mode-height);
-    /* border: 2px solid var(--color-border); */
     border-radius: var(--border-radius);
     background-position: bottom right;
     background-repeat: no-repeat;
@@ -187,14 +182,7 @@ h2 {
     -webkit-tap-highlight-color: transparent;
 }
 
-@media (hover: hover) {
-    .mode:active {
-        transform: scale(0.95);
-    }
-}
-
-/* Touch devices */
-@media (hover: none) {
+@media (hover: hover), (hover: none) {
     .mode:active {
         transform: scale(0.95);
     }
@@ -202,53 +190,11 @@ h2 {
 
 .mode:not(.mode-active):hover {
     background-color: var(--color-button-bg-hover);
-    /* background-blend-mode: screen; */
 }
 
 .mode.mode-active {
-    /* background-color: var(--color-active); */
-    /* border-color: var(--color-active); */
     box-shadow: 0 0 0 2px var(--color-active);
-    /* background-position: bottom right; */
-    /* background-repeat: no-repeat; */
 }
-
-.mode.mode-active .mode-icon {
-    /* opacity: 1; */
-}
-
-/* 
-.mode.mode-today {
-    background-image: url('images/mode\ bg\ today.svg');
-}
-
-.mode.mode-weather {
-    background-image: url('images/mode\ bg\ weather.svg');
-}
-
-.mode.mode-calendar {
-    background-image: url('images/mode\ bg\ calendar.svg');
-}
-
-.mode.mode-clock {
-    background-image: url('images/mode\ bg\ clock.svg');
-}
-
-.mode.mode-active.mode-today {
-    background-image: url('images/mode\ bg\ today\ active.svg');
-}
-
-.mode.mode-active.mode-weather {
-    background-image: url('images/mode\ bg\ weather.svg');
-}
-
-.mode.mode-active.mode-calendar {
-    background-image: url('images/mode\ bg\ calendar.svg');
-}
-
-.mode.mode-active.mode-clock {
-    background-image: url('images/mode\ bg\ clock.svg');
-} */
 
 .mode-icon {
     opacity: var(--icon-opacity);
@@ -284,7 +230,6 @@ h2 {
     border-radius: var(--border-radius);
     cursor: pointer;
     transition: all var(--transition-duration) ease;
-    /* border: 2px solid var(--color-border); */
 }
 
 .action:hover {
@@ -294,7 +239,6 @@ h2 {
 .action-title {
     font-weight: 700;
     color: var(--color-title);
-    /* margin-bottom: 4px; */
 }
 
 .action-icon {
@@ -466,7 +410,7 @@ h2 {
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    padding-top: 24px;
+    padding-top: 16px;
     z-index: 1000;
     overflow-y: auto;
     background-color: rgba(0, 0, 0, 0.5);
@@ -483,9 +427,9 @@ h2 {
 .image-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 24px;
+    gap: 16px;
     background: white;
-    padding: 24px;
+    padding: 16px;
     border-radius: calc(var(--border-radius) * 2);
     transform: translateY(100px);
     transition: transform var(--transition-duration-slow) var(--easing);
@@ -550,14 +494,6 @@ h2 {
 
 .image-grid-overlay::-webkit-scrollbar-thumb:hover {
     background: rgba(255, 255, 255, 0.5);
-}
-
-/* Remove unused image modal styles */
-.image-modal,
-.image-modal.show,
-.image-modal .modal-content,
-.image-modal.show .modal-content {
-    display: none;
 }
 
 body.modal-open {
