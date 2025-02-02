@@ -182,7 +182,7 @@
         <div class="image-grid-overlay" :class="{ 'show': isImageModalOpen }" @click.self="closeImageModal">
             <div class="image-grid">
                 <!-- Checkerboard -->
-                <div class="image-box" @click="applyTestPattern(contentTests[0])">
+                <div class="image-box" @click="applyTestPattern(findPatternById('checkerboard'))">
                     <div class="image-preview">
                         <div class="preview-grid">
                             <template v-for="row in 6">
@@ -196,7 +196,7 @@
                 </div>
 
                 <!-- Color Blocks -->
-                <div class="image-box" @click="applyTestPattern(contentTests[1])">
+                <div class="image-box" @click="applyTestPattern(findPatternById('color-blocks'))">
                     <div class="image-preview">
                         <div class="preview-grid">
                             <div class="preview-cell" v-for="i in 22"><div class="color-block color-red"></div></div>
@@ -211,7 +211,7 @@
                 </div>
 
                 <!-- Color Waves -->
-                <div class="image-box" @click="applyTestPattern(contentTests[14])">
+                <div class="image-box" @click="applyTestPattern(findPatternById('color-waves'))">
                     <div class="image-preview">
                         <div class="preview-grid">
                             <template v-for="row in 6">
@@ -227,7 +227,7 @@
                 </div>
 
                 <!-- Herringbone -->
-                <div class="image-box" @click="applyTestPattern(contentTests[4])">
+                <div class="image-box" @click="applyTestPattern(findPatternById('herringbone'))">
                     <div class="image-preview">
                         <div class="preview-grid">
                             <template v-for="row in 6">
@@ -243,7 +243,7 @@
                 </div>
 
                 <!-- Basket Weave -->
-                <div class="image-box" @click="applyTestPattern(contentTests[5])">
+                <div class="image-box" @click="applyTestPattern(findPatternById('tartan'))">
                     <div class="image-preview">
                         <div class="preview-grid">
                             <template v-for="row in 6">
@@ -255,11 +255,11 @@
                             </template>
                         </div>
                     </div>
-                    <div class="image-title">Basket Weave</div>
+                    <div class="image-title">Tartan</div>
                 </div>
 
                 <!-- Diagonal Weave -->
-                <div class="image-box" @click="applyTestPattern(contentTests[6])">
+                <div class="image-box" @click="applyTestPattern(findPatternById('diagonal-weave'))">
                     <div class="image-preview">
                         <div class="preview-grid">
                             <template v-for="row in 6">
@@ -275,7 +275,7 @@
                 </div>
 
                 <!-- Interlocking T -->
-                <div class="image-box" @click="applyTestPattern(contentTests[7])">
+                <div class="image-box" @click="applyTestPattern(findPatternById('interlocking-t'))">
                     <div class="image-preview">
                         <div class="preview-grid">
                             <template v-for="row in 6">
@@ -291,7 +291,7 @@
                 </div>
 
                 <!-- Broken Stripes -->
-                <div class="image-box" @click="applyTestPattern(contentTests[8])">
+                <div class="image-box" @click="applyTestPattern(findPatternById('broken-stripes'))">
                     <div class="image-preview">
                         <div class="preview-grid">
                             <template v-for="row in 6">
@@ -307,7 +307,7 @@
                 </div>
 
                 <!-- Maze Pattern -->
-                <div class="image-box" @click="applyTestPattern(contentTests[9])">
+                <div class="image-box" @click="applyTestPattern(findPatternById('maze-pattern'))">
                     <div class="image-preview">
                         <div class="preview-grid">
                             <template v-for="row in 6">
@@ -323,7 +323,7 @@
                 </div>
 
                 <!-- Color Gradient Weave -->
-                <div class="image-box" @click="applyTestPattern(contentTests[10])">
+                <div class="image-box" @click="applyTestPattern(findPatternById('color-gradient-weave'))">
                     <div class="image-preview">
                         <div class="preview-grid">
                             <template v-for="row in 6">
@@ -339,7 +339,7 @@
                 </div>
 
                 <!-- Rainbow Diamonds -->
-                <div class="image-box" @click="applyTestPattern(contentTests[11])">
+                <div class="image-box" @click="applyTestPattern(findPatternById('rainbow-diamonds'))">
                     <div class="image-preview">
                         <div class="preview-grid">
                             <template v-for="row in 6">
@@ -355,7 +355,7 @@
                 </div>
 
                 <!-- Color Steps -->
-                <div class="image-box" @click="applyTestPattern(contentTests[12])">
+                <div class="image-box" @click="applyTestPattern(findPatternById('color-steps'))">
                     <div class="image-preview">
                         <div class="preview-grid">
                             <template v-for="row in 6">
@@ -371,7 +371,7 @@
                 </div>
 
                 <!-- Rainbow Maze -->
-                <div class="image-box" @click="applyTestPattern(contentTests[13])">
+                <div class="image-box" @click="applyTestPattern(findPatternById('rainbow-maze'))">
                     <div class="image-preview">
                         <div class="preview-grid">
                             <template v-for="row in 6">
@@ -387,7 +387,7 @@
                 </div>
 
                 <!-- Spectrum Blocks -->
-                <div class="image-box" @click="applyTestPattern(contentTests[14])">
+                <div class="image-box" @click="applyTestPattern(findPatternById('spectrum-blocks'))">
                     <div class="image-preview">
                         <div class="preview-grid">
                             <template v-for="row in 6">
@@ -403,7 +403,7 @@
                 </div>
 
                 <!-- Ikat Waves -->
-                <div class="image-box" @click="applyTestPattern(contentTests[15])">
+                <div class="image-box" @click="applyTestPattern(findPatternById('ikat-waves'))">
                     <div class="image-preview">
                         <div class="preview-grid">
                             <template v-for="row in 6">
@@ -419,7 +419,7 @@
                 </div>
 
                 <!-- Tartan -->
-                <div class="image-box" @click="applyTestPattern(contentTests[16])">
+                <div class="image-box" @click="applyTestPattern(findPatternById('tartan'))">
                     <div class="image-preview">
                         <div class="preview-grid">
                             <template v-for="row in 6">
@@ -435,7 +435,7 @@
                 </div>
 
                 <!-- Kente Inspired -->
-                <div class="image-box" @click="applyTestPattern(contentTests[17])">
+                <div class="image-box" @click="applyTestPattern(findPatternById('kente'))">
                     <div class="image-preview">
                         <div class="preview-grid">
                             <template v-for="row in 6">
@@ -451,7 +451,7 @@
                 </div>
 
                 <!-- Twill Pattern -->
-                <div class="image-box" @click="applyTestPattern(contentTests[18])">
+                <div class="image-box" @click="applyTestPattern(findPatternById('twill'))">
                     <div class="image-preview">
                         <div class="preview-grid">
                             <template v-for="row in 6">
@@ -643,12 +643,14 @@
 
                 const contentTests = [
                     {
+                        id: 'checkerboard',
                         name: 'Checkerboard',
                         content: Array(132).fill(' ').map((_, i) => 
                             (Math.floor(i / 22) + (i % 22)) % 2 === 0 ? '⬜' : '⬛️'
                         )
                     },
                     {
+                        id: 'color-blocks',
                         name: 'Color Blocks',
                         content: Array(132).fill(' ').map((_, i) => {
                             const colors = ['🟥', '🟧', '🟨', '🟩', '🟦', '🟪'];
@@ -658,6 +660,7 @@
                         })
                     },
                     {
+                        id: 'diagonal-weave',
                         name: 'Diagonal Weave',
                         content: Array(132).fill(' ').map((_, i) => {
                             const row = Math.floor(i / 22);
@@ -666,6 +669,7 @@
                         })
                     },
                     {
+                        id: 'interlocking-t',
                         name: 'Interlocking T',
                         content: Array(132).fill(' ').map((_, i) => {
                             const row = Math.floor(i / 22);
@@ -674,6 +678,7 @@
                         })
                     },
                     {
+                        id: 'broken-stripes',
                         name: 'Broken Stripes',
                         content: Array(132).fill(' ').map((_, i) => {
                             const row = Math.floor(i / 22);
@@ -682,6 +687,7 @@
                         })
                     },
                     {
+                        id: 'maze-pattern',
                         name: 'Maze Pattern',
                         content: Array(132).fill(' ').map((_, i) => {
                             const row = Math.floor(i / 22);
@@ -690,6 +696,7 @@
                         })
                     },
                     {
+                        id: 'color-gradient-weave',
                         name: 'Color Gradient Weave',
                         content: Array(132).fill(' ').map((_, i) => {
                             const row = Math.floor(i / 22);
@@ -700,6 +707,7 @@
                         })
                     },
                     {
+                        id: 'rainbow-diamonds',
                         name: 'Rainbow Diamonds',
                         content: Array(132).fill(' ').map((_, i) => {
                             const row = Math.floor(i / 22);
@@ -710,16 +718,17 @@
                         })
                     },
                     {
+                        id: 'color-steps',
                         name: 'Color Steps',
                         content: Array(132).fill(' ').map((_, i) => {
                             const row = Math.floor(i / 22);
                             const col = i % 22;
                             const colors = ['🟥', '🟧', '🟨', '🟩', '🟦', '🟪'];
-                            const step = Math.floor((row + col) / 3);
-                            return colors[step % colors.length]
+                            return colors[Math.floor((row + col) / 3) % colors.length]
                         })
                     },
                     {
+                        id: 'rainbow-maze',
                         name: 'Rainbow Maze',
                         content: Array(132).fill(' ').map((_, i) => {
                             const row = Math.floor(i / 22);
@@ -730,6 +739,7 @@
                         })
                     },
                     {
+                        id: 'color-waves',
                         name: 'Color Waves',
                         content: Array(132).fill(' ').map((_, i) => {
                             const row = Math.floor(i / 22);
@@ -741,6 +751,7 @@
                         })
                     },
                     {
+                        id: 'spectrum-blocks',
                         name: 'Spectrum Blocks',
                         content: Array(132).fill(' ').map((_, i) => {
                             const row = Math.floor(i / 22);
@@ -753,6 +764,7 @@
                         })
                     },
                     {
+                        id: 'herringbone',
                         name: 'Herringbone',
                         content: Array(132).fill(' ').map((_, i) => {
                             const row = Math.floor(i / 22);
@@ -762,18 +774,18 @@
                         })
                     },
                     {
+                        id: 'ikat-waves',
                         name: 'Ikat Waves',
                         content: Array(132).fill(' ').map((_, i) => {
                             const row = Math.floor(i / 22);
                             const col = i % 22;
                             const colors = ['🟥', '🟦', '⬜'];
-                            const wave = Math.sin(col * 0.4 + row * 0.8);
-                            const fuzzyEdge = (Math.random() < 0.2);
-                            const baseIndex = Math.floor((wave + 1) * colors.length / 2);
-                            return fuzzyEdge ? colors[(baseIndex + 1) % colors.length] : colors[baseIndex]
+                            const colorIndex = Math.floor((Math.sin(col * 0.4 + row * 0.8) + 1) * 1.5);
+                            return colors[colorIndex];
                         })
                     },
                     {
+                        id: 'tartan',
                         name: 'Tartan',
                         content: Array(132).fill(' ').map((_, i) => {
                             const row = Math.floor(i / 22);
@@ -785,16 +797,7 @@
                         })
                     },
                     {
-                        name: 'Basket Weave',
-                        content: Array(132).fill(' ').map((_, i) => {
-                            const row = Math.floor(i / 22);
-                            const col = i % 22;
-                            const blockRow = Math.floor(row / 2);
-                            const blockCol = Math.floor(col / 2);
-                            return ((blockRow + blockCol) % 2 === 0) ? '🟨' : '🟧'
-                        })
-                    },
-                    {
+                        id: 'kente',
                         name: 'Kente Inspired',
                         content: Array(132).fill(' ').map((_, i) => {
                             const row = Math.floor(i / 22);
@@ -805,6 +808,7 @@
                         })
                     },
                     {
+                        id: 'twill',
                         name: 'Twill Pattern',
                         content: Array(132).fill(' ').map((_, i) => {
                             const row = Math.floor(i / 22);
@@ -815,6 +819,9 @@
                         })
                     }
                 ];
+
+                // Helper function to find pattern by ID
+                const findPatternById = (id) => contentTests.find(test => test.id === id);
 
                 // Methods
                 const fetchBoardContent = async () => {
@@ -1037,10 +1044,25 @@
                     closeImageModal();
 
                     try {
-                        // Set mode to MANUAL first
+                        // Convert the content array to a string by joining with spaces
+                        const text = test.content.join('');
+
+                        // Send the pattern to the API
+                        const response = await fetch('/api/board/message', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ text })
+                        });
+
+                        if (!response.ok) {
+                            const data = await response.json();
+                            throw new Error(data.error || 'Failed to send pattern');
+                        }
+
+                        // Set mode to MANUAL after sending pattern
                         await setMode('MANUAL');
-                        // Update the board content
-                        await updateBoardContent(test.content);
+                        // Fetch the updated board content
+                        fetchBoardContent();
                     } catch (error) {
                         console.error('Error applying test pattern:', error);
                     }
@@ -1104,7 +1126,8 @@
                     getColorClass,
                     openImageModal,
                     closeImageModal,
-                    applyTestPattern
+                    applyTestPattern,
+                    findPatternById
                 };
             }
         }).mount('#app');
