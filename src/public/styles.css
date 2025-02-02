@@ -28,7 +28,7 @@
 
     --mode-height: auto;
 
-    --icon-opacity: 1;
+    --icon-opacity: 0.5;
 
     --transition-duration: 0.2s;
     --transition-duration-slow: 0.6s;
@@ -213,6 +213,10 @@ h2 {
     /* background-repeat: no-repeat; */
 }
 
+.mode.mode-active .mode-icon {
+    /* opacity: 1; */
+}
+
 /* 
 .mode.mode-today {
     background-image: url('images/mode\ bg\ today.svg');
@@ -248,8 +252,9 @@ h2 {
 
 .mode-icon {
     opacity: var(--icon-opacity);
+    width: 16px;
+    height: 16px;
     margin-bottom: 8px;
-
 }
 
 .mode-title {
@@ -294,6 +299,8 @@ h2 {
 
 .action-icon {
     opacity: var(--icon-opacity);
+    width: 12px;
+    height: 12px;
 }
 
 .action-debug {
