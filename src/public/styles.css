@@ -252,11 +252,11 @@ h2 {
 }
 
 .toggle-switch {
-    width: 36px;
-    height: 24px;
-    background-color: #444546;
+    width: 30px;
+    height: 20px;
     border-radius: 12px;
     position: relative;
+    background: var(--color-bg);
     transition: background-color var(--transition-duration) ease;
 }
 
@@ -265,12 +265,12 @@ h2 {
 }
 
 .action-debug:hover .toggle-switch:not(.active) {
-    background-color: #666768;
+    background-color: var(--color-bg);
 }
 
 .toggle-circle {
-    width: 20px;
-    height: 20px;
+    width: 16px;
+    height: 16px;
     background-color: white;
     border-radius: 50%;
     position: absolute;
@@ -280,7 +280,7 @@ h2 {
 }
 
 .toggle-switch.active .toggle-circle {
-    transform: translateX(12px);
+    transform: translateX(10px);
 }
 
 .color-block {
