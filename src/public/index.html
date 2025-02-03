@@ -71,32 +71,6 @@
 
                 <div>Mode: <span>{{ currentMode || 'Loading...' }}</span></div>            
 
-                <div class="content-test-panel">
-                    <h2>Content Tests</h2>
-                    <div class="control-panel">
-                        <button v-for="test in contentTests" 
-                                :key="test.name"
-                                class="button"
-                                @click="testContent(test)">
-                            {{ test.name }}
-                        </button>
-                    </div>
-                    <div id="content-test-results">
-                        <div class="status-item">
-                            <span class="status-label">Last Test:&nbsp;</span>
-                            <span>{{ contentTest.name }}</span>
-                        </div>
-                        <div class="status-item">
-                            <span class="status-label">Result:&nbsp;</span>
-                            <span :style="{ color: contentTest.color }">{{ contentTest.result }}</span>
-                        </div>
-                        <div class="status-item">
-                            <span class="status-label">Time:&nbsp;</span>
-                            <span>{{ contentTest.time }}</span>
-                        </div>
-                    </div>
-                </div>
-
                 <div class="pattern-test-panel">
                     <h2>Pattern Tests</h2>
                     <div class="control-panel">
@@ -126,22 +100,6 @@
                 <div class="status-item">
                     <span class="status-label">Cron:&nbsp;</span>
                     <span>{{ cronSchedule }}</span>
-                </div>
-
-                <div class="message-panel">
-                    <h2>Send Message</h2>
-                    <div class="message-input-container">
-                        <textarea 
-                            ref="messageTextarea"
-                            v-model="messageInput"
-                            placeholder="Enter your message here..."
-                            rows="6"
-                            maxlength="132"></textarea>
-                        <div style="display: flex; justify-content: flex-end;">
-                            <button class="button" @click="sendMessage">Send</button>
-                        </div>
-                        <div :style="{ color: messageStatus.color }">{{ messageStatus.text }}</div>
-                    </div>
                 </div>
 
                 <div class="calendar-debug">
@@ -529,12 +487,6 @@
                 const calendarEventsTimestamp = ref('');
                 const patternTest = ref({
                     mode: 'None',
-                    result: 'Not tested',
-                    time: 'N/A',
-                    color: '#666'
-                });
-                const contentTest = ref({
-                    name: 'None',
                     result: 'Not tested',
                     time: 'N/A',
                     color: '#666'
@@ -988,16 +940,6 @@
                     }
                 };
 
-                const testContent = async (test) => {
-                    await updateBoardContent(test.content);
-                    contentTest.value = {
-                        name: test.name,
-                        result: '✅ Preview Updated',
-                        time: new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }),
-                        color: '#28a745'
-                    };
-                };
-
                 const initiateCalendarAuth = () => {
                     window.location.href = '/auth/google';
                 };
@@ -1104,7 +1046,6 @@
                     calendarEvents,
                     calendarEventsTimestamp,
                     patternTest,
-                    contentTest,
                     boardContentIntervalId,
                     isMessageModalOpen,
                     messageTextarea,
@@ -1124,7 +1065,6 @@
                     closeMessageModal,
                     sendMessage,
                     testPattern,
-                    testContent,
                     initiateCalendarAuth,
                     fetchCalendarEvents,
                     isColorEmoji,

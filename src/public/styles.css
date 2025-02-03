@@ -133,11 +133,6 @@ h2 {
     margin: 10px 0;
 }
 
-.message-panel {
-    margin: 16px 0;
-    max-width: var(--board-width);
-}
-
 .message-input-container {
     display: flex;
     flex-direction: column;
@@ -255,20 +250,17 @@ h2 {
 }
 
 .toggle-switch {
-    width: 30px;
+    width: 36px;
     height: 20px;
+    background-color: var(--color-bg);
     border-radius: 12px;
     position: relative;
-    background: var(--color-bg);
+    cursor: pointer;
     transition: background-color var(--transition-duration) ease;
 }
 
 .toggle-switch.active {
     background-color: var(--color-active);
-}
-
-.action-debug:hover .toggle-switch:not(.active) {
-    background-color: var(--color-bg);
 }
 
 .toggle-circle {
@@ -283,7 +275,7 @@ h2 {
 }
 
 .toggle-switch.active .toggle-circle {
-    transform: translateX(10px);
+    transform: translateX(16px);
 }
 
 .color-block {
