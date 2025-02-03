@@ -26,7 +26,8 @@
                     </div>
                 </div>
             </div>
-            <div class="update-timing">Updates at 6am, 9am, noon, 3pm, and 6pm</div>
+
+            <div class="update-timing">{{ cronSchedule }}</div>
 
             <div class="action-grid">
                 <div class="action action-message" @click="openMessageModal">
@@ -46,8 +47,10 @@
                      :class="['mode', `mode-${mode.name.toLowerCase()}`, { 'mode-active': currentMode === mode.name }]"
                      @click="setMode(mode.name)">
                     <img :src="`images/icon-mode-${mode.name.toLowerCase()}.svg`" alt="Mode" class="mode-icon">
-                     <div class="mode-title">{{ mode.title }}</div>
-                    <div class="mode-subtitle">{{ mode.subtitle }}</div>
+                    <div class="mode-label">
+                        <div class="mode-title">{{ mode.title }}</div>
+                        <div class="mode-subtitle">{{ mode.subtitle }}</div>
+                    </div>
                 </div>
             </div>
 
@@ -861,7 +864,7 @@
                         currentMode.value = data.currentMode;
                         debugStatus.value = data.debugMode ? '🟡 DEBUG MODE' : '🟢 LIVE';
                         document.body.classList.toggle('debug-mode', data.debugMode);
-                        cronSchedule.value = data.cronSchedule?.description || 'No automatic updates';
+                        cronSchedule.value = data.cronSchedule?.description || '';
 
                         // Handle board content interval based on debug mode
                         if (data.debugMode) {

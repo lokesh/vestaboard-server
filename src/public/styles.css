@@ -26,7 +26,7 @@
     --board-width: 344px;
     --board-height: 160px;
 
-    --mode-height: auto;
+    --mode-height: 100px;
 
     --icon-opacity: 0.5;
 
@@ -180,6 +180,9 @@ h2 {
     transition: background var(--transition-duration) ease, transform var(--transition-duration) ease;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 @media (hover: hover), (hover: none) {

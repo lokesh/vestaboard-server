@@ -17,6 +17,6 @@ export const CronSchedules = {
   },
   MANUAL: {
     schedule: '',
-    description: 'No automatic updates (Manual mode)'
+    description: ''
   }
 }; 
