@@ -29,18 +29,6 @@
 
             <div class="update-timing">{{ cronSchedule }}</div>
 
-            <div class="action-grid">
-                <div class="action action-message" @click="openMessageModal">
-                    <img src="images/icon-action-message.svg" alt="Message" class="action-icon">
-                    <div class="action-title">Message</div>
-                </div>
-
-                <div class="action action-image" @click="openImageModal">
-                    <img src="images/icon-action-image.svg" alt="Image" class="action-icon">
-                    <div class="action-title">Image</div>
-                </div>
-            </div>
-
             <div class="mode-grid">
                 <div v-for="mode in modes" 
                      :key="mode.name"
@@ -55,14 +43,26 @@
             </div>
 
             <div class="action-grid">
+                <div class="action action-message" @click="openMessageModal">
+                    <img src="images/icon-action-message.svg" alt="Message" class="action-icon">
+                    <div class="action-title">Message</div>
+                </div>
+
+                <div class="action action-image" @click="openImageModal">
+                    <img src="images/icon-action-image.svg" alt="Image" class="action-icon">
+                    <div class="action-title">Image</div>
+                </div>
+            </div>
+
+            <div class="action-grid">
                 <div class="action action-debug" @click="toggleDebug()">
                     <div class="action-title">Debug</div>
                     <div class="toggle-switch" :class="{ 'active': debugStatus.includes('DEBUG') }">
-                    <div class="toggle-circle"></div>
+                        <div class="toggle-circle"></div>
+                    </div>
                 </div>
             </div>
             </div>
-
 
             <div class="debug-only-content" :class="{ 'hidden': !debugStatus.includes('DEBUG') }">
                 <div class="status-panel">
@@ -591,7 +591,7 @@
                 const modes = [
                     { name: 'TODAY', title: 'Today', subtitle: 'Hourly weather' },
                     { name: 'WEATHER', title: 'Weather', subtitle: '5-Day Forecast' },
-                    { name: 'CALENDAR', title: 'Calendar', subtitle: 'Upcoming events' },
+                    { name: 'CALENDAR', title: 'Calendar', subtitle: 'Upcoming' },
                     { name: 'CLOCK', title: 'Clock', subtitle: 'PST' }
                 ];
 

@@ -3,13 +3,13 @@
     --color-text-muted: #8f8995;
     --color-title: #f7f3ff;
 
-    --color-bg: #1C191f;
+    --color-bg: #2C292B;
 
     --color-border: #3f3945;
 
-    --color-board-bg: #2D2a31;
-    --color-mode-bg: var(--color-border);
-    --color-action-bg: var(--color-border);
+    --color-board-bg: #3A3639;
+    --color-mode-bg: #000;
+    --color-action-bg: #000;
 
     --color-bg-modal: #fff;
     --color-textarea: var(--color-bg);
@@ -21,14 +21,20 @@
 
     --color-active: #638BFF;
 
+    /* Mode-specific colors */
+    --color-mode-today: #61D397;
+    --color-mode-weather: #5AB4FF;
+    --color-mode-calendar: #F4BF4F;
+    --color-mode-clock: #FD6A79;
+
     --border-radius: 6px;
 
     --board-width: 344px;
     --board-height: 160px;
 
-    --mode-height: 100px;
+    --mode-height: 64px;
 
-    --icon-opacity: 0.5;
+    --icon-opacity: 1;
 
     --transition-duration: 0.2s;
     --transition-duration-slow: 0.6s;
@@ -167,7 +173,7 @@ h2 {
 
 .mode {
     background: var(--color-mode-bg);
-    padding: 12px;
+    padding: 16px 4px 12px 12px;
     height: var(--mode-height);
     border-radius: var(--border-radius);
     background-position: bottom right;
@@ -176,8 +182,10 @@ h2 {
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
     display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 12px;
+    
 }
 
 @media (hover: hover), (hover: none) {
@@ -194,17 +202,77 @@ h2 {
     box-shadow: 0 0 0 2px var(--color-active);
 }
 
+.mode-today.mode-active {
+    box-shadow: 0 0 0 2px var(--color-mode-today);
+}
+
+.mode-weather.mode-active {
+    box-shadow: 0 0 0 2px var(--color-mode-weather);
+}
+
+.mode-calendar.mode-active {
+    box-shadow: 0 0 0 2px var(--color-mode-calendar);
+}
+
+.mode-clock.mode-active {
+    box-shadow: 0 0 0 2px var(--color-mode-clock);
+}
+
 .mode-icon {
     opacity: var(--icon-opacity);
-    width: 16px;
-    height: 16px;
-    margin-bottom: 8px;
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.mode-label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
 .mode-title {
     font-weight: 700;
     color: var(--color-title);
-    margin-bottom: 4px;
+    /* margin-bottom: 4px; */
+}
+
+/* Mode-specific colors */
+.mode-today .mode-title {
+    color: var(--color-mode-today);
+}
+
+.mode-today .mode-subtitle {
+    color: var(--color-mode-today);
+    opacity: 0.7;
+}
+
+.mode-weather .mode-title {
+    color: var(--color-mode-weather);
+}
+
+.mode-weather .mode-subtitle {
+    color: var(--color-mode-weather);
+    opacity: 0.7;
+}
+
+.mode-calendar .mode-title {
+    color: var(--color-mode-calendar);
+}
+
+.mode-calendar .mode-subtitle {
+    color: var(--color-mode-calendar);
+    opacity: 0.7;
+}
+
+.mode-clock .mode-title {
+    color: var(--color-mode-clock);
+}
+
+.mode-clock .mode-subtitle {
+    color: var(--color-mode-clock);
+    opacity: 0.7;
 }
 
 .mode-subtitle {
@@ -222,7 +290,7 @@ h2 {
 .action {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 16px;
     background: var(--color-action-bg);
     padding: 12px;
     border-radius: var(--border-radius);
@@ -250,8 +318,8 @@ h2 {
 }
 
 .toggle-switch {
-    width: 36px;
-    height: 20px;
+    width: 32px;
+    height: 16px;
     background-color: var(--color-bg);
     border-radius: 12px;
     position: relative;
@@ -260,12 +328,12 @@ h2 {
 }
 
 .toggle-switch.active {
-    background-color: var(--color-active);
+    background-color: var(--color-text-muted);
 }
 
 .toggle-circle {
-    width: 16px;
-    height: 16px;
+    width: 12px;
+    height: 12px;
     background-color: white;
     border-radius: 50%;
     position: absolute;
