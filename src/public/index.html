@@ -503,9 +503,13 @@
                 });
 
                 // Animation configuration
-                const ANIMATION_DELAY = 100; // milliseconds between each character change
+                const ANIMATION_DELAY = 16; // ~60fps for smooth rendering
+                const CHARACTER_UPDATE_INTERVAL = 60; // ms between character changes
                 const animatingCells = ref(new Set());
                 const targetContent = ref(Array(132).fill(' '));
+                const animationFrameId = ref(null);
+                const pendingAnimations = ref(new Map()); // Track cells that need animation
+                const lastCharacterUpdate = ref(0); // Track last character update time
 
                 // Get the next character in the sequence
                 const getNextChar = (currentChar, targetChar) => {
@@ -514,8 +518,7 @@
                     // Get the current and target character codes
                     let currentCode = charMap[currentChar];
                     let targetCode = charMap[targetChar];
-                                        
-                    // If either character is not found in the map and it's a regular character, try uppercase
+                    
                     if (currentCode === undefined && typeof currentChar === 'string' && currentChar.length === 1) {
                         currentCode = charMap[currentChar.toUpperCase()];
                     }
@@ -523,68 +526,100 @@
                         targetCode = charMap[targetChar.toUpperCase()];
                     }
                     
-                    // If still not found, return target char
                     if (currentCode === undefined || targetCode === undefined) {
-                        console.log('Character not found in map');
                         return targetChar;
                     }
                     
-                    // Always move forward, wrapping around if needed
-                    const maxCode = 71; // Highest code in our charMap
+                    const maxCode = 71;
                     const nextCode = (currentCode + 1) > maxCode ? 0 : currentCode + 1;
                     
-                    // If we've reached the target code after wrapping around, return the target char
                     if (nextCode === currentCode) return targetChar;
                     
-                    // Get the character for this code from our reverse map
-                    const nextChar = reverseCharMap[nextCode];
-                    
-                    return nextChar || targetChar;
+                    return reverseCharMap[nextCode] || targetChar;
                 };
 
-                // Animate a single cell
-                const animateCell = async (index, targetChar) => {
-                    if (animatingCells.value.has(index)) return;
-                    animatingCells.value.add(index);
-                    
-                    let currentChar = boardContent.value[index];
-                    
-                    while (currentChar !== targetChar) {
-                        const nextChar = getNextChar(currentChar, targetChar);
-                        
-                        if (nextChar === currentChar) {
-                            break;
-                        }
-                        
-                        currentChar = nextChar;
-                        boardContent.value = [...boardContent.value.slice(0, index), currentChar, ...boardContent.value.slice(index + 1)];
-                        await new Promise(resolve => setTimeout(resolve, ANIMATION_DELAY));
+                // Batch animation system
+                const animateAllCells = (timestamp) => {
+                    if (!pendingAnimations.value.size) {
+                        animationFrameId.value = null;
+                        return;
                     }
-                    
-                    animatingCells.value.delete(index);
+
+                    // Check if enough time has passed for character updates
+                    const shouldUpdateCharacters = timestamp - lastCharacterUpdate.value >= CHARACTER_UPDATE_INTERVAL;
+
+                    if (shouldUpdateCharacters) {
+                        // Create a new board state only once per character update
+                        const newBoardState = [...boardContent.value];
+                        let hasUpdates = false;
+
+                        // Update all pending cells in one pass
+                        pendingAnimations.value.forEach((targetChar, index) => {
+                            const currentChar = newBoardState[index];
+                            if (currentChar !== targetChar) {
+                                const nextChar = getNextChar(currentChar, targetChar);
+                                newBoardState[index] = nextChar;
+                                hasUpdates = true;
+                                
+                                if (nextChar === targetChar) {
+                                    pendingAnimations.value.delete(index);
+                                    animatingCells.value.delete(index);
+                                }
+                            } else {
+                                pendingAnimations.value.delete(index);
+                                animatingCells.value.delete(index);
+                            }
+                        });
+
+                        // Only update the reactive board state if there were changes
+                        if (hasUpdates) {
+                            boardContent.value = newBoardState;
+                            lastCharacterUpdate.value = timestamp;
+                        }
+                    }
+
+                    // Request next frame if there are still pending animations
+                    if (pendingAnimations.value.size > 0) {
+                        animationFrameId.value = requestAnimationFrame(animateAllCells);
+                    }
                 };
 
-                // Update board content with animation
+                // Update board content with batched animation
                 const updateBoardContent = async (newContent) => {
-                    console.log('Starting board content update');
-                    console.log('Current content:', boardContent.value);
-                    console.log('New content:', newContent);
-                    
-                    targetContent.value = newContent;
-                    const animations = [];
-                    
-                    // Create initial copy of the board content
-                    boardContent.value = [...boardContent.value];
-                    
-                    // Start animations for changed cells
+                    // Cancel any existing animation
+                    if (animationFrameId.value) {
+                        cancelAnimationFrame(animationFrameId.value);
+                    }
+
+                    // Reset animation state
+                    pendingAnimations.value.clear();
+                    animatingCells.value.clear();
+                    lastCharacterUpdate.value = 0;
+
+                    // Initialize animation state for changed cells
                     for (let i = 0; i < newContent.length; i++) {
                         if (boardContent.value[i] !== newContent[i]) {
-                            animations.push(animateCell(i, newContent[i]));
+                            pendingAnimations.value.set(i, newContent[i]);
+                            animatingCells.value.add(i);
                         }
                     }
-                    
-                    await Promise.all(animations);
-                    console.log('All animations complete');
+
+                    // Start the animation loop if there are changes
+                    if (pendingAnimations.value.size > 0) {
+                        animationFrameId.value = requestAnimationFrame(animateAllCells);
+                    }
+
+                    // Return a promise that resolves when all animations are complete
+                    return new Promise(resolve => {
+                        const checkComplete = () => {
+                            if (pendingAnimations.value.size === 0) {
+                                resolve();
+                            } else {
+                                setTimeout(checkComplete, CHARACTER_UPDATE_INTERVAL);
+                            }
+                        };
+                        checkComplete();
+                    });
                 };
 
                 // Constants
@@ -1053,6 +1088,7 @@
                     // Animation
                     animatingCells,
                     ANIMATION_DELAY,
+                    CHARACTER_UPDATE_INTERVAL,
                     // Constants
                     modes,
                     controlModes,

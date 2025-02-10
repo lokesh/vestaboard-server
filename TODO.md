@@ -1,1 +1,0 @@
-- [ ] animates slowly when there are large number of color blocks
