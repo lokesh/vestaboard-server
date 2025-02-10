@@ -62,62 +62,61 @@
                     </div>
                 </div>
             </div>
+        </div>
+
+        <div class="debug-only-content" :class="{ 'hidden': !debugStatus.includes('DEBUG') }">
+            <div class="status-panel">
+                <div id="debug-status" style="margin-bottom: 8px;">{{ debugStatus }}</div>
             </div>
 
-            <div class="debug-only-content" :class="{ 'hidden': !debugStatus.includes('DEBUG') }">
-                <div class="status-panel">
-                    <div id="debug-status" style="margin-bottom: 8px;">{{ debugStatus }}</div>
+            <div>Mode: <span>{{ currentMode || 'Loading...' }}</span></div>            
+
+            <div class="pattern-test-panel">
+                <h2>Pattern Tests</h2>
+                <div class="control-panel">
+                    <button v-for="mode in testModes" 
+                            :key="mode"
+                            class="button"
+                            @click="testPattern(mode)">
+                        Test {{ mode }}
+                    </button>
                 </div>
-
-                <div>Mode: <span>{{ currentMode || 'Loading...' }}</span></div>            
-
-                <div class="pattern-test-panel">
-                    <h2>Pattern Tests</h2>
-                    <div class="control-panel">
-                        <button v-for="mode in testModes" 
-                                :key="mode"
-                                class="button"
-                                @click="testPattern(mode)">
-                            Test {{ mode }}
-                        </button>
-                    </div>
-                    <div id="pattern-test-results">
-                        <div class="status-item">
-                            <span class="status-label">Last Test:&nbsp;</span>
-                            <span>{{ patternTest.mode }}</span>
-                        </div>
-                        <div class="status-item">
-                            <span class="status-label">Result:&nbsp;</span>
-                            <span :style="{ color: patternTest.color }">{{ patternTest.result }}</span>
-                        </div>
-                        <div class="status-item">
-                            <span class="status-label">Time:&nbsp;</span>
-                            <span>{{ patternTest.time }}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="status-item">
-                    <span class="status-label">Cron:&nbsp;</span>
-                    <span>{{ cronSchedule }}</span>
-                </div>
-
-                <div class="calendar-debug">
-                    <h2>Calendar</h2>
+                <div id="pattern-test-results">
                     <div class="status-item">
-                        <span class="status-label">Calendar Auth Status:</span>
-                        <span>{{ calendarAuthStatus }}</span>
+                        <span class="status-label">Last Test:&nbsp;</span>
+                        <span>{{ patternTest.mode }}</span>
                     </div>
-                    <div class="control-panel">
-                        <button class="button" @click="initiateCalendarAuth">Start Calendar Auth</button>
-                        <button class="button" @click="fetchCalendarEvents">Fetch Calendar Events</button>
+                    <div class="status-item">
+                        <span class="status-label">Result:&nbsp;</span>
+                        <span :style="{ color: patternTest.color }">{{ patternTest.result }}</span>
                     </div>
-                    <div>
-                        Latest Events:<br />
-                        <div id="calendar-events-container" style="max-width: 100%; overflow-x: hidden;">
-                            <pre>{{ calendarEvents }}</pre>
-                            <div>{{ calendarEventsTimestamp }}</div>
-                        </div>
+                    <div class="status-item">
+                        <span class="status-label">Time:&nbsp;</span>
+                        <span>{{ patternTest.time }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="status-item">
+                <span class="status-label">Cron:&nbsp;</span>
+                <span>{{ cronSchedule }}</span>
+            </div>
+
+            <div class="calendar-debug">
+                <h2>Calendar</h2>
+                <div class="status-item">
+                    <span class="status-label">Calendar Auth Status:</span>
+                    <span>{{ calendarAuthStatus }}</span>
+                </div>
+                <div class="control-panel">
+                    <button class="button" @click="initiateCalendarAuth">Start Calendar Auth</button>
+                    <button class="button" @click="fetchCalendarEvents">Fetch Calendar Events</button>
+                </div>
+                <div>
+                    Latest Events:<br />
+                    <div id="calendar-events-container" style="max-width: 100%; overflow-x: hidden;">
+                        <pre>{{ calendarEvents }}</pre>
+                        <div>{{ calendarEventsTimestamp }}</div>
                     </div>
                 </div>
             </div>
@@ -429,7 +428,6 @@
                     <div class="image-title">Twill Pattern</div>
                 </div>
             </div>
-        </div>
         </div>
     </div>
 
@@ -900,15 +898,17 @@
 
                 const openMessageModal = () => {
                     isMessageModalOpen.value = true;
-                    // Use nextTick to ensure the modal is rendered before focusing
-                    setTimeout(() => {
-                        console.log(messageTextarea.value);
-                        messageTextarea.value.focus();
-                    }, 100);
+                    document.body.classList.add('modal-open');
+                    nextTick(() => {
+                        if (messageTextarea.value) {
+                            messageTextarea.value.focus();
+                        }
+                    });
                 };
 
                 const closeMessageModal = () => {
                     isMessageModalOpen.value = false;
+                    document.body.classList.remove('modal-open');
                     messageInput.value = '';
                     messageStatus.value = { text: '', color: '#666' };
                 };
