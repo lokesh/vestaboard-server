@@ -7,7 +7,7 @@
 
     --color-border: #3f3945;
 
-    --color-board-bg: #3A3639;
+    --color-board-bg: #000;
     --color-mode-bg: #000;
     --color-action-bg: #000;
 
@@ -71,9 +71,8 @@ button {
 .board {
     border-radius: var(--border-radius);
     font-weight: 500;
-    overflow: hidden;
-    width: var(--board-width);
-    height: var(--board-height);
+    border: 2px solid var(--color-bg);
+    box-shadow: 0 0 0 3px var(--color-board-bg);
 }
 
 .board-grid {
@@ -81,8 +80,7 @@ button {
     grid-template-columns: 1.5fr repeat(20, 1fr) 1.5fr;
     grid-template-rows: 1.3fr repeat(4, 1fr) 1.3fr;
     gap: 1px;
-    background-color: var(--color-bg);
-    width: var(--board-width);
+    width: 100%;
     height: var(--board-height);
     aspect-ratio: 22/6;
 }
@@ -95,6 +93,23 @@ button {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+/* Corner border radius styles */
+.grid-cell:first-child {
+    border-top-left-radius: var(--border-radius);
+}
+
+.grid-cell:nth-child(22) {
+    border-top-right-radius: var(--border-radius);
+}
+
+.grid-cell:nth-child(111) {
+    border-bottom-left-radius: var(--border-radius);
+}
+
+.grid-cell:nth-child(132) {
+    border-bottom-right-radius: var(--border-radius);
 }
 
 /* First row alignment */
@@ -118,10 +133,11 @@ button {
 }
 
 .update-timing {
-    margin: 8px 0 32px 0;
+    margin: 12px 0 32px 0;
     font-size: 12px;
     color: var(--color-text-muted);
     text-align: center;
+    line-height: 1.2em;
 }
 
 .calendar-debug {
