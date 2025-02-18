@@ -15,8 +15,10 @@
     --color-textarea: var(--color-bg);
     --color-bg-textarea: #eee;
 
-    --color-button-bg: #35303a;
-    --color-button-bg-hover: #45404a;
+    --color-button-bg: #000;
+    --color-button-bg-hover: #25202a;
+    --color-button-border: #353039;
+    --color-button-border-hover: #656069;
     --color-button-bg-active: #55505a;
 
     --color-active: #638BFF;
@@ -27,8 +29,9 @@
     --color-mode-calendar: #F4BF4F;
     --color-mode-clock: #FD6A79;
 
-    --border-radius: 6px;
+    --border-radius: 12px;
 
+    --board-font: 'IBM Plex Mono', 'Menlo', -apple-system, BlinkMacSystemFont, sans-serif;
     --board-width: 344px;
     --board-height: 160px;
 
@@ -46,10 +49,13 @@
     padding: 0;
     margin: 0;
     line-height: 1;
-    font-family: 'IBM Plex Mono', 'Menlo', -apple-system, BlinkMacSystemFont, sans-serif;
+    /* text-transform: uppercase; */
+    /* letter-spacing: 0.05em; */
+}
+
+body {
+    font-family: 'Nunito', 'IBM Plex Mono', 'Menlo', -apple-system, BlinkMacSystemFont, sans-serif;
     font-size: 14px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
 
 }
 
@@ -70,6 +76,7 @@ button {
 
 .board {
     border-radius: var(--border-radius);
+    font-family: var(--board-font);
     font-weight: 500;
     border: 2px solid var(--color-bg);
     box-shadow: 0 0 0 3px var(--color-board-bg);
@@ -133,11 +140,12 @@ button {
 }
 
 .update-timing {
-    margin: 12px 0 32px 0;
-    font-size: 12px;
+    margin: 12px auto 32px auto;
+    /* font-size: 12px; */
     color: var(--color-text-muted);
     text-align: center;
     line-height: 1.2em;
+    max-width: 320px;
 }
 
 .calendar-debug {
@@ -183,7 +191,7 @@ h2 {
 .mode-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
+    gap: var(--border-radius);
     margin-bottom: 32px;
 }
 
@@ -194,14 +202,14 @@ h2 {
     border-radius: var(--border-radius);
     background-position: bottom right;
     background-repeat: no-repeat;
-    transition: background var(--transition-duration) ease, transform var(--transition-duration) ease;
+    transition: box-shadow var(--transition-duration) ease, transform var(--transition-duration) ease;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
     display: flex;
     flex-direction: row;
     align-items: flex-start;
     gap: 12px;
-    
+    box-shadow: 0 0 0 2px var(--color-button-border);
 }
 
 @media (hover: hover), (hover: none) {
@@ -211,6 +219,7 @@ h2 {
 }
 
 .mode:not(.mode-active):hover {
+    box-shadow: 0 0 0 2px var(--color-button-border-hover);
     background-color: var(--color-button-bg-hover);
 }
 
@@ -249,6 +258,7 @@ h2 {
 }
 
 .mode-title {
+    font-size: 16px;
     font-weight: 700;
     color: var(--color-title);
     /* margin-bottom: 4px; */
@@ -293,29 +303,31 @@ h2 {
 
 .mode-subtitle {
     color: var(--color-text-muted);
-    font-size: 12px;
+    /* font-size: 12px; */
 }
 
 .action-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 16px;
+    gap: var(--border-radius);
     margin-bottom: 32px;
 }
 
 .action {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: var(--border-radius);
     background: var(--color-action-bg);
-    padding: 12px;
+    padding: var(--border-radius);
     border-radius: var(--border-radius);
     cursor: pointer;
     transition: all var(--transition-duration) ease;
+    box-shadow: 0 0 0 2px var(--color-button-border);
 }
 
 .action:hover {
-    background: var(--color-button-bg-hover);
+    box-shadow: 0 0 0 2px var(--color-button-border-hover);
+    background-color: var(--color-button-bg-hover);
 }
 
 .action-title {
