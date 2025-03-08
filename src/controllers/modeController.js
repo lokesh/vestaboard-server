@@ -233,16 +233,15 @@ class ModeController {
     const sunData = await getSunData();
     console.log('Sun data:', sunData);
 
-    const getWeatherEmoji = (forecast, dateTime) => {
-      // const blueConditions = ['rain', 'shower', 'drizzle'];  // 🟦
-      const whiteConditions = ['Cloud', 'Overcast', 'Fog', 'Smoke', 'Ash', 'Storm', 'Snow', 'Ice', 'Blizzard'];  // ⬜
-      const yellowConditions = ['Sunny', 'Clear', 'Fair', 'Haze'];  // 🟨
-      const redConditions = ['Hot'];  // 🟥
-      const purpleConditions = ['Windy', 'Breezy', 'Blustery'];  // 🟪
 
-      console.log('Forecast:', forecast);
-      if (forecast.includes('Rain') || forecast.includes('Shower') || forecast.includes('Drizzle')) {
-        if (!forecast.includes('Chance')) {
+    const getWeatherEmoji = (forecast, dateTime) => {
+      const whiteConditions = ['cloud', 'overcast', 'fog', 'smoke', 'ash', 'storm', 'snow', 'ice', 'blizzard'];  // ⬜
+      const yellowConditions = ['sunny', 'clear', 'fair', 'haze'];  // 🟨
+      const redConditions = ['hot'];  // 🟥
+      const purpleConditions = ['windy', 'breezy', 'blustery'];  // 🟪
+
+      if (forecast.includes('rain') || forecast.includes('shower') || forecast.includes('drizzle')) {
+        if (!forecast.includes('chance')) {
           return '🟦';
         }
       }
@@ -250,9 +249,8 @@ class ModeController {
       if (dateTime < sunData.sunrise || dateTime > sunData.sunset) {
         return '-';  // Black at night
       }
-      
-      if (whiteConditions.some(condition => forecast.toLowerCase().includes(condition))) return '⬜';
       if (yellowConditions.some(condition => forecast.toLowerCase().includes(condition))) return '🟨';
+      if (whiteConditions.some(condition => forecast.toLowerCase().includes(condition))) return '⬜';
       if (redConditions.some(condition => forecast.toLowerCase().includes(condition))) return '🟥';
       if (purpleConditions.some(condition => forecast.toLowerCase().includes(condition))) return '🟪';
   
@@ -263,7 +261,8 @@ class ModeController {
       .map(data => {
         const dateTime = new Date();
         dateTime.setHours(data.hour, 0, 0, 0);
-        return getWeatherEmoji(data.shortForecast, dateTime);
+        const emoji = getWeatherEmoji(data.shortForecast, dateTime);
+        return emoji;
       })
       .join('');  // Remove spacing since we want boxes to be adjacent
     console.log('Weather boxes:', boxes);
