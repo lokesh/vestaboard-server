@@ -246,7 +246,7 @@ class ModeController {
       }
 
       if (forecast.includes('rain') || forecast.includes('shower') || forecast.includes('drizzle')) {
-        if (!forecast.includes('chance')) {
+        if (!forecast.includes('chance') && !forecast.includes('patchy')) {
           return '🟦';
         }
       }
