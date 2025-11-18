@@ -1,24 +1,18 @@
 import { PatternMatcher } from '../types/PatternMatcher.js';
-import { checkBoardPattern } from '../utils/boardCharacters.js';
 
 export class TodayPatternMatcher extends PatternMatcher {
   constructor() {
     super();
-    this.pattern = [
-      ['a-z', 'a-z', 'a-z', '', 'a-z', 'a-z', 'a-z', '', '0-9', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-      ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-      ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-      ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-      ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-      ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '']
-    ];
   }
 
   matches(boardContent) {
-    return checkBoardPattern(boardContent, this.pattern);
+    // Simple stub pattern matcher for the new TODAY mode
+    // Matches if the board contains "TODAY MODE" or "COMING SOON"
+    const contentStr = boardContent.join('').toUpperCase();
+    return contentStr.includes('TODAY MODE') || contentStr.includes('COMING SOON');
   }
 
   getDescription() {
-    return 'Today pattern: DAY MON DD with temperatures and weather boxes';
+    return 'Today pattern: Condensed weather summary and birthdays (stub)';
   }
-} 
+}

@@ -1,7 +1,7 @@
 import { PatternMatcher } from '../types/PatternMatcher.js';
 import { checkBoardPattern } from '../utils/boardCharacters.js';
 
-export class WeatherPatternMatcher extends PatternMatcher {
+export class FiveDayWeatherPatternMatcher extends PatternMatcher {
   constructor() {
     super();
     this.pattern = [
@@ -19,6 +19,6 @@ export class WeatherPatternMatcher extends PatternMatcher {
   }
 
   getDescription() {
-    return 'Weather pattern: DAY NN° [emoji] description';
+    return '5-Day Weather pattern: DAY NN° [emoji] description';
   }
-} 
+}

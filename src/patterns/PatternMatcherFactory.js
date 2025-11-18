@@ -1,6 +1,7 @@
 import { Mode } from '../types/Mode.js';
 import { ClockPatternMatcher } from './ClockPatternMatcher.js';
-import { WeatherPatternMatcher } from './WeatherPatternMatcher.js';
+import { FiveDayWeatherPatternMatcher } from './FiveDayWeatherPatternMatcher.js';
+import { OneDayWeatherPatternMatcher } from './OneDayWeatherPatternMatcher.js';
 import { CalendarPatternMatcher } from './CalendarPatternMatcher.js';
 import { TodayPatternMatcher } from './TodayPatternMatcher.js';
 
@@ -17,8 +18,10 @@ export class PatternMatcherFactory {
     switch (mode) {
       case Mode.CLOCK:
         return new ClockPatternMatcher();
-      case Mode.WEATHER:
-        return new WeatherPatternMatcher();
+      case Mode.FIVEDAY_WEATHER:
+        return new FiveDayWeatherPatternMatcher();
+      case Mode.ONEDAY_WEATHER:
+        return new OneDayWeatherPatternMatcher();
       case Mode.CALENDAR:
         return new CalendarPatternMatcher();
       case Mode.TODAY:
@@ -29,4 +32,4 @@ export class PatternMatcherFactory {
         throw new Error(`Unknown mode: ${mode}`);
     }
   }
-} 
+}

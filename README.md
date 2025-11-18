@@ -10,14 +10,14 @@ graph TD
     B --> C[Mode Controller]
     C -->|Updates| D[Board Service]
     D -->|Displays| E[Vestaboard]
-    
+
     C -->|Pattern Matching| J[Pattern Matchers]
     J -->|Requests| F[Weather Service]
     J -->|Requests| G[Calendar Service]
-    
+
     H[Google Calendar API] -->|Data| G
     I[Weather API] -->|Data| F
-    
+
     K[Redis] -->|State Management| C
 ```
 
@@ -25,8 +25,9 @@ graph TD
 
 ### Display Modes
 - **MANUAL**: Direct text input and custom patterns
-- **TODAY**: Current date with hourly weather forecast
-- **WEATHER**: 5-day weather forecast
+- **TODAY**: Today's condensed weather summary and birthdays (coming soon)
+- **1DAYWEATHER** (Hourly Weather): Current date with hourly weather forecast
+- **5DAYWEATHER** (5-Day Weather): 5-day weather forecast
 - **CALENDAR**: Upcoming events from Google Calendar
 - **CLOCK**: Current time in PST/PDT
 

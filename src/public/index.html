@@ -25,15 +25,6 @@
                 </div>
             </div>
 
-            <div class="action-grid">
-                <div class="action action-debug" @click="toggleDebug()">
-                    <div class="action-title">Debug</div>
-                    <div class="toggle-switch" :class="{ 'active': debugStatus.includes('DEBUG') }">
-                        <div class="toggle-circle"></div>
-                    </div>
-                </div>
-            </div>
-
             <div class="board">
                 <div class="board-grid">
                     <div v-for="(char, index) in boardContent"
@@ -51,6 +42,14 @@
 
             <div class="update-timing">{{ cronSchedule }}</div>
 
+            <div class="action-grid">
+                <div class="action action-debug" @click="toggleDebug()">
+                    <div class="action-title">Debug</div>
+                    <div class="toggle-switch" :class="{ 'active': debugStatus.includes('DEBUG') }">
+                        <div class="toggle-circle"></div>
+                    </div>
+                </div>
+            </div>
 
         </div>
 
@@ -612,16 +611,17 @@
 
                 // Constants
                 const modes = [
-                    { name: 'TODAY', label: 'HOURLY WEATHER', type: 'mode' },
-                    { name: 'CALENDAR', label: 'CALENDAR', type: 'mode' },
-                    { name: 'WEATHER', label: 'FORECAST', type: 'mode' },
-                    { name: 'CLOCK', label: 'CLOCK', type: 'mode' },
-                    { name: 'MESSAGE', label: 'MESSAGE', type: 'action' },
-                    { name: 'IMAGE', label: 'IMAGE', type: 'action' }
+                    { name: 'TODAY', label: 'Today', type: 'mode' },
+                    { name: '1DAYWEATHER', label: 'Hourly Weather', type: 'mode' },
+                    { name: '5DAYWEATHER', label: '5-Day Weather', type: 'mode' },
+                    { name: 'CALENDAR', label: 'Calendar', type: 'mode' },
+                    { name: 'CLOCK', label: 'Clock', type: 'mode' },
+                    { name: 'MESSAGE', label: 'Message', type: 'action' },
+                    { name: 'IMAGE', label: 'Image', type: 'action' }
                 ];
 
-                const controlModes = ['MANUAL', 'CLOCK', 'WEATHER', 'CALENDAR', 'TODAY'];
-                const testModes = ['CLOCK', 'WEATHER', 'CALENDAR', 'TODAY'];
+                const controlModes = ['MANUAL', 'CLOCK', '5DAYWEATHER', 'CALENDAR', '1DAYWEATHER', 'TODAY'];
+                const testModes = ['CLOCK', '5DAYWEATHER', 'CALENDAR', '1DAYWEATHER', 'TODAY'];
 
                 const contentTests = [
                     {
