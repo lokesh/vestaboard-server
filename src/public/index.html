@@ -12,10 +12,32 @@
 <body>
     <div id="app">
         <div class="container" :class="{ 'blur-background': isMessageModalOpen || isImageModalOpen }">
-            <div class="board board-mock">
+
+            <div class="mode-grid">
+                <div v-for="mode in modes"
+                     :key="mode.name"
+                     :class="['mode-item', { 'mode-item-active': currentMode === mode.name }]"
+                     @click="handleModeClick(mode)">
+                    <div class="mode-indicator">
+                        <div v-if="currentMode === mode.name" class="mode-dot"></div>
+                    </div>
+                    <div class="mode-name">{{ mode.label }}</div>
+                </div>
+            </div>
+
+            <div class="action-grid">
+                <div class="action action-debug" @click="toggleDebug()">
+                    <div class="action-title">Debug</div>
+                    <div class="toggle-switch" :class="{ 'active': debugStatus.includes('DEBUG') }">
+                        <div class="toggle-circle"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="board">
                 <div class="board-grid">
-                    <div v-for="(char, index) in boardContent" 
-                         :key="index" 
+                    <div v-for="(char, index) in boardContent"
+                         :key="index"
                          :class="['grid-cell', { 'animating': animatingCells.has(index) }]">
                         <template v-if="isColorEmoji(char)">
                             <div :class="['color-block', `color-${getColorClass(char)}`, { 'animating': animatingCells.has(index) }]"></div>
@@ -29,39 +51,7 @@
 
             <div class="update-timing">{{ cronSchedule }}</div>
 
-            <div class="mode-grid">
-                <div v-for="mode in modes" 
-                     :key="mode.name"
-                     :class="['mode', `mode-${mode.name.toLowerCase()}`, { 'mode-active': currentMode === mode.name }]"
-                     @click="setMode(mode.name)">
-                    <img :src="`images/icon-mode-${mode.name.toLowerCase()}.svg`" alt="Mode" class="mode-icon">
-                    <div class="mode-label">
-                        <div class="mode-title">{{ mode.title }}</div>
-                        <div class="mode-subtitle">{{ mode.subtitle }}</div>
-                    </div>
-                </div>
-            </div>
 
-            <div class="action-grid">
-                <div class="action action-message" @click="openMessageModal">
-                    <img src="images/icon-action-message.svg" alt="Message" class="action-icon">
-                    <div class="action-title">Message</div>
-                </div>
-
-                <div class="action action-image" @click="openImageModal">
-                    <img src="images/icon-action-image.svg" alt="Image" class="action-icon">
-                    <div class="action-title">Image</div>
-                </div>
-            </div>
-
-            <div class="action-grid" style="display: none">
-                <div class="action action-debug" @click="toggleDebug()">
-                    <div class="action-title">Debug</div>
-                    <div class="toggle-switch" :class="{ 'active': debugStatus.includes('DEBUG') }">
-                        <div class="toggle-circle"></div>
-                    </div>
-                </div>
-            </div>
         </div>
 
         <div class="debug-only-content" :class="{ 'hidden': !debugStatus.includes('DEBUG') }">
@@ -69,12 +59,12 @@
                 <div id="debug-status" style="margin-bottom: 8px;">{{ debugStatus }}</div>
             </div>
 
-            <div>Mode: <span>{{ currentMode || 'Loading...' }}</span></div>            
+            <div>Mode: <span>{{ currentMode || 'Loading...' }}</span></div>
 
             <div class="pattern-test-panel">
                 <h2>Pattern Tests</h2>
                 <div class="control-panel">
-                    <button v-for="mode in testModes" 
+                    <button v-for="mode in testModes"
                             :key="mode"
                             class="button"
                             @click="testPattern(mode)">
@@ -126,7 +116,7 @@
         <div class="message-modal" :class="{ 'show': isMessageModalOpen }" @click.self="closeMessageModal">
             <div class="modal-content">
                 <div class="message-input-container">
-                    <textarea 
+                    <textarea
                         ref="messageTextarea"
                         v-model="messageInput"
                         placeholder="Enter your message here..."
@@ -445,7 +435,7 @@
             '!': 37, '@': 38, '#': 39, '$': 40, '(': 41, ')': 42, '-': 44, '+': 46,
             '&': 47, '=': 48, ';': 49, ':': 50, "'": 52, '"': 53, '%': 54, ',': 55,
             '.': 56, '/': 59, '?': 60, '°': 62,
-            '🟥': 63, '🟧': 64, '🟨': 65, '🟩': 66, '🟦': 67, '🟪': 68, '⬜': 69, 
+            '🟥': 63, '🟧': 64, '🟨': 65, '🟩': 66, '🟦': 67, '🟪': 68, '⬜': 69,
             '⬛': 70, '⬛️': 70, '\u2B1B': 70, '\u2B1B\uFE0F': 70,  // All black square variations
             '■': 71
         };
@@ -512,27 +502,27 @@
                 // Get the next character in the sequence
                 const getNextChar = (currentChar, targetChar) => {
                     if (currentChar === targetChar) return currentChar;
-                    
+
                     // Get the current and target character codes
                     let currentCode = charMap[currentChar];
                     let targetCode = charMap[targetChar];
-                    
+
                     if (currentCode === undefined && typeof currentChar === 'string' && currentChar.length === 1) {
                         currentCode = charMap[currentChar.toUpperCase()];
                     }
                     if (targetCode === undefined && typeof targetChar === 'string' && targetChar.length === 1) {
                         targetCode = charMap[targetChar.toUpperCase()];
                     }
-                    
+
                     if (currentCode === undefined || targetCode === undefined) {
                         return targetChar;
                     }
-                    
+
                     const maxCode = 71;
                     const nextCode = (currentCode + 1) > maxCode ? 0 : currentCode + 1;
-                    
+
                     if (nextCode === currentCode) return targetChar;
-                    
+
                     return reverseCharMap[nextCode] || targetChar;
                 };
 
@@ -558,7 +548,7 @@
                                 const nextChar = getNextChar(currentChar, targetChar);
                                 newBoardState[index] = nextChar;
                                 hasUpdates = true;
-                                
+
                                 if (nextChar === targetChar) {
                                     pendingAnimations.value.delete(index);
                                     animatingCells.value.delete(index);
@@ -622,10 +612,12 @@
 
                 // Constants
                 const modes = [
-                    { name: 'TODAY', title: 'Today', subtitle: 'Hourly weather' },
-                    { name: 'WEATHER', title: 'Weather', subtitle: '5-Day Forecast' },
-                    { name: 'CALENDAR', title: 'Calendar', subtitle: 'Upcoming' },
-                    { name: 'CLOCK', title: 'Clock', subtitle: 'PST' }
+                    { name: 'TODAY', label: 'HOURLY WEATHER', type: 'mode' },
+                    { name: 'CALENDAR', label: 'CALENDAR', type: 'mode' },
+                    { name: 'WEATHER', label: 'FORECAST', type: 'mode' },
+                    { name: 'CLOCK', label: 'CLOCK', type: 'mode' },
+                    { name: 'MESSAGE', label: 'MESSAGE', type: 'action' },
+                    { name: 'IMAGE', label: 'IMAGE', type: 'action' }
                 ];
 
                 const controlModes = ['MANUAL', 'CLOCK', 'WEATHER', 'CALENDAR', 'TODAY'];
@@ -635,7 +627,7 @@
                     {
                         id: 'checkerboard',
                         name: 'Checkerboard',
-                        content: Array(132).fill(' ').map((_, i) => 
+                        content: Array(132).fill(' ').map((_, i) =>
                             (Math.floor(i / 22) + (i % 22)) % 2 === 0 ? '⬜' : '⬛️'
                         )
                     },
@@ -818,7 +810,7 @@
                     try {
                         const response = await fetch('/api/board/content');
                         const data = await response.json();
-                        
+
                         if (!Array.isArray(data) || !data.every(row => Array.isArray(row))) {
                             console.error('Unexpected data format:', data);
                             return;
@@ -845,7 +837,7 @@
                             throw new Error(error.error || 'Failed to fetch status');
                         }
                         const data = await response.json();
-                        
+
                         currentMode.value = data.currentMode;
                         debugStatus.value = data.debugMode ? '🟡 DEBUG MODE' : '🟢 LIVE';
                         document.body.classList.toggle('debug-mode', data.debugMode);
@@ -868,10 +860,22 @@
                     }
                 };
 
+                const handleModeClick = (mode) => {
+                    if (mode.type === 'action') {
+                        if (mode.name === 'MESSAGE') {
+                            openMessageModal();
+                        } else if (mode.name === 'IMAGE') {
+                            openImageModal();
+                        }
+                    } else {
+                        setMode(mode.name);
+                    }
+                };
+
                 const setMode = async (mode) => {
                     // Update UI immediately
                     currentMode.value = mode;
-                    
+
                     try {
                         await fetch('/api/mode', {
                             method: 'POST',
@@ -955,9 +959,9 @@
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ mode })
                         });
-                        
+
                         const data = await response.json();
-                        
+
                         patternTest.value = {
                             mode,
                             result: data.matches ? '✅ Match' : '❌ No Match',
@@ -984,14 +988,14 @@
                         calendarEvents.value = 'Loading...';
                         const response = await fetch('/calendar/events');
                         const data = await response.json();
-                        
+
                         if (response.status === 401 && data.authUrl) {
                             calendarAuthStatus.value = 'Not Authenticated';
                             calendarEvents.value = 'Authentication required';
                         } else if (response.ok) {
                             calendarAuthStatus.value = 'Authenticated';
-                            calendarEvents.value = Array.isArray(data) && data.length === 0 
-                                ? 'No upcoming events found' 
+                            calendarEvents.value = Array.isArray(data) && data.length === 0
+                                ? 'No upcoming events found'
                                 : JSON.stringify(data, null, 2);
                         } else {
                             throw new Error(data.error || 'Failed to fetch events');
@@ -1095,6 +1099,7 @@
                     testModes,
                     contentTests,
                     // Methods
+                    handleModeClick,
                     setMode,
                     toggleDebug,
                     openMessageModal,
@@ -1114,4 +1119,4 @@
         }).mount('#app');
     </script>
 </body>
-</html> 
+</html>
