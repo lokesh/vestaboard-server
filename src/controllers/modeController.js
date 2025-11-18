@@ -1,7 +1,7 @@
 import { Mode } from '../types/Mode.js';
 import boardService from '../services/boardService.js';
 import { getWeatherData, getHourlyWeatherData, getSunData } from '../services/weatherService.js';
-import { getCalendarEvents } from '../services/calendarService.js';
+import { getCalendarEvents, getAllDayEvents } from '../services/calendarService.js';
 import cron from 'node-cron';
 import { formatWeatherDescription } from '../utils/weatherFormatter.js';
 import { formatCalendarEvents } from '../utils/calendarFormatter.js';
@@ -326,10 +326,41 @@ class ModeController {
   }
 
   async updateToday(initialUpdate = false) {
-    // Stub for new TODAY mode
-    // TODO: Implement condensed weather summary and birthday highlights
-    const content = 'TODAY MODE\nCOMING SOON';
+    const now = new Date();
+    const pstNow = new Date(now.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
 
+    // Row 1: Month and date
+    const monthStr = pstNow.toLocaleDateString('en-US', { month: 'short', timeZone: 'America/Los_Angeles' }).toUpperCase();
+    const dateStr = pstNow.getDate();
+    const row1 = `${monthStr} ${dateStr}`;
+
+    // Check for holiday
+    const holiday = this.getHolidayForDate(pstNow);
+
+    // Get birthdays from calendar
+    const birthdays = await this.getTodaysBirthdays();
+    const birthdayStr = this.formatBirthdays(birthdays);
+
+    // Rows 2 and 3: Holiday and/or birthdays
+    let row2 = '';
+    let row3 = '';
+
+    if (holiday) {
+      row2 = holiday;
+      row3 = birthdayStr; // Birthdays go to row 3 if there's a holiday
+    } else {
+      row2 = birthdayStr; // Birthdays go to row 2 if no holiday
+      row3 = ''; // Row 3 is blank
+    }
+
+    // Rows 4-6: Weather summary
+    const weatherRows = await this.getWeatherSummary();
+
+    // Combine all rows
+    const rows = [row1, row2, row3, weatherRows.morning, weatherRows.midday, weatherRows.evening];
+    const content = rows.join('\n');
+
+    // Pattern matching logic
     const currentContent = await boardService.getCurrentBoardContent();
     const matcher = PatternMatcherFactory.createMatcher(Mode.TODAY);
     const isMatch = matcher ? matcher.matches(currentContent) : false;
@@ -341,6 +372,277 @@ class ModeController {
       this.currentMode = Mode.MANUAL;
       return;
     }
+  }
+
+  getHolidayForDate(date) {
+    const month = date.getMonth() + 1; // 1-12
+    const day = date.getDate();
+    const year = date.getFullYear();
+
+    // Fixed date holidays
+    const fixedHolidays = {
+      '1-1': 'New Year\'s Day',
+      '7-4': 'Independence Day',
+      '12-25': 'Christmas Day',
+      '12-31': 'New Year\'s Eve'
+    };
+
+    const key = `${month}-${day}`;
+    if (fixedHolidays[key]) {
+      return fixedHolidays[key];
+    }
+
+    // Floating holidays (need to calculate)
+    const dayOfWeek = date.getDay(); // 0 = Sunday, 6 = Saturday
+    const weekOfMonth = Math.ceil(day / 7);
+
+    // Martin Luther King Jr. Day - 3rd Monday in January
+    if (month === 1 && dayOfWeek === 1 && weekOfMonth === 3) {
+      return 'MLK Day';
+    }
+
+    // Presidents' Day - 3rd Monday in February
+    if (month === 2 && dayOfWeek === 1 && weekOfMonth === 3) {
+      return 'Presidents\' Day';
+    }
+
+    // Memorial Day - Last Monday in May
+    if (month === 5 && dayOfWeek === 1 && day > 24) {
+      return 'Memorial Day';
+    }
+
+    // Labor Day - 1st Monday in September
+    if (month === 9 && dayOfWeek === 1 && day <= 7) {
+      return 'Labor Day';
+    }
+
+    // Thanksgiving - 4th Thursday in November
+    if (month === 11 && dayOfWeek === 4 && weekOfMonth === 4) {
+      return 'Thanksgiving';
+    }
+
+    return null;
+  }
+
+  async getTodaysBirthdays() {
+    try {
+      // Get all-day events for today
+      const now = new Date();
+      const allDayEvents = await getAllDayEvents(now);
+
+      // Filter for birthday events
+      const birthdays = allDayEvents.filter(event => {
+        // Check if the title contains "birthday" (case insensitive)
+        return /birthday/i.test(event.summary);
+      });
+
+      return birthdays;
+    } catch (error) {
+      console.error('Error fetching birthdays:', error);
+      return [];
+    }
+  }
+
+  formatBirthdays(birthdays) {
+    if (!birthdays || birthdays.length === 0) {
+      return '';
+    }
+
+    const maxLength = 22; // Board width
+    const names = birthdays.map(event => {
+      // Remove emojis and "birthday" from the summary
+      let name = event.summary
+        .replace(/[\u{1F300}-\u{1F9FF}]|[\u{1F600}-\u{1F64F}]|[\u{1F680}-\u{1F6FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '')
+        .replace(/birthday/gi, '')
+        .trim();
+
+      // Try to parse name (assuming format is "FirstName LastName" or similar)
+      const nameParts = name.split(/\s+/);
+      if (nameParts.length >= 2) {
+        // Format as "FirstName L" (first name + last initial)
+        return `${nameParts[0]} ${nameParts[1][0]}`;
+      } else {
+        // Just use the first name if no last name
+        return nameParts[0];
+      }
+    });
+
+    // Join names with commas
+    let result = names.join(', ');
+
+    // If too long, try without last initials
+    if (result.length > maxLength) {
+      const firstNames = birthdays.map(event => {
+        let name = event.summary
+          .replace(/[\u{1F300}-\u{1F9FF}]|[\u{1F600}-\u{1F64F}]|[\u{1F680}-\u{1F6FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '')
+          .replace(/birthday/gi, '')
+          .trim();
+        return name.split(/\s+/)[0];
+      });
+      result = firstNames.join(', ');
+    }
+
+    // Truncate if still too long
+    if (result.length > maxLength) {
+      result = result.substring(0, maxLength - 1) + '…';
+    }
+
+    return result;
+  }
+
+  async getWeatherSummary() {
+    try {
+      const hourlyData = await getHourlyWeatherData();
+      const sunData = await getSunData();
+
+      // Define time periods (in 24-hour format)
+      const periods = {
+        morning: { start: 8, end: 12 },   // 8am-12pm (4 hours)
+        midday: { start: 12, end: 16 },   // 12pm-4pm (4 hours)
+        evening: { start: 16, end: 20 }   // 4pm-8pm (4 hours)
+      };
+
+      const formatPeriod = (periodData, periodName) => {
+        if (!periodData || periodData.length === 0) {
+          return '';
+        }
+
+        // Get temperature range
+        const temps = periodData.map(d => d.temperature);
+        const minTemp = Math.min(...temps);
+        const maxTemp = Math.max(...temps);
+        const tempStr = `${minTemp}-${maxTemp}°`;
+
+        // Get most common weather condition
+        const conditions = periodData.map(d => d.shortForecast);
+        const conditionCounts = {};
+        conditions.forEach(c => {
+          conditionCounts[c] = (conditionCounts[c] || 0) + 1;
+        });
+        const mostCommon = Object.keys(conditionCounts).reduce((a, b) =>
+          conditionCounts[a] > conditionCounts[b] ? a : b
+        );
+
+        // Format weather description (shortened)
+        const description = this.formatWeatherForToday(mostCommon);
+
+        // Create color blocks for each hour
+        const blocks = periodData.map(data => {
+          const dateTime = new Date();
+          dateTime.setHours(data.hour, 0, 0, 0);
+          return this.getWeatherEmojiForToday(data.shortForecast, dateTime, sunData);
+        }).join('');
+
+        // Combine: temp, blocks, description
+        // Format: "55-72° ⬜⬜⬜⬜ Sunny"
+        return `${tempStr} ${blocks} ${description}`;
+      };
+
+      // Filter hourly data for each period
+      const morningData = hourlyData.filter(d => d.hour >= periods.morning.start && d.hour < periods.morning.end);
+      const middayData = hourlyData.filter(d => d.hour >= periods.midday.start && d.hour < periods.midday.end);
+      const eveningData = hourlyData.filter(d => d.hour >= periods.evening.start && d.hour < periods.evening.end);
+
+      return {
+        morning: formatPeriod(morningData, 'morning'),
+        midday: formatPeriod(middayData, 'midday'),
+        evening: formatPeriod(eveningData, 'evening')
+      };
+    } catch (error) {
+      console.error('Error getting weather summary:', error);
+      return {
+        morning: '',
+        midday: '',
+        evening: ''
+      };
+    }
+  }
+
+  getWeatherEmojiForToday(forecast, dateTime, sunData) {
+    const forecastLower = forecast.toLowerCase();
+
+    // Rain/Storm conditions (always blue)
+    if (forecastLower.includes('thunderstorms') ||
+        (forecastLower.includes('rain') && !forecastLower.includes('chance') && !forecastLower.includes('patchy')) ||
+        forecastLower.includes('shower') ||
+        forecastLower.includes('drizzle')) {
+      return '🟦';
+    }
+
+    // Check if it's nighttime
+    if (dateTime < sunData.sunrise || dateTime > sunData.sunset) {
+      return '⬛';
+    }
+
+    // Daytime conditions
+    if (forecastLower.includes('sunny') || forecastLower.includes('clear') ||
+        forecastLower.includes('fair') || forecastLower.includes('haze')) {
+      return '🟨';
+    }
+
+    if (forecastLower.includes('cloud') || forecastLower.includes('overcast') ||
+        forecastLower.includes('fog') || forecastLower.includes('smoke') ||
+        forecastLower.includes('ash') || forecastLower.includes('storm') ||
+        forecastLower.includes('snow') || forecastLower.includes('ice') ||
+        forecastLower.includes('blizzard')) {
+      return '⬜';
+    }
+
+    if (forecastLower.includes('hot')) {
+      return '🟥';
+    }
+
+    if (forecastLower.includes('windy') || forecastLower.includes('breezy') ||
+        forecastLower.includes('blustery')) {
+      return '🟪';
+    }
+
+    // Default to white for cloudy or other conditions
+    return '⬜';
+  }
+
+  formatWeatherForToday(description) {
+    // Simplified version of weather description formatting for TODAY mode
+    // Remove modifiers and simplify to core weather terms
+    const normalizers = [
+      // Remove modifiers first
+      {to: '', from: ['Mostly', 'Partly', 'Patchy', 'Areas Of', 'Increasing', 'Becoming', 'Decreasing', 'Gradual', 'Slight Chance', 'Chance', 'Slight', 'Very', 'Periods Of', 'Intermittent', 'Isolated', 'Scattered', 'Widespread']},
+      // Simplify weather conditions
+      {to: 'Rain', from: ['Rain Showers', 'Showers', 'Drizzle', 'Spray', 'Rain Fog']},
+      {to: 'Snow', from: ['Snow Showers', 'Wintry Mix', 'Flurries']},
+      {to: 'Storm', from: ['Thunderstorms', 'T-storms', 'Tstorms']},
+      {to: 'Cloudy', from: ['Clouds', 'Overcast']},
+      {to: 'Foggy', from: ['Fog']},
+      {to: 'Windy', from: ['Breezy', 'Blustery']},
+      {to: 'Clear', from: ['Fair']},
+      // Intensity modifiers after simplification
+      {to: 'Light', from: ['Lt ', 'Light']},
+      {to: 'Heavy', from: ['Heavy']},
+      {to: '&', from: ['And']}
+    ];
+
+    const maxLength = 7; // Max chars for weather description
+
+    let formatted = normalizers.reduce((d, {to, from}) =>
+      d.replaceAll(new RegExp(from.sort((a, b) => b.length - a.length).join('|'), 'gi'), to),
+      description
+    );
+
+    // Clean up multiple spaces and trim
+    formatted = formatted.replace(/\s+/g, ' ').trim();
+
+    // Take first significant word that fits
+    const words = formatted.split(/\s+/).filter(w => w.length > 0);
+
+    // Try to find a good weather word
+    for (const word of words) {
+      if (word.length <= maxLength && word.length > 0) {
+        return word;
+      }
+    }
+
+    // If no word fits, truncate
+    return formatted.substring(0, maxLength);
   }
 
   setupCronJob(mode, updateFn) {

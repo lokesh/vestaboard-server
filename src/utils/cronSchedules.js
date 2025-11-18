@@ -12,8 +12,8 @@ export const CronSchedules = {
     description: 'Updates at 6am, 9am, noon, 3pm, and 6pm PST every day'
   },
   TODAY: {
-    schedule: '0 6,9,12,15,18 * * *',
-    description: 'Updates at 6am, 9am, noon, 3pm, and 6pm PST every day'
+    schedule: '0 6 * * *',
+    description: 'Updates at 6am PST every day'
   },
   CALENDAR: {
     schedule: '0 * * * *',

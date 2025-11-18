@@ -100,11 +100,11 @@ export const getTokens = async (code) => {
     );
     console.log('Attempting to exchange code for tokens...');
     const { tokens } = await oauth2Client.getToken(code);
-    
+
     // Save tokens to Redis
     await saveTokensToRedis(tokens);
     console.log('Tokens saved to Redis successfully');
-    
+
     return tokens;
   } catch (error) {
     console.error('Error getting tokens:', error.response?.data || error);
@@ -134,7 +134,7 @@ export const getCalendarEvents = async () => {
 
     // First, get list of all calendars
     const calendarList = await calendar.calendarList.list();
-    
+
     // Calculate start of current day and end of 7 days from now in ISO format
     const now = new Date();
     const pstNow = new Date(now.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
@@ -152,7 +152,7 @@ export const getCalendarEvents = async () => {
             singleEvents: true,
             orderBy: 'startTime',
           });
-          
+
           // Add calendar info to each event and filter out all-day and declined events
           return response.data.items
             .filter(event => {
@@ -207,4 +207,74 @@ export const getCalendarEvents = async () => {
     console.error('Error fetching calendar events:', error);
     throw new Error('Failed to fetch calendar events');
   }
-}; 
+};
+
+/**
+ * Get all-day events (like birthdays) for a specific date
+ * @param {Date} date - The date to get events for (defaults to today)
+ * @returns {Promise<Array>} Array of all-day calendar events
+ */
+export const getAllDayEvents = async (date = new Date()) => {
+  try {
+    // Create and authorize OAuth2 client
+    const oauth2Client = await createOAuth2Client();
+
+    // Set up token refresh callback to save new tokens to Redis
+    oauth2Client.on('tokens', async (tokens) => {
+      if (tokens.access_token) {
+        await saveTokensToRedis(tokens);
+        console.log('Refreshed tokens saved to Redis successfully');
+      }
+    });
+
+    // Create Calendar API client
+    const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
+
+    // First, get list of all calendars
+    const calendarList = await calendar.calendarList.list();
+
+    // Calculate start and end of the specified day in ISO format
+    const pstDate = new Date(date.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
+    const startOfDay = new Date(pstDate.setHours(0, 0, 0, 0)).toISOString();
+    const endOfDay = new Date(pstDate.setHours(23, 59, 59, 999)).toISOString();
+
+    // Fetch events from all calendars
+    const allEvents = await Promise.all(
+      calendarList.data.items.map(async (cal) => {
+        try {
+          const response = await calendar.events.list({
+            calendarId: cal.id,
+            timeMin: startOfDay,
+            timeMax: endOfDay,
+            singleEvents: true,
+            orderBy: 'startTime',
+          });
+
+          // Filter for all-day events only and add calendar info
+          return response.data.items
+            .filter(event => {
+              // Only include all-day events (events that have 'date' and not 'dateTime')
+              const isAllDay = event.start.date && !event.start.dateTime;
+              return isAllDay;
+            })
+            .map(event => ({
+              ...event,
+              calendarId: cal.id,
+              calendarName: cal.summary,
+              backgroundColor: cal.backgroundColor,
+            }));
+        } catch (error) {
+          console.warn(`Failed to fetch all-day events for calendar ${cal.summary}:`, error);
+          return [];
+        }
+      })
+    );
+
+    // Flatten the array of arrays
+    return allEvents.flat().filter(event => event);
+
+  } catch (error) {
+    console.error('Error fetching all-day events:', error);
+    throw new Error('Failed to fetch all-day events');
+  }
+};
