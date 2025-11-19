@@ -68,7 +68,7 @@ button {
 
 .container {
     margin: 0 auto;
-    height: 100vh;
+    height: 90vh;
     padding: 24px 12px;
     display: flex;
     flex-direction: column;
