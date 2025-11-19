@@ -67,7 +67,7 @@ export const getSunData = async () => {
     // Get today's date in PST
     const today = new Date();
     const pstDate = today.toLocaleDateString('en-US', { timeZone: 'America/Los_Angeles' });
-    
+
     const response = await fetch(`https://api.sunrise-sunset.org/json?lat=37.7749&lng=-122.4194&formatted=0&date=${pstDate}`);
     const data = await response.json();
 
@@ -87,4 +87,54 @@ export const getSunData = async () => {
     console.error('Sun data service error:', error);
     throw new Error(`Failed to fetch sun data: ${error.message}`);
   }
-}; 
+};
+
+export const getHistoricalAndForecastWeather = async () => {
+  try {
+    const apiKey = process.env.VISUAL_CROSSING_API_KEY;
+    if (!apiKey) {
+      throw new Error('VISUAL_CROSSING_API_KEY not found in environment variables');
+    }
+
+    // Get today's date in PST
+    const now = new Date();
+    const pstNow = new Date(now.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
+
+    // Format date as YYYY-MM-DD
+    const today = pstNow.toISOString().split('T')[0];
+
+    // Visual Crossing API endpoint
+    // Location: San Francisco (37.7749, -122.4194)
+    const url = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/37.7749,-122.4194/${today}?unitGroup=us&key=${apiKey}&include=hours`;
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      throw new Error(`Visual Crossing API returned ${response.status}: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+
+    if (!data || !data.days || !data.days[0] || !data.days[0].hours) {
+      throw new Error('Invalid response from Visual Crossing API');
+    }
+
+    // Extract hourly data for today
+    const hourlyData = data.days[0].hours.map(hour => {
+      // Parse the hour from the datetime string (format: "HH:MM:SS")
+      const hourNum = parseInt(hour.datetime.split(':')[0], 10);
+
+      return {
+        hour: hourNum,
+        temperature: Math.round(hour.temp),
+        shortForecast: hour.conditions,
+        isHistorical: hourNum <= pstNow.getHours() // Flag to know if it's observed or forecast
+      };
+    });
+
+    return hourlyData;
+  } catch (error) {
+    console.error('Visual Crossing weather service error:', error);
+    throw new Error(`Failed to fetch weather data from Visual Crossing: ${error.message}`);
+  }
+};

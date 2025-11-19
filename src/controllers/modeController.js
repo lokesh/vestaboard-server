@@ -1,6 +1,6 @@
 import { Mode } from '../types/Mode.js';
 import boardService from '../services/boardService.js';
-import { getWeatherData, getHourlyWeatherData, getSunData } from '../services/weatherService.js';
+import { getWeatherData, getHourlyWeatherData, getSunData, getHistoricalAndForecastWeather } from '../services/weatherService.js';
 import { getCalendarEvents, getAllDayEvents } from '../services/calendarService.js';
 import cron from 'node-cron';
 import { formatWeatherDescription } from '../utils/weatherFormatter.js';
@@ -492,7 +492,17 @@ class ModeController {
 
   async getWeatherSummary() {
     try {
-      const hourlyData = await getHourlyWeatherData();
+      // Try Visual Crossing first (has historical data)
+      let hourlyData;
+      try {
+        hourlyData = await getHistoricalAndForecastWeather();
+        console.log('Using Visual Crossing API for weather data');
+      } catch (vcError) {
+        console.warn('Visual Crossing API failed, falling back to NWS:', vcError.message);
+        // Fallback to NWS API if Visual Crossing fails
+        hourlyData = await getHourlyWeatherData();
+      }
+
       const sunData = await getSunData();
 
       // Define time periods (in 24-hour format)

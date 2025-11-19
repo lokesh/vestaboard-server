@@ -58,7 +58,8 @@ body {
 body {
     color: var(--color-text);
     background-color: var(--color-bg);
-    padding: 24px 12px;
+    padding: 0;
+    margin: 0;
 }
 
 button {
@@ -66,8 +67,12 @@ button {
 }
 
 .container {
-    /* width: var(--board-width); */
     margin: 0 auto;
+    height: 100vh;
+    padding: 24px 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .board {
@@ -134,8 +139,7 @@ button {
 }
 
 .update-timing {
-    margin: 12px auto 32px auto;
-    /* font-size: 12px; */
+    margin-top: 12px;
     color: var(--color-text-muted);
     text-align: center;
     line-height: 1.2em;
