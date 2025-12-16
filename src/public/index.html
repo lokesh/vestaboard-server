@@ -23,9 +23,15 @@
                     </div>
                     <div class="mode-name">{{ mode.label }}</div>
                 </div>
+                <div :class="['mode-item', { 'mode-item-active': debugStatus.includes('DEBUG') }]"
+                     @click="toggleDebug()">
+                    <div class="mode-indicator">
+                    </div>
+                    <div class="mode-name">{{ debugStatus.includes('DEBUG') ? 'Debug ON' : 'Debug' }}</div>
+                </div>
             </div>
 
-            <div class="board">
+            <!-- <div class="board">
                 <div class="board-grid">
                     <div v-for="(char, index) in boardContent"
                          :key="index"
@@ -39,18 +45,10 @@
                     </div>
                 </div>
                 <div class="update-timing">{{ cronSchedule }}</div>
-            </div>
+            </div> -->
 
 
 
-            <div class="action-grid">
-                <div class="action action-debug" @click="toggleDebug()">
-                    <div class="action-title">Debug</div>
-                    <div class="toggle-switch" :class="{ 'active': debugStatus.includes('DEBUG') }">
-                        <div class="toggle-circle"></div>
-                    </div>
-                </div>
-            </div>
 
         </div>
 

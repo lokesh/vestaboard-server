@@ -189,7 +189,7 @@ h2 {
 .mode-grid {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 16px;
     margin-bottom: 32px;
     overflow: hidden;
 }
@@ -211,14 +211,14 @@ h2 {
 }
 
 .mode-dot {
-    width: 8px;
-    height: 8px;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
     background-color: #FF8C42;
 }
 
 .mode-name {
-    font-size: 20px;
+    font-size: 24px;
     font-weight: 700;
     color: var(--color-text-muted);
     letter-spacing: 0.05em;
