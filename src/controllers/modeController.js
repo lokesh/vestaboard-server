@@ -631,7 +631,7 @@ class ModeController {
       {to: '&', from: ['And']}
     ];
 
-    const maxLength = 7; // Max chars for weather description
+    const maxLength = 10; // Max chars for weather description
 
     let formatted = normalizers.reduce((d, {to, from}) =>
       d.replaceAll(new RegExp(from.sort((a, b) => b.length - a.length).join('|'), 'gi'), to),
@@ -641,13 +641,19 @@ class ModeController {
     // Clean up multiple spaces and trim
     formatted = formatted.replace(/\s+/g, ' ').trim();
 
+    // First try the full formatted string if it fits
+    if (formatted.length <= maxLength) {
+      return formatted;
+    }
+
     // Take first significant word that fits
     const words = formatted.split(/\s+/).filter(w => w.length > 0);
 
     // Try to find a good weather word
     for (const word of words) {
       if (word.length <= maxLength && word.length > 0) {
-        return word;
+        // Remove trailing punctuation (comma, etc.) when only returning partial result
+        return word.replace(/[,.:;!?]+$/, '');
       }
     }
 

@@ -139,11 +139,8 @@ button {
 }
 
 .update-timing {
-    margin-top: 12px;
     color: var(--color-text-muted);
-    text-align: center;
     line-height: 1.2em;
-    max-width: 320px;
 }
 
 .calendar-debug {
