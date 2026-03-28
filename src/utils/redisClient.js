@@ -9,14 +9,16 @@ const redis = new Redis({
   token: process.env.UPSTASH_REDIS_REST_TOKEN,
 });
 
-// Redis keys
 const REDIS_KEYS = {
   CURRENT_MODE: 'CURRENT_MODE',
   DEBUG_MODE: 'DEBUG_MODE',
   GOOGLE_ACCESS_TOKEN: 'GOOGLE_ACCESS_TOKEN',
   GOOGLE_REFRESH_TOKEN: 'GOOGLE_REFRESH_TOKEN',
-  GOOGLE_TOKEN_EXPIRY: 'GOOGLE_TOKEN_EXPIRY'
+  GOOGLE_TOKEN_EXPIRY: 'GOOGLE_TOKEN_EXPIRY',
+  WEATHER_CACHE: 'WEATHER_CACHE'
 };
+
+const WEATHER_CACHE_TTL = 21600; // 6 hours in seconds
 
 export const saveTokensToRedis = async (tokens) => {
   try {
@@ -24,7 +26,9 @@ export const saveTokensToRedis = async (tokens) => {
     if (tokens.refresh_token) {
       await redis.set(REDIS_KEYS.GOOGLE_REFRESH_TOKEN, tokens.refresh_token);
     }
-    await redis.set(REDIS_KEYS.GOOGLE_TOKEN_EXPIRY, tokens.expiry_date.toString());
+    if (tokens.expiry_date) {
+      await redis.set(REDIS_KEYS.GOOGLE_TOKEN_EXPIRY, String(tokens.expiry_date));
+    }
     console.log('Successfully saved tokens to Redis');
   } catch (error) {
     console.error('Error saving tokens to Redis:', error);
@@ -43,7 +47,7 @@ export const getTokensFromRedis = async () => {
     return {
       access_token: accessToken,
       refresh_token: refreshToken,
-      expiry_date: parseInt(tokenExpiry || '0')
+      expiry_date: tokenExpiry ? Number(tokenExpiry) : 0
     };
   } catch (error) {
     console.error('Error getting tokens from Redis:', error);
@@ -54,7 +58,6 @@ export const getTokensFromRedis = async () => {
 export const saveCurrentMode = async (mode) => {
   try {
     await redis.set(REDIS_KEYS.CURRENT_MODE, mode);
-    console.log('Successfully saved current mode to Redis:', mode);
   } catch (error) {
     console.error('Error saving current mode to Redis:', error);
     throw error;
@@ -64,17 +67,16 @@ export const saveCurrentMode = async (mode) => {
 export const getCurrentMode = async () => {
   try {
     const mode = await redis.get(REDIS_KEYS.CURRENT_MODE);
-    return mode || Mode.MANUAL; // Default to MANUAL if not set
+    return mode || Mode.MANUAL;
   } catch (error) {
     console.error('Error getting current mode from Redis:', error);
-    return Mode.MANUAL; // Default to MANUAL on error
+    return Mode.MANUAL;
   }
 };
 
 export const saveDebugMode = async (enabled) => {
   try {
-    await redis.set(REDIS_KEYS.DEBUG_MODE, enabled);
-    console.log('Successfully saved debug mode to Redis:', enabled);
+    await redis.set(REDIS_KEYS.DEBUG_MODE, enabled ? 'true' : 'false');
   } catch (error) {
     console.error('Error saving debug mode to Redis:', error);
     throw error;
@@ -84,9 +86,32 @@ export const saveDebugMode = async (enabled) => {
 export const getDebugMode = async () => {
   try {
     const debug = await redis.get(REDIS_KEYS.DEBUG_MODE);
-    return debug; // Convert string to boolean, defaults to false if not set
+    return debug === true || debug === 'true';
   } catch (error) {
     console.error('Error getting debug mode from Redis:', error);
-    return false; // Default to false on error
+    return false;
   }
-}; 
+};
+
+// Weather cache functions
+export const saveWeatherCache = async (type, data) => {
+  try {
+    const key = `${REDIS_KEYS.WEATHER_CACHE}:${type}`;
+    await redis.set(key, JSON.stringify(data), { ex: WEATHER_CACHE_TTL });
+  } catch (error) {
+    // Cache save is best-effort
+    console.error('Error saving weather cache:', error.message);
+  }
+};
+
+export const getWeatherCache = async (type) => {
+  try {
+    const key = `${REDIS_KEYS.WEATHER_CACHE}:${type}`;
+    const data = await redis.get(key);
+    if (!data) return null;
+    return typeof data === 'string' ? JSON.parse(data) : data;
+  } catch (error) {
+    console.error('Error getting weather cache:', error.message);
+    return null;
+  }
+};

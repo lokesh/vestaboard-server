@@ -1,18 +1,22 @@
+import { getWeatherCache, saveWeatherCache } from '../utils/redisClient.js';
+import { nowInTz, toTz, formatInTz } from '../utils/timezone.js';
+
+const FETCH_TIMEOUT = 10000; // 10 seconds
+
 export const getWeatherData = async () => {
   try {
-    const response = await fetch('https://api.weather.gov/gridpoints/MTR/84,105/forecast');
+    const response = await fetch('https://api.weather.gov/gridpoints/MTR/84,105/forecast', {
+      signal: AbortSignal.timeout(FETCH_TIMEOUT)
+    });
     const data = await response.json();
 
-    // Get current time (will be in PST due to TZ env variable)
     const now = new Date();
     const isPastSixPM = now.getHours() >= 18;
 
-    // Create tomorrow at midnight
     const tomorrow = new Date(now);
     tomorrow.setDate(tomorrow.getDate() + 1);
     tomorrow.setHours(0, 0, 0, 0);
 
-    // Filter daytime periods and adjust based on time
     const weatherData = data.properties.periods
       .filter(period => {
         const periodDate = new Date(period.startTime);
@@ -22,27 +26,37 @@ export const getWeatherData = async () => {
       .map(period => ({
         date: new Date(period.startTime).toLocaleDateString(),
         temperature: period.temperature,
-        probabilityOfPrecipitation: period.probabilityOfPrecipitation.value || 0,
+        probabilityOfPrecipitation: period.probabilityOfPrecipitation?.value || 0,
         windSpeed: period.windSpeed,
         shortForecast: period.shortForecast
       }));
 
+    // Cache successful response
+    await saveWeatherCache('forecast', weatherData);
     return weatherData;
   } catch (error) {
-    console.error('Weather service error:', error);
+    console.error('Weather service error:', error.message);
+
+    // Try to use cached data
+    const cached = await getWeatherCache('forecast');
+    if (cached) {
+      console.log('Using cached forecast data');
+      return cached;
+    }
+
     throw new Error(`Failed to fetch weather data: ${error.message}`);
   }
 };
 
 export const getHourlyWeatherData = async () => {
   try {
-    const response = await fetch('https://api.weather.gov/gridpoints/MTR/84,105/forecast/hourly');
+    const response = await fetch('https://api.weather.gov/gridpoints/MTR/84,105/forecast/hourly', {
+      signal: AbortSignal.timeout(FETCH_TIMEOUT)
+    });
     const data = await response.json();
 
-    // Get current time in PST
     const now = new Date();
 
-    // Get next 22 hours of forecast data
     const hourlyData = data.properties.periods
       .filter(period => {
         const periodDate = new Date(period.startTime);
@@ -54,37 +68,55 @@ export const getHourlyWeatherData = async () => {
         temperature: Math.round(period.temperature),
         shortForecast: period.shortForecast
       }));
-    // console.log('Hourly weather data:', hourlyData);
+
+    await saveWeatherCache('hourly', hourlyData);
     return hourlyData;
   } catch (error) {
-    console.error('Hourly weather service error:', error);
+    console.error('Hourly weather service error:', error.message);
+
+    const cached = await getWeatherCache('hourly');
+    if (cached) {
+      console.log('Using cached hourly data');
+      return cached;
+    }
+
     throw new Error(`Failed to fetch hourly weather data: ${error.message}`);
   }
 };
 
 export const getSunData = async () => {
   try {
-    // Get today's date in PST
-    const today = new Date();
-    const pstDate = today.toLocaleDateString('en-US', { timeZone: 'America/Los_Angeles' });
+    const pstDate = formatInTz(new Date(), 'M/d/yyyy');
 
-    const response = await fetch(`https://api.sunrise-sunset.org/json?lat=37.7749&lng=-122.4194&formatted=0&date=${pstDate}`);
+    const response = await fetch(`https://api.sunrise-sunset.org/json?lat=37.7749&lng=-122.4194&formatted=0&date=${pstDate}`, {
+      signal: AbortSignal.timeout(FETCH_TIMEOUT)
+    });
     const data = await response.json();
 
     if (data.status !== 'OK') {
       throw new Error('Failed to get sun data');
     }
 
-    // Convert UTC times to PST
-    const sunriseUTC = new Date(data.results.sunrise);
-    const sunsetUTC = new Date(data.results.sunset);
-
-    return {
-      sunrise: new Date(sunriseUTC.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' })),
-      sunset: new Date(sunsetUTC.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' })),
+    const result = {
+      sunrise: toTz(new Date(data.results.sunrise)),
+      sunset: toTz(new Date(data.results.sunset)),
     };
+
+    await saveWeatherCache('sun', result);
+    return result;
   } catch (error) {
-    console.error('Sun data service error:', error);
+    console.error('Sun data service error:', error.message);
+
+    const cached = await getWeatherCache('sun');
+    if (cached) {
+      console.log('Using cached sun data');
+      // Restore Date objects from JSON
+      return {
+        sunrise: new Date(cached.sunrise),
+        sunset: new Date(cached.sunset)
+      };
+    }
+
     throw new Error(`Failed to fetch sun data: ${error.message}`);
   }
 };
@@ -96,18 +128,15 @@ export const getHistoricalAndForecastWeather = async () => {
       throw new Error('VISUAL_CROSSING_API_KEY not found in environment variables');
     }
 
-    // Get today's date in PST
-    const now = new Date();
-    const pstNow = new Date(now.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
+    const pstNow = nowInTz();
 
-    // Format date as YYYY-MM-DD
-    const today = pstNow.toISOString().split('T')[0];
+    const today = formatInTz(new Date(), 'yyyy-MM-dd');
 
-    // Visual Crossing API endpoint
-    // Location: San Francisco (37.7749, -122.4194)
     const url = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/37.7749,-122.4194/${today}?unitGroup=us&key=${apiKey}&include=hours`;
 
-    const response = await fetch(url);
+    const response = await fetch(url, {
+      signal: AbortSignal.timeout(FETCH_TIMEOUT)
+    });
 
     if (!response.ok) {
       throw new Error(`Visual Crossing API returned ${response.status}: ${response.statusText}`);
@@ -115,26 +144,32 @@ export const getHistoricalAndForecastWeather = async () => {
 
     const data = await response.json();
 
-    if (!data || !data.days || !data.days[0] || !data.days[0].hours) {
+    if (!data?.days?.[0]?.hours) {
       throw new Error('Invalid response from Visual Crossing API');
     }
 
-    // Extract hourly data for today
     const hourlyData = data.days[0].hours.map(hour => {
-      // Parse the hour from the datetime string (format: "HH:MM:SS")
       const hourNum = parseInt(hour.datetime.split(':')[0], 10);
 
       return {
         hour: hourNum,
         temperature: Math.round(hour.temp),
         shortForecast: hour.conditions,
-        isHistorical: hourNum <= pstNow.getHours() // Flag to know if it's observed or forecast
+        isHistorical: hourNum <= pstNow.getHours()
       };
     });
 
+    await saveWeatherCache('visualcrossing', hourlyData);
     return hourlyData;
   } catch (error) {
-    console.error('Visual Crossing weather service error:', error);
+    console.error('Visual Crossing weather service error:', error.message);
+
+    const cached = await getWeatherCache('visualcrossing');
+    if (cached) {
+      console.log('Using cached Visual Crossing data');
+      return cached;
+    }
+
     throw new Error(`Failed to fetch weather data from Visual Crossing: ${error.message}`);
   }
 };

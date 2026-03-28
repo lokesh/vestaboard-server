@@ -1,4 +1,6 @@
 import dotenv from 'dotenv';
+dotenv.config();
+
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -7,18 +9,26 @@ import boardService from './services/boardService.js';
 import { modeController } from './controllers/modeController.js';
 import { getAuthUrl, getTokens, getCalendarEvents } from './services/calendarService.js';
 import { getCurrentMode, getDebugMode } from './utils/redisClient.js';
+import { requireAuth, handleLogin, handleAuthCheck } from './middleware/auth.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-dotenv.config();
-
 const app = express();
 
 app.use(cors());
-
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Auth endpoints (before middleware)
+app.post('/api/auth/login', handleLogin);
+app.get('/api/auth/check', handleAuthCheck);
+
+// Protect all /api/* routes (login/check excluded above)
+app.use('/api', requireAuth);
+
+// OAuth callback must be accessible without API auth (Google redirects here)
+// but the /auth/google initiation is protected below
 
 // Serve the main page
 app.get('/', (req, res) => {
@@ -28,11 +38,9 @@ app.get('/', (req, res) => {
 // API Endpoints
 app.get('/api/status', async (req, res) => {
   try {
-    // Get current mode from Redis and update local memory
     const mode = await getCurrentMode();
     modeController.currentMode = mode;
 
-    // Get debug mode from Redis and update local memory
     const debugMode = await getDebugMode();
     boardService.debugMode = debugMode;
 
@@ -49,13 +57,13 @@ app.get('/api/status', async (req, res) => {
   }
 });
 
-app.post('/api/mode', (req, res) => {
+app.post('/api/mode', async (req, res) => {
   const { mode } = req.body;
   try {
-    modeController.setMode(mode);
+    await modeController.setMode(mode);
     const scheduleInfo = modeController.getScheduleInfo(mode);
-    res.json({ 
-      success: true, 
+    res.json({
+      success: true,
       currentMode: mode,
       cronSchedule: scheduleInfo
     });
@@ -74,20 +82,23 @@ app.post('/api/debug/toggle', async (req, res) => {
   }
 });
 
-// Route to start OAuth flow
-app.get('/auth/google', (req, res) => {
-  const authUrl = getAuthUrl();
-  console.log('Auth URL:', authUrl);
-  res.redirect(authUrl);
+// Route to start OAuth flow (protected by API auth)
+app.get('/api/auth/google/start', (req, res) => {
+  try {
+    const authUrl = getAuthUrl();
+    res.json({ authUrl });
+  } catch (error) {
+    console.error('Error generating auth URL:', error);
+    res.status(500).json({ error: 'Failed to generate auth URL' });
+  }
 });
 
-// Callback route
+// OAuth callback (not behind /api auth - Google redirects here directly)
 app.get('/auth/google/callback', async (req, res) => {
   const { code } = req.query;
   try {
-    const tokens = await getTokens(code);
-    // Tokens will be logged to console for manual update of .env
-    res.redirect('/?auth=success&message=Please check server console for tokens to add to .env');
+    await getTokens(code);
+    res.redirect('/?auth=success');
   } catch (error) {
     console.error('OAuth error:', error.message);
     res.redirect('/?auth=error');
@@ -95,75 +106,76 @@ app.get('/auth/google/callback', async (req, res) => {
 });
 
 // Get events
-app.get('/calendar/events', async (req, res) => {
-  console.log('📅 Calendar Events Request - Started');
-  
+app.get('/api/calendar/events', async (req, res) => {
   try {
-    console.log('Attempting to fetch calendar events...');
     const events = await getCalendarEvents();
     res.json(events);
   } catch (error) {
-    console.error('❌ Calendar API error:', {
-      message: error.message,
-      stack: error.stack,
-      name: error.name
-    });
-    
-    if (error.message === 'No tokens found. Please authenticate first.') {
-      console.log('Authentication required - generating auth URL');
-      const authUrl = getAuthUrl();
-      console.log('Generated Auth URL:', authUrl);
-      res.status(401).json({ 
-        error: 'Authentication required',
-        authUrl: authUrl
-      });
+    console.error('Calendar API error:', error.message);
+
+    if (error.message.includes('authenticate first')) {
+      try {
+        const authUrl = getAuthUrl();
+        res.status(401).json({
+          error: 'Authentication required',
+          authUrl
+        });
+      } catch (authError) {
+        res.status(401).json({ error: 'Authentication required' });
+      }
     } else {
-      console.error('Unexpected error occurred:', error.message);
-      res.status(500).json({ 
-        error: 'Failed to fetch calendar events',
-        details: error.message 
-      });
+      res.status(500).json({ error: 'Failed to fetch calendar events' });
     }
   }
-  console.log('📅 Calendar Events Request - Completed');
 });
 
-// Add this new route with your other routes
 app.get('/api/board/content', async (req, res) => {
-    try {
-        const boardContent = await boardService.getCurrentBoardContent();
-        res.json(boardContent);
-    } catch (error) {
-        console.error('Error getting board content:', error);
-        res.status(500).json({ error: 'Failed to fetch board content' });
-    }
+  try {
+    const boardContent = await boardService.getCurrentBoardContent();
+    res.json(boardContent);
+  } catch (error) {
+    console.error('Error getting board content:', error);
+    res.status(500).json({ error: 'Failed to fetch board content' });
+  }
 });
 
-// Add this route with your other routes
 app.post('/api/board/message', async (req, res) => {
-    try {
-        const { text } = req.body;
-        const result = await boardService.sendMessage(text);
-        res.json(result);
-    } catch (error) {
-        console.error('Error sending message:', error);
-        res.status(500).json({ error: error.message });
-    }
+  try {
+    const { text } = req.body;
+    const result = await boardService.sendMessage(text);
+    res.json(result);
+  } catch (error) {
+    console.error('Error sending message:', error);
+    res.status(500).json({ error: error.message });
+  }
 });
 
-// Pattern test endpoint
 app.post('/api/pattern/test', async (req, res) => {
-    try {
-        const { mode } = req.body;
-        const result = await modeController.testPattern(mode);
-        res.json(result);
-    } catch (error) {
-        console.error('Error testing pattern:', error);
-        res.status(500).json({ error: error.message });
-    }
+  try {
+    const { mode } = req.body;
+    const result = await modeController.testPattern(mode);
+    res.json(result);
+  } catch (error) {
+    console.error('Error testing pattern:', error);
+    res.status(500).json({ error: error.message });
+  }
 });
 
+// Start server after initialization
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-}); 
+
+async function start() {
+  try {
+    await modeController.initialize();
+    console.log('Mode controller initialized');
+  } catch (error) {
+    console.error('Failed to initialize mode controller:', error);
+    // Continue starting — will default to MANUAL mode
+  }
+
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
+
+start();

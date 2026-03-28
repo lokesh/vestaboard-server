@@ -1,15 +1,8 @@
 import fetch from 'node-fetch';
-import { dirname } from 'path';
-import { fileURLToPath } from 'url';
-import dotenv from 'dotenv/config';
 import { charMap } from '../utils/boardCharacters.js';
 import { getDebugMode, saveDebugMode } from '../utils/redisClient.js';
 
-// Get the directory name of the current module
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-// Load environment variables from .env file (no need to call config() as it's done by the import)
+const FETCH_TIMEOUT = 10000;
 
 class BoardService {
   constructor() {
@@ -72,7 +65,8 @@ class BoardService {
       const response = await fetch(this.baseUrl, {
         method: 'POST',
         headers,
-        body:  JSON.stringify(characters),
+        body: JSON.stringify(characters),
+        signal: AbortSignal.timeout(FETCH_TIMEOUT),
       });
 
       console.log('Vestaboard API Response:', {
@@ -137,10 +131,11 @@ class BoardService {
 
   async getCurrentBoardContent() {
     try {
-      const response = await fetch('https://rw.vestaboard.com', {
+      const response = await fetch(this.baseUrl, {
         headers: {
           'X-Vestaboard-Read-Write-Key': this.apiKey
-        }
+        },
+        signal: AbortSignal.timeout(FETCH_TIMEOUT),
       });
       
       if (!response.ok) {
@@ -184,7 +179,8 @@ class BoardService {
                 'Content-Type': 'application/json',
                 'X-Vestaboard-Read-Write-Key': this.apiKey
             },
-            body: JSON.stringify({ text })
+            body: JSON.stringify({ text }),
+            signal: AbortSignal.timeout(FETCH_TIMEOUT),
         });
 
         const data = await response.json();

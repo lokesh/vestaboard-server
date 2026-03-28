@@ -4,35 +4,25 @@ import { checkBoardPattern } from '../utils/boardCharacters.js';
 export class TodayPatternMatcher extends PatternMatcher {
   constructor() {
     super();
-    // Pattern for TODAY mode:
-    // Row 1: MON DD (e.g., "NOV 18")
-    // Row 2: Holiday or birthdays (text)
-    // Row 3: Birthdays or blank (text or empty)
-    // Row 4-6: Weather with temp range, emojis, and description
+    // Row 0: "MON DD" — 3-letter month + space + date (1-2 digits)
+    // Rows 1-2: flexible text (holidays, birthdays, or empty)
+    // Rows 3-5: flexible (weather data or empty)
     this.pattern = [
-      // Row 1: Month (3 letters) + space + date (1-2 digits)
-      ['a-z', 'a-z', 'a-z', '', '0-9', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-      // Row 2: Text (holiday or birthdays) - flexible
+      ['a-z', 'a-z', 'a-z', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
       ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-      // Row 3: Text (birthdays) or empty - flexible
       ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-      // Row 4-6: Weather rows - temp range (digits, dash, degree) + emojis + text
-      // e.g., "55-72° ⬜⬜⬜⬜ Sunny"
-      ['0-9', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-      ['0-9', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-      ['0-9', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '']
+      ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
+      ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
+      ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '']
     ];
   }
 
   matches(boardContent) {
-    // Check if it matches the pattern
-    if (checkBoardPattern(boardContent, this.pattern)) {
-      return true;
-    }
+    // Check if row 0 starts with 3 letters (month abbreviation)
+    if (!checkBoardPattern(boardContent, this.pattern)) return false;
 
-    // Also accept the old stub content for backward compatibility during transition
-    const contentStr = boardContent.join('').toUpperCase();
-    return contentStr.includes('TODAY MODE') || contentStr.includes('COMING SOON');
+    // Position 3 should be a space (0) to confirm "MON DD" format
+    return boardContent[0][3] === 0;
   }
 
   getDescription() {

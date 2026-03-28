@@ -11,6 +11,19 @@
 </head>
 <body>
     <div id="app">
+        <!-- Login Screen -->
+        <div v-if="authEnabled && !authenticated" class="login-screen">
+            <div class="login-box">
+                <h1>108 Space</h1>
+                <form @submit.prevent="login">
+                    <input type="password" v-model="loginPassword" placeholder="Password" autofocus />
+                    <button class="button" type="submit">Login</button>
+                </form>
+                <div v-if="loginError" style="color: #dc3545; margin-top: 8px;">{{ loginError }}</div>
+            </div>
+        </div>
+
+        <template v-else>
         <div class="container" :class="{ 'blur-background': isMessageModalOpen || isImageModalOpen }">
 
             <div class="mode-grid">
@@ -419,6 +432,7 @@
                 </div>
             </div>
         </div>
+        </template>
     </div>
 
     <script>
@@ -463,6 +477,59 @@
 
         createApp({
             setup() {
+                // Auth state
+                const authenticated = ref(false);
+                const authEnabled = ref(false);
+                const loginPassword = ref('');
+                const loginError = ref('');
+
+                const getToken = () => localStorage.getItem('vestaboard_token');
+
+                const authFetch = (url, options = {}) => {
+                    const token = getToken();
+                    if (token) {
+                        options.headers = { ...options.headers, 'Authorization': `Bearer ${token}` };
+                    }
+                    return fetch(url, options);
+                };
+
+                const checkAuth = async () => {
+                    try {
+                        const token = getToken();
+                        const response = await fetch('/api/auth/check', {
+                            headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+                        });
+                        const data = await response.json();
+                        authEnabled.value = data.authEnabled;
+                        authenticated.value = data.authenticated || !data.authEnabled;
+                    } catch (error) {
+                        // If check fails, assume no auth required
+                        authenticated.value = true;
+                        authEnabled.value = false;
+                    }
+                };
+
+                const login = async () => {
+                    loginError.value = '';
+                    try {
+                        const response = await fetch('/api/auth/login', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ password: loginPassword.value })
+                        });
+                        const data = await response.json();
+                        if (data.success) {
+                            localStorage.setItem('vestaboard_token', data.token);
+                            authenticated.value = true;
+                            loginPassword.value = '';
+                        } else {
+                            loginError.value = 'Invalid password';
+                        }
+                    } catch (error) {
+                        loginError.value = 'Login failed';
+                    }
+                };
+
                 // State
                 const boardContent = ref(Array(132).fill(' '));
                 const currentMode = ref('');
@@ -809,7 +876,7 @@
                 // Methods
                 const fetchBoardContent = async () => {
                     try {
-                        const response = await fetch('/api/board/content');
+                        const response = await authFetch('/api/board/content');
                         const data = await response.json();
 
                         if (!Array.isArray(data) || !data.every(row => Array.isArray(row))) {
@@ -832,7 +899,7 @@
 
                 const updateStatus = async () => {
                     try {
-                        const response = await fetch('/api/status');
+                        const response = await authFetch('/api/status');
                         if (!response.ok) {
                             const error = await response.json();
                             throw new Error(error.error || 'Failed to fetch status');
@@ -878,7 +945,7 @@
                     currentMode.value = mode;
 
                     try {
-                        await fetch('/api/mode', {
+                        await authFetch('/api/mode', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ mode })
@@ -894,7 +961,7 @@
 
                 const toggleDebug = async () => {
                     try {
-                        await fetch('/api/debug/toggle', { method: 'POST' });
+                        await authFetch('/api/debug/toggle', { method: 'POST' });
                         updateStatus();
                     } catch (error) {
                         console.error('Error toggling debug mode:', error);
@@ -927,7 +994,7 @@
                     messageStatus.value = { text: 'Sending message...', color: '#666' };
 
                     try {
-                        const response = await fetch('/api/board/message', {
+                        const response = await authFetch('/api/board/message', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ text: messageInput.value.trim() })
@@ -955,7 +1022,7 @@
 
                 const testPattern = async (mode) => {
                     try {
-                        const response = await fetch('/api/pattern/test', {
+                        const response = await authFetch('/api/pattern/test', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ mode })
@@ -980,14 +1047,22 @@
                     }
                 };
 
-                const initiateCalendarAuth = () => {
-                    window.location.href = '/auth/google';
+                const initiateCalendarAuth = async () => {
+                    try {
+                        const response = await authFetch('/api/auth/google/start');
+                        const data = await response.json();
+                        if (data.authUrl) {
+                            window.location.href = data.authUrl;
+                        }
+                    } catch (error) {
+                        console.error('Error starting calendar auth:', error);
+                    }
                 };
 
                 const fetchCalendarEvents = async () => {
                     try {
                         calendarEvents.value = 'Loading...';
-                        const response = await fetch('/calendar/events');
+                        const response = await authFetch('/api/calendar/events');
                         const data = await response.json();
 
                         if (response.status === 401 && data.authUrl) {
@@ -1035,7 +1110,7 @@
                         const text = test.content.join('');
 
                         // Send the pattern to the API
-                        const response = await fetch('/api/board/message', {
+                        const response = await authFetch('/api/board/message', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ text })
@@ -1056,7 +1131,10 @@
                 };
 
                 // Lifecycle hooks
-                onMounted(() => {
+                onMounted(async () => {
+                    await checkAuth();
+                    if (!authenticated.value) return;
+
                     fetchBoardContent();
                     updateStatus();
                     fetchCalendarEvents();
@@ -1075,6 +1153,12 @@
                 });
 
                 return {
+                    // Auth
+                    authenticated,
+                    authEnabled,
+                    loginPassword,
+                    loginError,
+                    login,
                     // State
                     boardContent,
                     currentMode,
