@@ -62,17 +62,19 @@ class BoardService {
     
     try {
       
+      const postBody = JSON.stringify(characters);
+      console.log('[VESTA POST] Sending', postBody.length, 'bytes');
+
       const response = await fetch(this.baseUrl, {
         method: 'POST',
         headers,
-        body: JSON.stringify(characters),
+        body: postBody,
         signal: AbortSignal.timeout(FETCH_TIMEOUT),
       });
 
-      if (!response.ok) {
-        const responseBody = await response.text();
-        console.log('Vestaboard API error:', response.status, responseBody);
-      }
+      const responseBody = await response.text();
+      console.log('[VESTA POST] Status:', response.status);
+      console.log('[VESTA POST] Body:', responseBody);
       
     } catch (error) {
       console.error('Error posting to Vestaboard:', error);
