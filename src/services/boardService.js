@@ -69,13 +69,10 @@ class BoardService {
         signal: AbortSignal.timeout(FETCH_TIMEOUT),
       });
 
-      const responseBody = await response.text();
-      console.log('Vestaboard API Response:', {
-        status: response.status,
-        statusText: response.statusText,
-        body: responseBody
-      });
-      console.log('Vestaboard POST body (first row):', JSON.stringify(characters[0]));
+      if (!response.ok) {
+        const responseBody = await response.text();
+        console.log('Vestaboard API error:', response.status, responseBody);
+      }
       
     } catch (error) {
       console.error('Error posting to Vestaboard:', error);
