@@ -282,8 +282,16 @@ class ModeController {
     const rows = [row1, row2, row3, weatherRows.morning, weatherRows.midday, weatherRows.evening];
     const content = rows.join('\n');
 
+    console.log('[TODAY DEBUG] Content to send:');
+    rows.forEach((r, i) => console.log(`  Row ${i}: "${r}" (length: ${r.length})`));
+    console.log(`[TODAY DEBUG] Total content length: ${content.length}`);
+
     if (await this._shouldUpdate(Mode.TODAY, initialUpdate)) {
+      console.log('[TODAY DEBUG] _shouldUpdate returned true, calling updateBoard');
       await boardService.updateBoard(content);
+      console.log('[TODAY DEBUG] updateBoard completed');
+    } else {
+      console.log('[TODAY DEBUG] _shouldUpdate returned false, skipping update');
     }
   }
 
