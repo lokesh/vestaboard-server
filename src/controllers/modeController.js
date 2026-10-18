@@ -5,6 +5,8 @@ import { getCalendarEvents, getAllDayEvents } from '../services/calendarService.
 import cron from 'node-cron';
 import { formatWeatherDescription } from '../utils/weatherFormatter.js';
 import { formatCalendarEvents } from '../utils/calendarFormatter.js';
+import { formatKieranBoard, extractBirthdayNames } from '../utils/kieranFormatter.js';
+import { getSchoolBreak } from '../config/schoolCalendar.js';
 import { CronSchedules } from '../utils/cronSchedules.js';
 import { PatternMatcherFactory } from '../patterns/PatternMatcherFactory.js';
 import { getCurrentMode, saveCurrentMode } from '../utils/redisClient.js';
@@ -76,6 +78,10 @@ class ModeController {
       case Mode.TODAY:
         await this.updateToday(true);
         this.setupCronJob(Mode.TODAY, () => this.updateToday());
+        break;
+      case Mode.KIERAN:
+        await this.updateKieran(true);
+        this.setupCronJob(Mode.KIERAN, () => this.updateKieran());
         break;
       case Mode.MANUAL:
         break;
@@ -283,6 +289,26 @@ class ModeController {
     const content = rows.join('\n');
 
     if (await this._shouldUpdate(Mode.TODAY, initialUpdate)) {
+      await boardService.updateBoard(content);
+    }
+  }
+
+  async updateKieran(initialUpdate = false) {
+    const zonedNow = nowInTz();
+
+    let hourlyData;
+    try {
+      hourlyData = await getHistoricalAndForecastWeather();
+    } catch (vcError) {
+      console.warn('Visual Crossing API failed, falling back to NWS:', vcError.message);
+      hourlyData = await getHourlyWeatherData();
+    }
+
+    const noSchoolReason = this.getHolidayForDate(zonedNow) || getSchoolBreak(zonedNow);
+    const birthdays = extractBirthdayNames(await this.getTodaysBirthdays());
+    const content = formatKieranBoard({ zonedNow, hourlyData, noSchoolReason, birthdays });
+
+    if (await this._shouldUpdate(Mode.KIERAN, initialUpdate)) {
       await boardService.updateBoard(content);
     }
   }
