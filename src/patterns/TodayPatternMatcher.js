@@ -5,7 +5,7 @@ export class TodayPatternMatcher extends PatternMatcher {
   constructor() {
     super();
     // Row 0: "MON DD" — 3-letter month + space + date (1-2 digits)
-    // Rows 1-2: flexible text (holidays, birthdays, or empty)
+    // Rows 1-2: flexible text (holiday, or empty)
     // Rows 3-5: flexible (weather data or empty)
     this.pattern = [
       ['a-z', 'a-z', 'a-z', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
@@ -26,6 +26,6 @@ export class TodayPatternMatcher extends PatternMatcher {
   }
 
   getDescription() {
-    return 'Today pattern: Month/Date, Holidays/Birthdays, and Weather summary with hourly blocks';
+    return 'Today pattern: Month/Date, Holiday, and Weather summary with hourly blocks';
   }
 }

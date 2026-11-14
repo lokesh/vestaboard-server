@@ -1,11 +1,9 @@
 import { Mode } from '../types/Mode.js';
 import boardService from '../services/boardService.js';
 import { getWeatherData, getHourlyWeatherData, getSunData, getHistoricalAndForecastWeather } from '../services/weatherService.js';
-import { getCalendarEvents, getAllDayEvents } from '../services/calendarService.js';
 import cron from 'node-cron';
 import { formatWeatherDescription } from '../utils/weatherFormatter.js';
-import { formatCalendarEvents } from '../utils/calendarFormatter.js';
-import { formatKieranBoard, extractBirthdayNames } from '../utils/kieranFormatter.js';
+import { formatKieranBoard } from '../utils/kieranFormatter.js';
 import { getSchoolBreak } from '../config/schoolCalendar.js';
 import { CronSchedules } from '../utils/cronSchedules.js';
 import { PatternMatcherFactory } from '../patterns/PatternMatcherFactory.js';
@@ -70,10 +68,6 @@ class ModeController {
       case Mode.ONEDAY_WEATHER:
         await this.updateOneDayWeather(true);
         this.setupCronJob(Mode.ONEDAY_WEATHER, () => this.updateOneDayWeather());
-        break;
-      case Mode.CALENDAR:
-        await this.updateCalendar(true);
-        this.setupCronJob(Mode.CALENDAR, () => this.updateCalendar());
         break;
       case Mode.TODAY:
         await this.updateToday(true);
@@ -182,22 +176,6 @@ class ModeController {
     }
   }
 
-  async updateCalendar(initialUpdate = false) {
-    try {
-      const events = await getCalendarEvents(5);
-      const formattedEvents = formatCalendarEvents(events);
-
-      if (await this._shouldUpdate(Mode.CALENDAR, initialUpdate)) {
-        await boardService.updateBoard(formattedEvents);
-      }
-    } catch (error) {
-      console.error('Calendar update failed:', error.message);
-      if (error.message.includes('authenticate first')) {
-      }
-      throw error;
-    }
-  }
-
   async updateOneDayWeather(initialUpdate = false) {
     const hourlyData = await getHourlyWeatherData();
 
@@ -269,19 +247,8 @@ class ModeController {
 
     const holiday = this.getHolidayForDate(pstNow);
 
-    const birthdays = await this.getTodaysBirthdays();
-    const birthdayStr = this.formatBirthdays(birthdays);
-
-    let row2 = '';
-    let row3 = '';
-
-    if (holiday) {
-      row2 = holiday;
-      row3 = birthdayStr;
-    } else {
-      row2 = birthdayStr;
-      row3 = '';
-    }
+    const row2 = holiday || '';
+    const row3 = '';
 
     const weatherRows = await this.getWeatherSummary();
 
@@ -305,8 +272,7 @@ class ModeController {
     }
 
     const noSchoolReason = this.getHolidayForDate(zonedNow) || getSchoolBreak(zonedNow);
-    const birthdays = extractBirthdayNames(await this.getTodaysBirthdays());
-    const content = formatKieranBoard({ zonedNow, hourlyData, noSchoolReason, birthdays });
+    const content = formatKieranBoard({ zonedNow, hourlyData, noSchoolReason });
 
     if (await this._shouldUpdate(Mode.KIERAN, initialUpdate)) {
       await boardService.updateBoard(content);
@@ -339,54 +305,6 @@ class ModeController {
     if (month === 11 && dayOfWeek === 4 && weekOfMonth === 4) return 'Thanksgiving';
 
     return null;
-  }
-
-  async getTodaysBirthdays() {
-    try {
-      const now = new Date();
-      const allDayEvents = await getAllDayEvents(now);
-      return allDayEvents.filter(event => /birthday/i.test(event.summary));
-    } catch (error) {
-      console.error('Error fetching birthdays:', error);
-      return [];
-    }
-  }
-
-  formatBirthdays(birthdays) {
-    if (!birthdays || birthdays.length === 0) return '';
-
-    const maxLength = 22;
-    const names = birthdays.map(event => {
-      let name = event.summary
-        .replace(/[\u{1F300}-\u{1F9FF}]|[\u{1F600}-\u{1F64F}]|[\u{1F680}-\u{1F6FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '')
-        .replace(/birthday/gi, '')
-        .trim();
-
-      const nameParts = name.split(/\s+/);
-      if (nameParts.length >= 2) {
-        return `${nameParts[0]} ${nameParts[1][0]}`;
-      }
-      return nameParts[0];
-    });
-
-    let result = names.join(', ');
-
-    if (result.length > maxLength) {
-      const firstNames = birthdays.map(event => {
-        let name = event.summary
-          .replace(/[\u{1F300}-\u{1F9FF}]|[\u{1F600}-\u{1F64F}]|[\u{1F680}-\u{1F6FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '')
-          .replace(/birthday/gi, '')
-          .trim();
-        return name.split(/\s+/)[0];
-      });
-      result = firstNames.join(', ');
-    }
-
-    if (result.length > maxLength) {
-      result = result.substring(0, maxLength - 1) + '...';
-    }
-
-    return result;
   }
 
   async getWeatherSummary() {

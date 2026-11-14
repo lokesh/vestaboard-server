@@ -11,10 +11,7 @@ import { format } from 'date-fns';
  *   🟦 RAIN 4PM-7PM
  *
  * Color key: green = school, red = no school, blue = rain,
- * yellow = sunny, white = cloudy/foggy/snow, violet = windy/chilly/birthday, red = hot.
- *
- * Row priority: rain always owns the callout row. A birthday takes the callout
- * row otherwise, and on a rainy weekend it takes the school row instead.
+ * yellow = sunny, white = cloudy/foggy/snow, violet = windy/chilly, red = hot.
  */
 
 const COLS = 22;
@@ -197,78 +194,19 @@ export function formatAlertLine(hourlyData, currentHour) {
   return rainedEarlier ? 'NO MORE RAIN TODAY' : 'NO RAIN TODAY';
 }
 
-const EMOJI_RE = /[\u{1F300}-\u{1F9FF}]|[\u{1F600}-\u{1F64F}]|[\u{1F680}-\u{1F6FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu;
-
-/**
- * First names from calendar birthday events, e.g. "🎂 Maya Chen's Birthday" → "Maya".
- * @param {Array<{summary: string}>} events
- */
-export function extractBirthdayNames(events = []) {
-  return events
-    .map(event => (event.summary || '')
-      .replace(EMOJI_RE, '')
-      .replace(/birthday/gi, '')
-      .replace(/'s\b/gi, '')
-      .replace(/^[^a-z]+/i, '')
-      .trim()
-      .split(/\s+/)[0])
-    .filter(Boolean);
-}
-
-/**
- * "🟪 MAYA'S BIRTHDAY!" for one name, "🟪 BDAY: MAYA, LEO" for several.
- * @param {string[]} names
- */
-export function formatBirthdayLine(names) {
-  if (!names?.length) return null;
-  const upper = names.map(n => n.toUpperCase());
-
-  if (upper.length === 1) {
-    const single = `${VIOLET} ${upper[0]}'S BIRTHDAY!`;
-    if (cells(single) <= COLS) return single;
-  }
-
-  // Add names while they fit; summarize the rest as "+N" instead of cutting a name in half.
-  const prefix = `${VIOLET} BDAY: `;
-  const shown = [];
-  for (let i = 0; i < upper.length; i++) {
-    const remaining = upper.length - i - 1;
-    const candidate = [...shown, upper[i]].join(', ') + (remaining ? ` +${remaining}` : '');
-    if (cells(prefix + candidate) > COLS) break;
-    shown.push(upper[i]);
-  }
-  if (!shown.length) return fitToBoard(prefix + upper[0]);
-  const rest = upper.length - shown.length;
-  return `${prefix}${shown.join(', ')}${rest ? ` +${rest}` : ''}`;
-}
-
 /**
  * Build the full 6-line board text.
  * @param {object} opts
  * @param {Date} opts.zonedNow - from nowInTz()
  * @param {Array<{hour:number, temperature:number, shortForecast:string}>} opts.hourlyData
  * @param {string|null} opts.noSchoolReason - holiday or school-break label
- * @param {string[]} [opts.birthdays] - first names with a birthday today
  */
-export function formatKieranBoard({ zonedNow, hourlyData, noSchoolReason, birthdays = [] }) {
+export function formatKieranBoard({ zonedNow, hourlyData, noSchoolReason }) {
   const todayHours = trimToToday(hourlyData);
   const currentHour = zonedNow.getHours();
 
-  let schoolLine = formatSchoolLine(zonedNow, noSchoolReason);
-  let calloutLine = formatAlertLine(todayHours, currentHour);
-
-  const birthdayLine = formatBirthdayLine(birthdays);
-  if (birthdayLine) {
-    const rainAhead = upcomingRain(todayHours, currentHour) !== null;
-    const dow = zonedNow.getDay();
-    const plainWeekend = (dow === 0 || dow === 6) && !noSchoolReason;
-
-    if (!rainAhead) {
-      calloutLine = birthdayLine;
-    } else if (plainWeekend) {
-      schoolLine = birthdayLine;
-    }
-  }
+  const schoolLine = formatSchoolLine(zonedNow, noSchoolReason);
+  const calloutLine = formatAlertLine(todayHours, currentHour);
 
   const rows = [
     formatDateLine(zonedNow),

@@ -2,7 +2,6 @@ import { Mode } from '../types/Mode.js';
 import { ClockPatternMatcher } from './ClockPatternMatcher.js';
 import { FiveDayWeatherPatternMatcher } from './FiveDayWeatherPatternMatcher.js';
 import { OneDayWeatherPatternMatcher } from './OneDayWeatherPatternMatcher.js';
-import { CalendarPatternMatcher } from './CalendarPatternMatcher.js';
 import { TodayPatternMatcher } from './TodayPatternMatcher.js';
 import { KieranPatternMatcher } from './KieranPatternMatcher.js';
 
@@ -23,8 +22,6 @@ export class PatternMatcherFactory {
         return new FiveDayWeatherPatternMatcher();
       case Mode.ONEDAY_WEATHER:
         return new OneDayWeatherPatternMatcher();
-      case Mode.CALENDAR:
-        return new CalendarPatternMatcher();
       case Mode.TODAY:
         return new TodayPatternMatcher();
       case Mode.KIERAN:

@@ -13,9 +13,7 @@ graph TD
 
     C -->|Pattern Matching| J[Pattern Matchers]
     J -->|Requests| F[Weather Service]
-    J -->|Requests| G[Calendar Service]
 
-    H[Google Calendar API] -->|Data| G
     I[Weather API] -->|Data| F
 
     K[Redis] -->|State Management| C
@@ -25,10 +23,9 @@ graph TD
 
 ### Display Modes
 - **MANUAL**: Direct text input and custom patterns
-- **TODAY**: Today's condensed weather summary and birthdays (coming soon)
+- **TODAY**: Today's date, holiday, and condensed weather summary
 - **1DAYWEATHER** (Hourly Weather): Current date with hourly weather forecast
 - **5DAYWEATHER** (5-Day Weather): 5-day weather forecast
-- **CALENDAR**: Upcoming events from Google Calendar
 - **CLOCK**: Current time in PST/PDT
 
 ### Key Components
@@ -45,7 +42,6 @@ graph TD
 3. Configure environment variables:
    - Vestaboard API credentials from [Developer Portal](https://www.vestaboard.com/developer)
    - Upstash Redis credentials
-   - Google Calendar OAuth2 credentials
 4. Install dependencies: `npm install`
 5. Start the server: `npm start`
 6. Access web interface: `http://localhost:3000`

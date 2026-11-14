@@ -7,7 +7,6 @@ import { fileURLToPath } from 'url';
 import cors from 'cors';
 import boardService from './services/boardService.js';
 import { modeController } from './controllers/modeController.js';
-import { getAuthUrl, getTokens, getCalendarEvents } from './services/calendarService.js';
 import { getCurrentMode, getDebugMode } from './utils/redisClient.js';
 import { requireAuth, handleLogin, handleAuthCheck } from './middleware/auth.js';
 
@@ -26,9 +25,6 @@ app.get('/api/auth/check', handleAuthCheck);
 
 // Protect all /api/* routes (login/check excluded above)
 app.use('/api', requireAuth);
-
-// OAuth callback must be accessible without API auth (Google redirects here)
-// but the /auth/google initiation is protected below
 
 // Serve the main page
 app.get('/', (req, res) => {
@@ -79,53 +75,6 @@ app.post('/api/debug/toggle', async (req, res) => {
   } catch (error) {
     console.error('Error toggling debug mode:', error);
     res.status(500).json({ error: 'Failed to toggle debug mode' });
-  }
-});
-
-// Route to start OAuth flow (protected by API auth)
-app.get('/api/auth/google/start', (req, res) => {
-  try {
-    const authUrl = getAuthUrl();
-    res.json({ authUrl });
-  } catch (error) {
-    console.error('Error generating auth URL:', error);
-    res.status(500).json({ error: 'Failed to generate auth URL' });
-  }
-});
-
-// OAuth callback (not behind /api auth - Google redirects here directly)
-app.get('/auth/google/callback', async (req, res) => {
-  const { code } = req.query;
-  try {
-    await getTokens(code);
-    res.redirect('/?auth=success');
-  } catch (error) {
-    console.error('OAuth error:', error.message);
-    res.redirect('/?auth=error');
-  }
-});
-
-// Get events
-app.get('/api/calendar/events', async (req, res) => {
-  try {
-    const events = await getCalendarEvents();
-    res.json(events);
-  } catch (error) {
-    console.error('Calendar API error:', error.message);
-
-    if (error.message.includes('authenticate first')) {
-      try {
-        const authUrl = getAuthUrl();
-        res.status(401).json({
-          error: 'Authentication required',
-          authUrl
-        });
-      } catch (authError) {
-        res.status(401).json({ error: 'Authentication required' });
-      }
-    } else {
-      res.status(500).json({ error: 'Failed to fetch calendar events' });
-    }
   }
 });
 

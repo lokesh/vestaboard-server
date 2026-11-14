@@ -104,25 +104,6 @@
                 <span class="status-label">Cron:&nbsp;</span>
                 <span>{{ cronSchedule }}</span>
             </div>
-
-            <div class="calendar-debug">
-                <h2>Calendar</h2>
-                <div class="status-item">
-                    <span class="status-label">Calendar Auth Status:</span>
-                    <span>{{ calendarAuthStatus }}</span>
-                </div>
-                <div class="control-panel">
-                    <button class="button" @click="initiateCalendarAuth">Start Calendar Auth</button>
-                    <button class="button" @click="fetchCalendarEvents">Fetch Calendar Events</button>
-                </div>
-                <div>
-                    Latest Events:<br />
-                    <div id="calendar-events-container" style="max-width: 100%; overflow-x: hidden;">
-                        <pre>{{ calendarEvents }}</pre>
-                        <div>{{ calendarEventsTimestamp }}</div>
-                    </div>
-                </div>
-            </div>
         </div>
 
         <!-- Message Modal -->
@@ -537,9 +518,6 @@
                 const cronSchedule = ref('Loading...');
                 const messageInput = ref('');
                 const messageStatus = ref({ text: '', color: '#666' });
-                const calendarAuthStatus = ref('Checking...');
-                const calendarEvents = ref('No events found');
-                const calendarEventsTimestamp = ref('');
                 const patternTest = ref({
                     mode: 'None',
                     result: 'Not tested',
@@ -683,14 +661,13 @@
                     { name: 'KIERAN', label: 'Kieran', type: 'mode' },
                     { name: '1DAYWEATHER', label: 'Hourly Weather', type: 'mode' },
                     { name: '5DAYWEATHER', label: '5-Day Weather', type: 'mode' },
-                    { name: 'CALENDAR', label: 'Calendar', type: 'mode' },
                     { name: 'CLOCK', label: 'Clock', type: 'mode' },
                     { name: 'MESSAGE', label: 'Message', type: 'action' },
                     { name: 'IMAGE', label: 'Image', type: 'action' }
                 ];
 
-                const controlModes = ['MANUAL', 'CLOCK', '5DAYWEATHER', 'CALENDAR', '1DAYWEATHER', 'TODAY', 'KIERAN'];
-                const testModes = ['CLOCK', '5DAYWEATHER', 'CALENDAR', '1DAYWEATHER', 'TODAY', 'KIERAN'];
+                const controlModes = ['MANUAL', 'CLOCK', '5DAYWEATHER', '1DAYWEATHER', 'TODAY', 'KIERAN'];
+                const testModes = ['CLOCK', '5DAYWEATHER', '1DAYWEATHER', 'TODAY', 'KIERAN'];
 
                 const contentTests = [
                     {
@@ -1048,42 +1025,6 @@
                     }
                 };
 
-                const initiateCalendarAuth = async () => {
-                    try {
-                        const response = await authFetch('/api/auth/google/start');
-                        const data = await response.json();
-                        if (data.authUrl) {
-                            window.location.href = data.authUrl;
-                        }
-                    } catch (error) {
-                        console.error('Error starting calendar auth:', error);
-                    }
-                };
-
-                const fetchCalendarEvents = async () => {
-                    try {
-                        calendarEvents.value = 'Loading...';
-                        const response = await authFetch('/api/calendar/events');
-                        const data = await response.json();
-
-                        if (response.status === 401 && data.authUrl) {
-                            calendarAuthStatus.value = 'Not Authenticated';
-                            calendarEvents.value = 'Authentication required';
-                        } else if (response.ok) {
-                            calendarAuthStatus.value = 'Authenticated';
-                            calendarEvents.value = Array.isArray(data) && data.length === 0
-                                ? 'No upcoming events found'
-                                : JSON.stringify(data, null, 2);
-                        } else {
-                            throw new Error(data.error || 'Failed to fetch events');
-                        }
-                        calendarEventsTimestamp.value = `Last updated: ${new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' })}`;
-                    } catch (error) {
-                        console.error('Error fetching calendar events:', error);
-                        calendarEventsTimestamp.value = `Error occurred: ${new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' })}`;
-                    }
-                };
-
                 const isColorEmoji = (char) => {
                     return char in emojiColorMap;
                 };
@@ -1138,16 +1079,6 @@
 
                     fetchBoardContent();
                     updateStatus();
-                    fetchCalendarEvents();
-
-                    // Check URL parameters for auth status
-                    const urlParams = new URLSearchParams(window.location.search);
-                    const authStatus = urlParams.get('auth');
-                    if (authStatus === 'success') {
-                        calendarAuthStatus.value = 'Authentication Successful';
-                    } else if (authStatus === 'error') {
-                        calendarAuthStatus.value = 'Authentication Failed';
-                    }
 
                     // Set up intervals - board content interval will be managed by updateStatus
                     setInterval(updateStatus, 15000);
@@ -1167,9 +1098,6 @@
                     cronSchedule,
                     messageInput,
                     messageStatus,
-                    calendarAuthStatus,
-                    calendarEvents,
-                    calendarEventsTimestamp,
                     patternTest,
                     boardContentIntervalId,
                     isMessageModalOpen,
@@ -1192,8 +1120,6 @@
                     closeMessageModal,
                     sendMessage,
                     testPattern,
-                    initiateCalendarAuth,
-                    fetchCalendarEvents,
                     isColorEmoji,
                     getColorClass,
                     openImageModal,

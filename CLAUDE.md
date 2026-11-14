@@ -49,19 +49,15 @@ The Vestaboard is a 6-row × 22-column grid. Each cell is an integer character c
 - `GET /api/board/content` — Current board matrix
 - `POST /api/board/message` — Send raw text to board
 - `POST /api/pattern/test` — Test pattern matching for a mode
-- `GET /api/auth/google/start` — Get Google OAuth URL (protected)
-- `GET /auth/google/callback` — Google OAuth redirect handler (unprotected)
-- `GET /api/calendar/events` — Fetch upcoming calendar events
 
 ### Key Files
 
 - `src/app.js` — Express server, all API routes, async initialization
 - `src/middleware/auth.js` — Token-based authentication middleware
-- `src/controllers/modeController.js` — Core orchestration: mode switching, cron scheduling, one `updateX()` method per mode, plus TODAY-mode helpers (holidays, birthdays, weather summary)
+- `src/controllers/modeController.js` — Core orchestration: mode switching, cron scheduling, one `updateX()` method per mode, plus TODAY-mode helpers (holidays, weather summary)
 - `src/services/boardService.js` — Vestaboard API client, character encoding, debug mode
 - `src/services/weatherService.js` — NWS, Visual Crossing, and Sunrise-Sunset fetchers with Redis caching
-- `src/services/calendarService.js` — Google Calendar OAuth2 integration; reads all calendars on the account
-- `src/utils/redisClient.js` — Upstash Redis for mode, debug state, Google tokens, and weather cache
+- `src/utils/redisClient.js` — Upstash Redis for mode, debug state, and weather cache
 - `src/utils/timezone.js` — Centralized timezone handling via date-fns-tz
 - `src/utils/boardCharacters.js` — Character map (codes 0–70) and the `checkBoardPattern` matcher
 - `src/utils/cronSchedules.js` — Cron schedule definitions per mode
@@ -69,9 +65,9 @@ The Vestaboard is a 6-row × 22-column grid. Each cell is an integer character c
 
 ### Display Modes (`src/types/Mode.js`)
 
-`MANUAL`, `CLOCK`, `5DAYWEATHER`, `1DAYWEATHER`, `CALENDAR`, `TODAY`, `KIERAN`. Note the enum keys differ from the string values (`Mode.FIVEDAY_WEATHER === '5DAYWEATHER'`); `CronSchedules` and the API are keyed by the string values.
+`MANUAL`, `CLOCK`, `5DAYWEATHER`, `1DAYWEATHER`, `TODAY`, `KIERAN`. Note the enum keys differ from the string values (`Mode.FIVEDAY_WEATHER === '5DAYWEATHER'`); `CronSchedules` and the API are keyed by the string values.
 
-**Cron schedules** (PST/PDT): CLOCK=every minute, CALENDAR=every hour, 5DAYWEATHER=6am/noon/6pm, 1DAYWEATHER, TODAY & KIERAN=6am/9am/noon/3pm/6pm, MANUAL=none.
+**Cron schedules** (PST/PDT): CLOCK=every minute, 5DAYWEATHER=6am/noon/6pm, 1DAYWEATHER, TODAY & KIERAN=6am/9am/noon/3pm/6pm, MANUAL=none.
 
 **Adding a mode** touches five places: `Mode.js`, `cronSchedules.js`, a new `PatternMatcher` subclass plus a case in `PatternMatcherFactory`, an `updateX(initialUpdate)` method and `setMode` case in `modeController`, and the mode picker in `index.html`.
 
@@ -92,8 +88,7 @@ Location is hardcoded to San Francisco: NWS gridpoint `MTR/84,105` and lat/lng `
 ### Formatters
 
 - `src/utils/weatherFormatter.js` — Normalizes verbose NWS descriptions to fit 14-char max (e.g., "Thunderstorms"→"Storm", "Scattered"→"Light"). TODAY mode has its own 10-char variant inside `modeController`.
-- `src/utils/calendarFormatter.js` — Formats up to 5 events with color emoji, time, and truncated titles (14-char max)
-- `src/utils/kieranFormatter.js` — KIERAN mode (kid-friendly daily board): weekday + date, school-day indicator, morning/afternoon/evening temps with a condition color, and a callout row. Rain always owns the callout; a birthday takes it otherwise, or the school row on a rainy weekend. Pure function of `{ zonedNow, hourlyData, noSchoolReason, birthdays }`, so it can be tested without network.
+- `src/utils/kieranFormatter.js` — KIERAN mode (kid-friendly daily board): weekday + date, school-day indicator, morning/afternoon/evening temps with a condition color, and a callout row. Pure function of `{ zonedNow, hourlyData, noSchoolReason }`, so it can be tested without network.
 - `src/config/schoolCalendar.js` — School year bounds and break ranges for KIERAN mode. No school = weekend, federal holiday (`getHolidayForDate`), listed break, or outside the school year. Update each school year.
 
 ### Frontend
@@ -104,7 +99,6 @@ Vue 3 is loaded from unpkg at runtime (no build step). The app polls `/api/statu
 
 - **Vestaboard API** — Board read/write (`VESTABOARD_READ_WRITE_API_KEY`)
 - **Upstash Redis** — State persistence across restarts. Getters fail soft (return defaults on error); weather cache writes are best-effort.
-- **Google Calendar** — OAuth2 flow with token refresh; refreshed tokens are written back to Redis
 - **NWS + Visual Crossing** — Weather data
 - **Sunrise-Sunset API** — Sun times for day/night emoji selection
 
@@ -112,8 +106,8 @@ All external API calls have a 10-second timeout (`AbortSignal.timeout`).
 
 ### Redis Keys (`src/utils/redisClient.js`)
 
-`CURRENT_MODE`, `DEBUG_MODE`, `GOOGLE_ACCESS_TOKEN`, `GOOGLE_REFRESH_TOKEN`, `GOOGLE_TOKEN_EXPIRY`, `WEATHER_CACHE:*`
+`CURRENT_MODE`, `DEBUG_MODE`, `WEATHER_CACHE:*`
 
 ## Deployment
 
-Hosted on Railway at https://108space.com/. Redis via Upstash. Set `GOOGLE_REDIRECT_URI=https://108space.com/auth/google/callback` on Railway and in Google Cloud Console for calendar auth.
+Hosted on Railway at https://board.108space.com/ (https://108space.com/ is a separate landing page linking here and to Tiny Broadcast). Redis via Upstash.

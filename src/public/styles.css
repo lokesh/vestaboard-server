@@ -26,7 +26,6 @@
     /* Mode-specific colors */
     --color-mode-today: #61D397;
     --color-mode-weather: #5AB4FF;
-    --color-mode-calendar: #F4BF4F;
     --color-mode-clock: #FD6A79;
 
     --border-radius: 8px;
@@ -143,19 +142,10 @@ button {
     line-height: 1.2em;
 }
 
-.calendar-debug {
-    margin-top: 8px;
-}
-
 h2 {
     margin-top: 16px;
     padding: 8px 0;
     border-top: 1px solid #ccc;
-}
-
-#calendar-events {
-    white-space: pre-wrap;
-    margin: 10px 0;
 }
 
 .message-input-container {
