@@ -15,7 +15,7 @@ export const CronSchedules = {
     schedule: '0 6,9,12,15,18 * * *',
     description: 'Updates at 6am, 9am, noon, 3pm, and 6pm PST every day'
   },
-  KIERAN: {
+  KIRAN: {
     schedule: '0 6,9,12,15,18 * * *',
     description: 'Updates at 6am, 9am, noon, 3pm, and 6pm PST every day'
   },

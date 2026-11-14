@@ -1,7 +1,7 @@
 import { format } from 'date-fns';
 
 /**
- * Formats the KIERAN mode board — a kid-friendly daily summary.
+ * Formats the KIRAN mode board — a kid-friendly daily summary.
  *
  *   WEDNESDAY OCT 18
  *   🟩 SCHOOL DAY
@@ -201,7 +201,7 @@ export function formatAlertLine(hourlyData, currentHour) {
  * @param {Array<{hour:number, temperature:number, shortForecast:string}>} opts.hourlyData
  * @param {string|null} opts.noSchoolReason - holiday or school-break label
  */
-export function formatKieranBoard({ zonedNow, hourlyData, noSchoolReason }) {
+export function formatKiranBoard({ zonedNow, hourlyData, noSchoolReason }) {
   const todayHours = trimToToday(hourlyData);
   const currentHour = zonedNow.getHours();
 

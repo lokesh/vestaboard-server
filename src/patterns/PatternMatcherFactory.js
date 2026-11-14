@@ -3,7 +3,7 @@ import { ClockPatternMatcher } from './ClockPatternMatcher.js';
 import { FiveDayWeatherPatternMatcher } from './FiveDayWeatherPatternMatcher.js';
 import { OneDayWeatherPatternMatcher } from './OneDayWeatherPatternMatcher.js';
 import { TodayPatternMatcher } from './TodayPatternMatcher.js';
-import { KieranPatternMatcher } from './KieranPatternMatcher.js';
+import { KiranPatternMatcher } from './KiranPatternMatcher.js';
 
 /**
  * Factory class for creating pattern matchers based on mode
@@ -24,8 +24,8 @@ export class PatternMatcherFactory {
         return new OneDayWeatherPatternMatcher();
       case Mode.TODAY:
         return new TodayPatternMatcher();
-      case Mode.KIERAN:
-        return new KieranPatternMatcher();
+      case Mode.KIRAN:
+        return new KiranPatternMatcher();
       case Mode.MANUAL:
         return null; // Manual mode doesn't need pattern matching
       default:

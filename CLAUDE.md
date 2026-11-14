@@ -65,9 +65,9 @@ The Vestaboard is a 6-row × 22-column grid. Each cell is an integer character c
 
 ### Display Modes (`src/types/Mode.js`)
 
-`MANUAL`, `CLOCK`, `5DAYWEATHER`, `1DAYWEATHER`, `TODAY`, `KIERAN`. Note the enum keys differ from the string values (`Mode.FIVEDAY_WEATHER === '5DAYWEATHER'`); `CronSchedules` and the API are keyed by the string values.
+`MANUAL`, `CLOCK`, `5DAYWEATHER`, `1DAYWEATHER`, `TODAY`, `KIRAN`. Note the enum keys differ from the string values (`Mode.FIVEDAY_WEATHER === '5DAYWEATHER'`); `CronSchedules` and the API are keyed by the string values.
 
-**Cron schedules** (PST/PDT): CLOCK=every minute, 5DAYWEATHER=6am/noon/6pm, 1DAYWEATHER, TODAY & KIERAN=6am/9am/noon/3pm/6pm, MANUAL=none.
+**Cron schedules** (PST/PDT): CLOCK=every minute, 5DAYWEATHER=6am/noon/6pm, 1DAYWEATHER, TODAY & KIRAN=6am/9am/noon/3pm/6pm, MANUAL=none.
 
 **Adding a mode** touches five places: `Mode.js`, `cronSchedules.js`, a new `PatternMatcher` subclass plus a case in `PatternMatcherFactory`, an `updateX(initialUpdate)` method and `setMode` case in `modeController`, and the mode picker in `index.html`.
 
@@ -88,8 +88,8 @@ Location is hardcoded to San Francisco: NWS gridpoint `MTR/84,105` and lat/lng `
 ### Formatters
 
 - `src/utils/weatherFormatter.js` — Normalizes verbose NWS descriptions to fit 14-char max (e.g., "Thunderstorms"→"Storm", "Scattered"→"Light"). TODAY mode has its own 10-char variant inside `modeController`.
-- `src/utils/kieranFormatter.js` — KIERAN mode (kid-friendly daily board): weekday + date, school-day indicator, morning/afternoon/evening temps with a condition color, and a callout row. Pure function of `{ zonedNow, hourlyData, noSchoolReason }`, so it can be tested without network.
-- `src/config/schoolCalendar.js` — School year bounds and break ranges for KIERAN mode. No school = weekend, federal holiday (`getHolidayForDate`), listed break, or outside the school year. Update each school year.
+- `src/utils/kiranFormatter.js` — KIRAN mode (kid-friendly daily board): weekday + date, school-day indicator, morning/afternoon/evening temps with a condition color, and a callout row. Pure function of `{ zonedNow, hourlyData, noSchoolReason }`, so it can be tested without network.
+- `src/config/schoolCalendar.js` — School year bounds and break ranges for KIRAN mode. No school = weekend, federal holiday (`getHolidayForDate`), listed break, or outside the school year. Update each school year.
 
 ### Frontend
 

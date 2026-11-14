@@ -1,10 +1,10 @@
 /**
- * No-school dates for KIERAN mode, on top of weekends and the federal holidays
+ * No-school dates for KIRAN mode, on top of weekends and the federal holidays
  * in modeController.getHolidayForDate().
  *
  * Seeded from the SFUSD 2026-27 calendar as published on third-party calendar
  * mirrors (agendahero.com, educounty.net) — confirm against the official SFUSD
- * calendar and adjust for Kieran's actual school. Dates are inclusive, local (PST).
+ * calendar and adjust for Kiran's actual school. Dates are inclusive, local (PST).
  *
  * Update this file each school year.
  */

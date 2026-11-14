@@ -3,7 +3,7 @@ import boardService from '../services/boardService.js';
 import { getWeatherData, getHourlyWeatherData, getSunData, getHistoricalAndForecastWeather } from '../services/weatherService.js';
 import cron from 'node-cron';
 import { formatWeatherDescription } from '../utils/weatherFormatter.js';
-import { formatKieranBoard } from '../utils/kieranFormatter.js';
+import { formatKiranBoard } from '../utils/kiranFormatter.js';
 import { getSchoolBreak } from '../config/schoolCalendar.js';
 import { CronSchedules } from '../utils/cronSchedules.js';
 import { PatternMatcherFactory } from '../patterns/PatternMatcherFactory.js';
@@ -73,9 +73,9 @@ class ModeController {
         await this.updateToday(true);
         this.setupCronJob(Mode.TODAY, () => this.updateToday());
         break;
-      case Mode.KIERAN:
-        await this.updateKieran(true);
-        this.setupCronJob(Mode.KIERAN, () => this.updateKieran());
+      case Mode.KIRAN:
+        await this.updateKiran(true);
+        this.setupCronJob(Mode.KIRAN, () => this.updateKiran());
         break;
       case Mode.MANUAL:
         break;
@@ -260,7 +260,7 @@ class ModeController {
     }
   }
 
-  async updateKieran(initialUpdate = false) {
+  async updateKiran(initialUpdate = false) {
     const zonedNow = nowInTz();
 
     let hourlyData;
@@ -272,9 +272,9 @@ class ModeController {
     }
 
     const noSchoolReason = this.getHolidayForDate(zonedNow) || getSchoolBreak(zonedNow);
-    const content = formatKieranBoard({ zonedNow, hourlyData, noSchoolReason });
+    const content = formatKiranBoard({ zonedNow, hourlyData, noSchoolReason });
 
-    if (await this._shouldUpdate(Mode.KIERAN, initialUpdate)) {
+    if (await this._shouldUpdate(Mode.KIRAN, initialUpdate)) {
       await boardService.updateBoard(content);
     }
   }
