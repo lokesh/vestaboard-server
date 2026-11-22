@@ -21,6 +21,6 @@ export class OneDayWeatherPatternMatcher extends PatternMatcher {
   }
 
   getDescription() {
-    return 'Hourly Weather pattern: DAY MON DD with temperatures and weather boxes';
+    return 'Hourly Weather pattern: DAY MON DD, school line, temperatures, weather boxes, and rain callout';
   }
 }

@@ -3,7 +3,7 @@ import boardService from '../services/boardService.js';
 import { getWeatherData, getHourlyWeatherData, getSunData, getHistoricalAndForecastWeather } from '../services/weatherService.js';
 import cron from 'node-cron';
 import { formatWeatherDescription } from '../utils/weatherFormatter.js';
-import { formatKiranBoard } from '../utils/kiranFormatter.js';
+import { formatKiranBoard, formatSchoolLine, formatAlertLine, trimToToday } from '../utils/kiranFormatter.js';
 import { getSchoolBreak } from '../config/schoolCalendar.js';
 import { CronSchedules } from '../utils/cronSchedules.js';
 import { PatternMatcherFactory } from '../patterns/PatternMatcherFactory.js';
@@ -179,11 +179,12 @@ class ModeController {
   async updateOneDayWeather(initialUpdate = false) {
     const hourlyData = await getHourlyWeatherData();
 
-    const now = new Date();
-    const dayStr = now.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
-    const monthStr = now.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
-    const dateStr = now.getDate().toString();
-    const firstLine = `${dayStr} ${monthStr} ${dateStr}`;
+    const zonedNow = nowInTz();
+    const firstLine = formatInTz(new Date(), 'EEE MMM d').toUpperCase();
+
+    const noSchoolReason = this.getHolidayForDate(zonedNow) || getSchoolBreak(zonedNow);
+    const schoolLine = formatSchoolLine(zonedNow, noSchoolReason);
+    const alertLine = formatAlertLine(trimToToday(hourlyData), zonedNow.getHours());
 
     const temperatures = hourlyData
       .filter((_, index) => index % 4 === 0)
@@ -231,7 +232,7 @@ class ModeController {
       })
       .join('');
 
-    const content = `${firstLine}\n\n${tempLine}\n${boxes}\n${timeLabels}`;
+    const content = [firstLine, schoolLine, tempLine, boxes, timeLabels, alertLine].join('\n');
 
     if (await this._shouldUpdate(Mode.ONEDAY_WEATHER, initialUpdate)) {
       await boardService.updateBoard(content);
