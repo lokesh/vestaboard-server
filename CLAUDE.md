@@ -89,7 +89,7 @@ Location is hardcoded to San Francisco: NWS gridpoint `MTR/84,105` and lat/lng `
 
 - `src/utils/weatherFormatter.js` — Normalizes verbose NWS descriptions to fit 14-char max (e.g., "Thunderstorms"→"Storm", "Scattered"→"Light"). TODAY mode has its own 10-char variant inside `modeController`.
 - `src/utils/kiranFormatter.js` — KIRAN mode (kid-friendly daily board): weekday + date, school-day indicator, morning/afternoon/evening temps with a condition color, and a callout row. Pure function of `{ zonedNow, hourlyData, noSchoolReason }`, so it can be tested without network.
-- `src/config/schoolCalendar.js` — School year bounds and break ranges for KIRAN mode. No school = weekend, federal holiday (`getHolidayForDate`), listed break, or outside the school year. Update each school year.
+- `src/config/schoolCalendar.js` — St. Francis closure dates for the school line in KIRAN and 1DAYWEATHER modes. No school = weekend or a listed closure; federal holidays (`getHolidayForDate`) are only a fallback after `SCHEDULE_COVERS_THROUGH`. Update each school year.
 
 ### Frontend
 

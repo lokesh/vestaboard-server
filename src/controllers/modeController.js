@@ -4,7 +4,7 @@ import { getWeatherData, getHourlyWeatherData, getSunData, getHistoricalAndForec
 import cron from 'node-cron';
 import { formatWeatherDescription } from '../utils/weatherFormatter.js';
 import { formatKiranBoard, formatSchoolLine, formatAlertLine, trimToToday } from '../utils/kiranFormatter.js';
-import { getSchoolBreak } from '../config/schoolCalendar.js';
+import { getSchoolClosure, isPastSchedule } from '../config/schoolCalendar.js';
 import { CronSchedules } from '../utils/cronSchedules.js';
 import { PatternMatcherFactory } from '../patterns/PatternMatcherFactory.js';
 import { getCurrentMode, saveCurrentMode } from '../utils/redisClient.js';
@@ -182,7 +182,7 @@ class ModeController {
     const zonedNow = nowInTz();
     const firstLine = formatInTz(new Date(), 'EEE MMM d').toUpperCase();
 
-    const noSchoolReason = this.getHolidayForDate(zonedNow) || getSchoolBreak(zonedNow);
+    const noSchoolReason = this.getNoSchoolReason(zonedNow);
     const schoolLine = formatSchoolLine(zonedNow, noSchoolReason);
     const alertLine = formatAlertLine(trimToToday(hourlyData), zonedNow.getHours());
 
@@ -272,12 +272,20 @@ class ModeController {
       hourlyData = await getHourlyWeatherData();
     }
 
-    const noSchoolReason = this.getHolidayForDate(zonedNow) || getSchoolBreak(zonedNow);
+    const noSchoolReason = this.getNoSchoolReason(zonedNow);
     const content = formatKiranBoard({ zonedNow, hourlyData, noSchoolReason });
 
     if (await this._shouldUpdate(Mode.KIRAN, initialUpdate)) {
       await boardService.updateBoard(content);
     }
+  }
+
+  // The school's own closure list is authoritative while it's current. Federal
+  // holidays are only a fallback once the list has run out.
+  getNoSchoolReason(zonedNow) {
+    const closure = getSchoolClosure(zonedNow);
+    if (closure) return closure;
+    return isPastSchedule(zonedNow) ? this.getHolidayForDate(zonedNow) : null;
   }
 
   getHolidayForDate(date) {
